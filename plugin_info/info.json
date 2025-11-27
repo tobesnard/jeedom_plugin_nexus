@@ -2,45 +2,13 @@
     "id": "nexus",
     "name": "Nexus",
     "pluginVersion": "0.1",
-    "specialAttributes": {
-        "object": {
-            "toto": {
-                "name": {
-                    "fr_FR": "Plop je suis un attribut sp\u00e9cial"
-                },
-                "type": "input"
-            },
-            "toto2": {
-                "name": {
-                    "fr_FR": "Plop je suis un attribut sp\u00e9cial number"
-                },
-                "type": "number"
-            }
-        },
-        "user": {
-            "toto": {
-                "name": {
-                    "fr_FR": "Plop je suis un attribut sp\u00e9cial"
-                },
-                "type": "select",
-                "values": [
-                    {
-                        "value": "1",
-                        "name": "valeur 1"
-                    },
-                    {
-                        "value": "plop",
-                        "name": "valeur plop"
-                    }
-                ]
-            }
-        }
-    },
     "description": {
-        "fr_FR": "Template servant de base \u00e0 la cr\u00e9ation de plugins pour Jeedom"
+        "fr_FR": "Partie de programmation personnalisée pour Jeedom"
     },
     "licence": "No License",
-    "author": "Tony",
+    "author": [
+        "Tony"
+    ],
     "require": "4.2",
     "os": {
         "min": 10,
@@ -50,31 +18,19 @@
     "hasDependency": true,
     "hasOwnDeamon": false,
     "maxDependancyInstallTime": 0,
-    "changelog_beta": "https://doc.jeedom.com/#language#/plugins/programming/nexus/beta/changelog",
-    "changelog": "https://doc.jeedom.com/#language#/plugins/programming/nexus/changelog",
-    "documentation_beta": "https://doc.jeedom.com/#language#/plugins/programming/nexus/beta",
-    "documentation": "https://doc.jeedom.com/#language#/plugins/programming/nexus",
+    "changelog_beta": "",
+    "changelog": "",
+    "documentation_beta": "",
+    "documentation": "",
     "link": {
-        "forum": "Lien vers le forum",
-        "video": "Lien vers une video"
+        "forum": "",
+        "video": ""
     },
     "language": [
         "fr_FR",
-        "en_US",
-        "es_ES",
-        "de_DE",
-        "ru_RU",
-        "id_ID",
-        "it_IT",
-        "ja_JP",
-        "pt_PT"
+        "en_US"
     ],
     "compatibility": [
-        "smart",
-        "luna",
-        "atlas",
-        "rpi",
-        "docker",
         "diy",
         "mobile"
     ]
