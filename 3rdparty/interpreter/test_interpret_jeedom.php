@@ -11,7 +11,7 @@ $parser = new BashRuleParser($cmdService);
 $context = new RuleContext(false, $cmdService); // Mode debug = false, avec service
 
 $rules = [
-    // "if true : exec #[Sécurité][Sirènes Heiman][Tweet]#",
+    "if true : exec #[Sécurité][Sirènes Heiman][Tweet]#",
     // "if true : exec #[Do][Not][Exist]#",
     // "if true : exec #6840#", // 6840 = #[Sécurité][Sirènes Heiman][Tweet]#
     // "if #[Multimédia][Philips TV][Power]# -eq  0  : exec #[Scripts][Philips TV][Power On]#",
