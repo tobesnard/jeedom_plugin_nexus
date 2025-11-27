@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * Stubs pour les fonctions et classes Jeedom
+ * 
+ * Ce fichier contient les déclarations des fonctions et classes
+ * Jeedom utilisées par l'interpréteur pour éviter les erreurs
+ * lors de l'analyse statique avec PHPStan.
+ */
+
+/**
+ * Classe cmd de Jeedom
+ */
+class cmd {
+    /**
+     * Récupère une commande par son ID
+     * 
+     * @param int $id Identifiant de la commande
+     * @return cmd|null L'objet commande ou null si non trouvé
+     */
+    public static function byId(int $id): ?cmd {
+        return null;
+    }
+    
+    /**
+     * Récupère une commande par sa chaîne
+     * 
+     * @param string $string Chaîne de la commande
+     * @return cmd|null L'objet commande ou null si non trouvé
+     */
+    public static function byString(string $string): ?cmd {
+        return null;
+    }
+    
+    /**
+     * Exécute la commande
+     * 
+     * @param array $options Options d'exécution
+     * @return mixed Résultat de l'exécution
+     */
+    public function execCmd(array $options = []) {
+        return null;
+    }
+}
+
+/**
+ * Classe log de Jeedom
+ */
+class log {
+    /**
+     * Ajoute un message au log
+     * 
+     * @param string $category Catégorie du log
+     * @param string $level Niveau du log (INFO, ERROR, DEBUG, etc.)
+     * @param string $message Message à logger
+     */
+    public static function add(string $category, string $level, string $message): void {
+    }
+}
+
+/**
+ * Classe message de Jeedom
+ */
+class message {
+    /**
+     * Ajoute un message
+     * 
+     * @param string $category Catégorie du message
+     * @param string $content Contenu du message
+     */
+    public static function add(string $category, string $content): void {
+    }
+}

@@ -1,0 +1,32 @@
+# /var/www/html/data/php/Interpreteur/phpstan.neon
+
+# --- 1. INCLUSIONS (EXTENSIONS) ---
+# Si vous utilisez des extensions (pour Symfony, Doctrine, Laravel, etc.), 
+# vous DEVEZ les inclure ici. 
+# Si vous n'en utilisez aucune, laissez cette section vide.
+includes:
+    # Exemple si vous utilisez Doctrine ORM :
+    # - vendor/phpstan/phpstan-doctrine/extension.neon 
+    
+    # Exemple si vous utilisez PHPUnit :
+    # - vendor/phpstan/phpstan-phpunit/extension.neon 
+
+# --- 2. PARAMÈTRES PRINCIPAUX ---
+parameters:
+    # Définit le niveau d'analyse. 'max' ou '9' est le plus strict.
+    level: 9 
+    
+    # Chemins à analyser. Vous avez spécifié 'src' dans votre commande.
+    paths:
+        - src
+        
+    # Le chemin vers le fichier de chargement automatique.
+    # Utile si vous avez un `bootstrap.php` personnalisé (non requis par défaut).
+    # autoload_files:
+    #     - vendor/autoload.php
+        
+    # Si vous voulez ignorer des erreurs spécifiques (à utiliser avec parcimonie) :
+    # ignoreErrors:
+    #     - message: '#Pattern to ignore#'
+    #       paths:
+    #           - src/LegacyCode.php

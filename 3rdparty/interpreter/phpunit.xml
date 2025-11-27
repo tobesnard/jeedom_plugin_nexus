@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         cacheResultFile=".phpunit.cache/test-results"
+         executionOrder="depends,defects"
+         forceCoversAnnotation="false"
+         beStrictAboutCoversAnnotation="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         convertDeprecationsToExceptions="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         verbose="true">
+    
+    <!-- Suites de tests -->
+    <testsuites>
+        <testsuite name="default">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+        
+        <testsuite name="unit">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+        
+        <testsuite name="expression">
+            <directory suffix="Test.php">tests/Expression</directory>
+        </testsuite>
+        
+        <testsuite name="context">
+            <directory suffix="Test.php">tests/Context</directory>
+        </testsuite>
+        
+        <testsuite name="services">
+            <directory suffix="Test.php">tests/Application/Services</directory>
+        </testsuite>
+    </testsuites>
+    
+    <!-- Couverture de code -->
+    <coverage cacheDirectory=".phpunit.cache/code-coverage"
+              processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        
+        <exclude>
+            <directory>vendor</directory>
+            <directory>tests</directory>
+        </exclude>
+        
+        <report>
+            <html outputDirectory="coverage"/>
+            <text outputFile="coverage.txt"/>
+            <clover outputFile="coverage.xml"/>
+        </report>
+    </coverage>
+    
+    <!-- Configuration PHP -->
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <ini name="display_errors" value="1"/>
+        <ini name="display_startup_errors" value="1"/>
+        <ini name="memory_limit" value="1G"/>
+        
+        <!-- Variables d'environnement pour les tests -->
+        <env name="JEEDOM_TEST_MODE" value="true"/>
+        <env name="DEBUG_MODE" value="false"/>
+    </php>
+    
+    <!-- Logging -->
+    <logging>
+        <junit outputFile="logs/junit.xml"/>
+    </logging>
+    
+    <!-- Extensions -->
+    <extensions>
+        <!-- Uncomment if you want to use extensions
+        <extension class="Symfony\Component\Panther\ServerExtension"/>
+        -->
+    </extensions>
+</phpunit>

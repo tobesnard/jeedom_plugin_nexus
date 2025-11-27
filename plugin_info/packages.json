@@ -1,0 +1,12 @@
+{
+    "pre-install": {},
+    "apt": {},
+    "pip3": {},
+    "npm": {},
+    "composer": {
+        "plugins/nexus/3rdparty/interpreter": {}
+    },
+    "yarn": {},
+    "plugin": {},
+    "post-install": {}
+}
