@@ -17,6 +17,7 @@ nbproject/
 #Dépendances et build locales
 **/node_modules/
 **/vendor/
+**/.venv/
 composer.lock
 package-lock.json
 
