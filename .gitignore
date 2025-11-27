@@ -1,0 +1,30 @@
+
+# Fichiers de configuration locale
+# Fichiers spécifiques à votre environnement de développement (IDE, OS, etc.)
+# Ne pas les versionner pour éviter les conflits entre développeurs.
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+*.swo
+*~
+
+# IDE specific files
+.idea/
+.vscode/
+nbproject/
+
+#Dépendances et build locales
+**/node_modules/
+**/vendor/
+composer.lock
+package-lock.json
+
+# Fichiers temporaires et tests
+# Fichiers de cache ou de test locaux.
+*.tmp
+*.temp
+/test/
+
+**/log/
+
