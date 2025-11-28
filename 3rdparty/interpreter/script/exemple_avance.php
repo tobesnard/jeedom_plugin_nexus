@@ -9,8 +9,8 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Interpreter\Context\RuleContext;
-use Interpreter\Expression\Terminal\LiteralExpression;
+use Nexus\Interpreter\Context\RuleContext;
+use Nexus\Interpreter\Expression\Terminal\LiteralExpression;
 
 echo "\n";
 echo "===========================================\n";

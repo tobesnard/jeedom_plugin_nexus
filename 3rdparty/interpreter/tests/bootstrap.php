@@ -20,14 +20,14 @@ if (! defined('JEEDOM_TEST_MODE')) {
 }
 
 // Fonction helper pour les tests
-function createTestContext(bool $debugMode = false): \Interpreter\Context\RuleContext
+function createTestContext(bool $debugMode = false): \Nexus\Interpreter\Context\RuleContext
 {
-    return new \Interpreter\Context\RuleContext($debugMode);
+    return new \Nexus\Interpreter\Context\RuleContext($debugMode);
 }
 
-function createMockCmdService(): \Interpreter\Application\Services\ICmdService
+function createMockCmdService(): \Nexus\Interpreter\Application\Services\ICmdService
 {
-    return new class () implements \Interpreter\Application\Services\ICmdService {
+    return new class () implements \Nexus\Interpreter\Application\Services\ICmdService {
         private array $commands = [];
         private array $events = [];
 

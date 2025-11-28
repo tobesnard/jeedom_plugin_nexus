@@ -6,9 +6,9 @@ error_reporting(E_ALL);
 
 require 'vendor/autoload.php'; // Générer avec `composer dump-autoload`
 
-use Interpreter\Application\Services\CmdServiceMock;
-use Interpreter\Context\RuleContext;
-use Interpreter\Parser\BashRuleParser;
+use Nexus\Interpreter\Application\Services\CmdServiceMock;
+use Nexus\Interpreter\Context\RuleContext;
+use Nexus\Interpreter\Parser\BashRuleParser;
 
 $cmdService = new CmdServiceMock();
 $parser = new BashRuleParser($cmdService);

@@ -2,9 +2,9 @@
 
 require 'vendor/autoload.php';
 
-use Interpreter\Application\Services\CmdServiceMop;
-use Interpreter\Context\RuleContext;
-use Interpreter\Parser\BashRuleParser;
+use Nexus\Interpreter\Application\Services\CmdServiceMop;
+use Nexus\Interpreter\Context\RuleContext;
+use Nexus\Interpreter\Parser\BashRuleParser;
 
 $cmdService = new CmdServiceMop();
 $parser = new BashRuleParser($cmdService);

@@ -1,9 +1,9 @@
 <?php
 
-namespace Interpreter\Tests\Expression\Terminal;
+namespace Nexus\Interpreter\Tests\Expression\Terminal;
 
-use Interpreter\Context\RuleContext;
-use Interpreter\Expression\Terminal\LiteralExpression;
+use Nexus\Interpreter\Context\RuleContext;
+use Nexus\Interpreter\Expression\Terminal\LiteralExpression;
 use PHPUnit\Framework\TestCase;
 
 /**

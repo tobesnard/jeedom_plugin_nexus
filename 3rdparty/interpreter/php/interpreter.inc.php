@@ -2,12 +2,12 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Interpreter\Application\Services\JeedomCmdService;
-use Interpreter\Context\RuleContext;
-use Interpreter\Parser\BashRuleParser;
+use Nexus\Interpreter\Application\Services\JeedomCmdService;
+use Nexus\Interpreter\Context\RuleContext;
+use Nexus\Interpreter\Parser\BashRuleParser;
 
 /**
- * Exécute l'interpréteur maison avec une commande de type 'if #123# -eq true : exec #[edom][obj][cmd]#'
+ * Méthode Proxy, Exécute l'interpréteur maison avec une commande de type 'if #123# -eq true : exec #[edom][obj][cmd]#'
  **/
 
 function interpret($args)
