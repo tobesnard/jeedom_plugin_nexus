@@ -19,3 +19,5 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__ . '/../../3rdparty/interpreter/php/interpreter.inc.php';
 require_once __DIR__ . '/../../3rdparty/huesync/php/syncbox.inc.php';
+
+require_once __DIR__ . '/../../vendor/autoload.php';

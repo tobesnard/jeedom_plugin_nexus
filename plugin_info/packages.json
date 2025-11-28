@@ -4,8 +4,7 @@
     "pip3": {},
     "npm": {},
     "composer": {
-        "plugins/nexus/3rdparty/interpreter": {},
-        "plugins/nexus/3rdparty/syncbox": {}
+        "plugins/nexus": {}
     },
     "yarn": {},
     "plugin": {},
