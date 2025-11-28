@@ -1,6 +1,7 @@
 {
     "autoload": {
         "psr-4": {
+            "Nexus\\": "core/class",
             "Nexus\\HueSync\\": "3rdparty/huesync/core/class/",
             "Nexus\\Interpreter\\": "3rdparty/interpreter/core/class"
         }

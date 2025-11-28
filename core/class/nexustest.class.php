@@ -4,6 +4,6 @@ class nexustest
 {
     public static function hello()
     {
-        return "hello";
+        return "hello from nexustest.class.php";
     }
 }

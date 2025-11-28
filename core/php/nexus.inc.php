@@ -17,7 +17,45 @@
 */
 
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
-require_once __DIR__ . '/../../3rdparty/interpreter/php/interpreter.inc.php';
-require_once __DIR__ . '/../../3rdparty/huesync/php/syncbox.inc.php';
 
+// Classes **/core/class généré par `composer dump-autoload` ou dépendance automatique Jeedom
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+/**
+ * Inclusion des fichiers 3rdparty/../*.inc.php (Méthodes proxy et librairies)
+ **/
+function requires_inc_php()
+{
+    $thirdparty_dir = dirname(__DIR__, 2) . '/3rdparty';
+
+    if (!is_dir($thirdparty_dir)) {
+        if (class_exists('log')) {
+            log::add('nexus', 'warn', 'Le répertoire 3rdparty n\'existe pas : ' . $thirdparty_dir);
+        }
+        return;
+    }
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($thirdparty_dir, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $file) {
+        if ($file->isFile() && $file->getExtension() === 'php' && strpos($file->getFilename(), '.inc.php') !== false) {
+            include_once $file->getPathname();
+        }
+    }
+}
+
+requires_inc_php();
+
+
+
+
+class nexustest
+{
+    public static function dir()
+    {
+        return __DIR__;
+    }
+}
