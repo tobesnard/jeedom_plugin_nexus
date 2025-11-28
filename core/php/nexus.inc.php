@@ -26,36 +26,40 @@ require_once __DIR__ . '/../../vendor/autoload.php';
  **/
 function requires_inc_php()
 {
-    $thirdparty_dir = dirname(__DIR__, 2) . '/3rdparty';
+    // Tableau de répertoires à inclure
+    $includeDirs = [
+        '__DIR__',
+        dirname(__DIR__, 2) . '/3rdparty',
+    ];
 
-    if (!is_dir($thirdparty_dir)) {
-        if (class_exists('log')) {
-            log::add('nexus', 'warn', 'Le répertoire 3rdparty n\'existe pas : ' . $thirdparty_dir);
+    $currentFile = __FILE__;
+
+    foreach ($includeDirs as $dir) {
+        if (!is_dir($dir)) {
+            if (class_exists('log')) {
+                log::add('nexus', 'warn', 'Répertoire manquant : ' . $dir);
+            }
+            continue;
         }
-        return;
-    }
 
-    $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($thirdparty_dir, RecursiveDirectoryIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::SELF_FIRST
-    );
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
 
-    foreach ($iterator as $file) {
-        if ($file->isFile() && $file->getExtension() === 'php' && strpos($file->getFilename(), '.inc.php') !== false) {
-            include_once $file->getPathname();
+        foreach ($iterator as $file) {
+            if (
+                $file->isFile()
+                && $file->getExtension() === 'php'
+                && strpos($file->getFilename(), '.inc.php') !== false
+                && realpath($file->getPathname()) !== realpath($currentFile) // 🔒 exclusion du fichier courant
+            ) {
+                include_once $file->getPathname();
+                if (class_exists('log')) {
+                    log::add('nexus', 'debug', 'Fichier inclus : ' . $file->getPathname());
+                }
+            }
         }
     }
 }
-
 requires_inc_php();
-
-
-
-
-class nexustest
-{
-    public static function dir()
-    {
-        return __DIR__;
-    }
-}
