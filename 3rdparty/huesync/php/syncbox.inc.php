@@ -2,7 +2,18 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-function hello_from_sync_inc()
+/**
+* Méthode proxy : Exécute une action auprès de la syncbox
+*/
+function syncbox_action($action)
 {
-    return Nexus\Syncbox::test();
+    return Nexus\HueSync\Syncbox::action($action);
+}
+
+/**
+* Méthode proxy : Relève une information auprès de la syncbox
+*/
+function syncbox_info($info)
+{
+    return Nexus\HueSync\Syncbox::info($info);
 }

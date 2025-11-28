@@ -1,9 +1,31 @@
 import json
 import os
+import logging
+
+logger = logging.getLogger("JeedomConfigLogger")
+logger.setLevel(logging.DEBUG)
+
+file_handler = logging.FileHandler("/tmp/jeedomconfig.log")
+file_handler.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+
+if not logger.handlers:
+    logger.addHandler(file_handler)
 
 
 class JeedomConfig:
-    def __init__(self, config_path="/var/www/html/data/config/jeedom.config.json"):
+    JEEDOM_PLUGIN_ROOT = "/var/www/html/plugins/nexus/"
+
+    def __init__(
+        self,
+        config_path=os.path.join(
+            JEEDOM_PLUGIN_ROOT,
+            "core/config",
+            "jeedom.config.json",
+        ),
+    ):
         """
         Initialise la configuration Jeedom.
 
@@ -11,7 +33,8 @@ class JeedomConfig:
         """
         self.jeeApi_endpoint = None
         self.notification_manager_api_key = None
-        self.api_key = os.getenv("JEEDOM_API_KEY")
+
+        # logger.info(f"config_path : {config_path}")
 
         if config_path:
             self._load_from_file(config_path)

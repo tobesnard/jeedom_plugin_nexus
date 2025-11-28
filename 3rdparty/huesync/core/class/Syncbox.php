@@ -1,24 +1,22 @@
 <?php
 
-namespace Nexus;
+namespace Nexus\HueSync;
 
 class Syncbox
 {
     private static $baseDir = '/var/www/html/plugins/nexus/3rdparty/huesync/core/';
     private static $scriptFile = 'syncbox.py';                  // Le script principal qui gère les commandes
-    private static $configFile = 'syncbox_config.json';
+    private static $configFile = 'config/syncbox_config.json';
 
 
     public static function action(string $commandName)
     {
-        echo self::execute("action", $commandName);
+        return self::execute("action", $commandName);
     }
 
     public static function info(string $infoName)
     {
-        $ret = self::execute("info", $infoName);
-        echo $ret;
-        return $ret;
+        return self::execute("info", $infoName);
     }
 
     public static function test()
