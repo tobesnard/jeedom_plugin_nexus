@@ -1,26 +1,9 @@
 <?php
 
+namespace Nexus\Monitoring;
+
 require_once "SystemStats.php";
 
-// Inclusion de la classe SystemStats (ou copier la classe juste au-dessus)
-// NOTE: Vous devez définir la classe Edom_Utils::escapeChar
-// Pour le test, je la simule simplement pour éviter une erreur fatale.
-class Edom_Utils
-{
-    public static function escapeChar(string $data): string
-    {
-        // En conditions réelles, cette méthode ferait de l'échappement pour l'affichage (HTML, etc.)
-        return $data;
-    }
-}
-
-/**
- * Classe utilitaire pour récupérer diverses statistiques système.
- * Copier/Coller la classe SystemStats complète ici
- * [ ... Insérez ici le code complet de la classe SystemStats ]
- * NOTE: J'ai omis le code de la classe ici pour ne pas le répéter,
- * mais il doit être présent pour que le script fonctionne.
- */
 
 // --- DÉBUT DU SCRIPT DE TEST ---
 

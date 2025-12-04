@@ -1,25 +1,11 @@
 <?php
 
-/**
- * SIMULATION: Classe Edom_Utils
- * * Cette classe est simulée ici pour rendre le fichier autonome et exécutable
- * sans erreur fatale si la classe Edom_Utils n'est pas incluse.
- * * SI VOTRE ENVIRONNEMENT RÉEL A DÉJÀ CETTE CLASSE, VEUILLEZ SUPPRIMER OU
- * COMMENTER LE BLOC 'if (!class_exists('Edom_Utils')) {...}'.
- */
-if (!class_exists('Edom_Utils')) {
-    class Edom_Utils
-    {
-        /**
-         * Simule la fonction d'échappement (pour le HTML ou autre).
-         */
-        public static function escapeChar(string $data): string
-        {
-            return $data;
-        }
-    }
-}
+namespace Nexus\Monitoring;
 
+require_once "../../../vendor/autoload.php";
+
+
+use Nexus\Utils\Utils;
 
 /**
  * Classe utilitaire pour récupérer diverses statistiques système Linux.
@@ -27,7 +13,7 @@ if (!class_exists('Edom_Utils')) {
  * @version 1.1 (Compatible PHP 7.4)
  * @author Gemini (Adaptation et correction du code initial)
  * * Dépendances:
- * - La classe Edom_Utils::escapeChar doit être disponible.
+ * - La classe Utils::escapeChar doit être disponible.
  * - Le binaire 'speedtest-cli' est requis pour la fonction speedTest().
  */
 class SystemStats
@@ -69,23 +55,23 @@ class SystemStats
         $btime = $this->safeShellExec("sed -n '/^btime /s///p' /proc/stat");
 
         if (empty($btime) || !is_numeric($btime)) {
-            return Edom_Utils::escapeChar("Erreur: Temps de démarrage non disponible.");
+            return Utils::escapeChar("Erreur: Temps de démarrage non disponible.");
         }
 
         try {
             // Utilisation des objets DateTime pour un calcul fiable. Le '@' indique un timestamp UNIX.
-            $d0 = new DateTime("@$btime");
-            $dNow = new DateTime('now');
+            $d0 = new \DateTime("@$btime");
+            $dNow = new \DateTime('now');
             $diffDates = $dNow->diff($d0);
 
             // %a pour le nombre total de jours (plus pertinent pour un uptime).
             $data = $diffDates->format('%a jour(s), %h heures et %i minutes');
 
-            return Edom_Utils::escapeChar($data);
+            return Utils::escapeChar($data);
 
         } catch (Exception $e) {
             error_log("Erreur DateTime dans upTime: " . $e->getMessage());
-            return Edom_Utils::escapeChar("Erreur: Calcul d'uptime impossible.");
+            return Utils::escapeChar("Erreur: Calcul d'uptime impossible.");
         }
     }
 
@@ -107,12 +93,12 @@ class SystemStats
 
         if (empty($namedistri) || empty($arch) || empty($bitdistri)) {
             error_log("distribution: Infos manquantes (nom: $namedistri, arch: $arch, bits: $bitdistri).");
-            return Edom_Utils::escapeChar("Erreur: Infos distribution incomplètes.");
+            return Utils::escapeChar("Erreur: Infos distribution incomplètes.");
         }
 
         // 4. Assemblage de la chaîne
         $data = "$namedistri " . (int)$bitdistri . "bits ($arch)";
-        return Edom_Utils::escapeChar($data);
+        return Utils::escapeChar($data);
     }
 
     // --- CPU (Processeur) ---
@@ -267,10 +253,10 @@ class SystemStats
 
         if (empty($hddStats)) {
             error_log("hddStats: Impossible de récupérer les statistiques de disque.");
-            return Edom_Utils::escapeChar("Erreur: Stats disque indisponibles.");
+            return Utils::escapeChar("Erreur: Stats disque indisponibles.");
         }
 
-        return Edom_Utils::escapeChar($hddStats);
+        return Utils::escapeChar($hddStats);
     }
 
     /**
