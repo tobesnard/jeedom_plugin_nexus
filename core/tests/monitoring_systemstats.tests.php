@@ -2,8 +2,7 @@
 
 namespace Nexus\Monitoring;
 
-require_once "SystemStats.php";
-
+require_once __DIR__ . "/../class/Monitoring/SystemStats.php";
 
 // --- DÉBUT DU SCRIPT DE TEST ---
 
@@ -14,45 +13,49 @@ define('GRN', "\033[1;32m");
 define('RST', "\033[0m");
 
 echo "================================================\n";
-echo "       Test des Statistiques Système \n";
+echo "           Test des Statistiques Système \n";
 echo "================================================\n";
 
-// 1. Instanciation de la classe
+// 1. Instanciation de la classe (SUPPRIMÉE - Les fonctions sont statiques)
 try {
-    $stats = new SystemStats();
-} catch (Error $e) {
+    // Vérification simple que la classe existe et est chargée
+    if (!class_exists('Nexus\Monitoring\SystemStats')) {
+        throw new \Error("La classe SystemStats n'est pas définie.");
+    }
+} catch (\Error $e) {
     echo "Erreur Fatale : La classe SystemStats n'est pas définie ou a une erreur de syntaxe.\n";
-    echo "Assurez-vous d'avoir inclus le code complet de la classe SystemStats.\n";
+    echo "Message: " . $e->getMessage() . "\n";
+    echo "Assurez-vous d'avoir inclus le code complet de la classe SystemStats avec les méthodes statiques.\n";
     exit(1);
 }
 
-// 2. Appel des méthodes et affichage des résultats
+// 2. Appel des méthodes et affichage des résultats (Appel statique via SystemStats::méthode())
 
-$uptime = $stats->upTime();
+$uptime = SystemStats::upTime();
 echo "Uptime: **" . GRN . "$uptime" . RST . "**\n";
 
-$hddStats = $stats->hddStats();
+$hddStats = SystemStats::hddStats();
 echo "Stats Disque: **" . GRN . "$hddStats" . RST . "**\n";
 
-$distribution = $stats->distribution();
+$distribution = SystemStats::distribution();
 echo "Distribution: **" . GRN . "$distribution" . RST . "**\n";
 
-$cpu = $stats->cpu();
+$cpu = SystemStats::cpu();
 echo "CPU (Cœurs - Fréquence): **" . GRN . "$cpu" . RST . "**\n";
-$cpuTemp = $stats->cpuTemperature();
+$cpuTemp = SystemStats::cpuTemperature();
 echo "Température CPU: **" . GRN . "$cpuTemp" . RST . "**\n";
 
-$load1 = $stats->loadAverage1min();
-$load5 = $stats->loadAverage5min();
-$load15 = $stats->loadAverage15min();
+$load1 = SystemStats::loadAverage1min();
+$load5 = SystemStats::loadAverage5min();
+$load15 = SystemStats::loadAverage15min();
 echo "Charge (1min): **" . GRN . "$load1" . RST . "**\n";
 echo "Charge (5min): **" . GRN . "$load5" . RST . "**\n";
 echo "Charge (15min): **" . GRN . "$load15" . RST . "**\n";
 
-$speedTest = $stats->speedTest();
+$speedTest = SystemStats::speedTest();
 echo "Débit descendant: **" . GRN . "$speedTest Mbps" . RST . "**\n";
 
-$memoryStats = $stats->memoryStats();
+$memoryStats = SystemStats::memoryStats();
 if ($memoryStats) {
     echo "RAM Totale: **" . GRN . "{$memoryStats['ram']['total_mo']} Mo" . RST . "**\n";
     // Mettre la valeur et le pourcentage en couleur
@@ -66,5 +69,5 @@ if ($memoryStats) {
 }
 
 echo "\n================================================\n";
-echo "               ✅  Test Terminé\n";
+echo "              ✅ Test Terminé\n";
 echo "================================================\n";

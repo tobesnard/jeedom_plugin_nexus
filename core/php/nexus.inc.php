@@ -22,13 +22,15 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 /**
- * Inclusion des fichiers 3rdparty/../*.inc.php (Méthodes proxy et librairies)
+ * Inclusion des fichiers *.inc.php  (Méthodes proxy et librairies)
  **/
 function requires_inc_php()
 {
+    $debug = false;
+
     // Tableau de répertoires à inclure
     $includeDirs = [
-        '__DIR__',
+        __DIR__,
         dirname(__DIR__, 2) . '/3rdparty',
     ];
 
@@ -36,7 +38,7 @@ function requires_inc_php()
 
     foreach ($includeDirs as $dir) {
         if (!is_dir($dir)) {
-            if (class_exists('log')) {
+            if (class_exists('log') && $debug) {
                 log::add('nexus', 'warn', 'Répertoire manquant : ' . $dir);
             }
             continue;
@@ -55,7 +57,7 @@ function requires_inc_php()
                 && realpath($file->getPathname()) !== realpath($currentFile) // 🔒 exclusion du fichier courant
             ) {
                 include_once $file->getPathname();
-                if (class_exists('log')) {
+                if (class_exists('log') && $debug) {
                     log::add('nexus', 'debug', 'Fichier inclus : ' . $file->getPathname());
                 }
             }

@@ -2,13 +2,13 @@
 
 namespace Nexus\Monitoring;
 
-require_once "../../../vendor/autoload.php";
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
-
-use Nexus\Utils\Utils;
+use Nexus\Utils\Utils; // Assurez-vous que Utils::escapeChar existe et est accessible statiquement.
 
 /**
  * Classe utilitaire pour récupérer diverses statistiques système Linux.
+ * Toutes les méthodes sont désormais STATIQUES.
  * * @package Monitoring
  * @version 1.1 (Compatible PHP 7.4)
  * @author Gemini (Adaptation et correction du code initial)
@@ -21,11 +21,10 @@ class SystemStats
     /**
      * Exécute une commande shell en toute sécurité et retourne le résultat brut.
      * Centralise la gestion d'erreur de shell_exec.
-     *
-     * @param string $command La commande shell à exécuter.
+     * * @param string $command La commande shell à exécuter.
      * @return string|null Le résultat de la commande ou null en cas d'échec ou de commande vide.
      */
-    private function safeShellExec(string $command): ?string
+    private static function safeShellExec(string $command): ?string
     {
         if (empty($command)) {
             return null;
@@ -46,13 +45,12 @@ class SystemStats
 
     /**
      * Récupère le temps écoulé depuis le dernier redémarrage (uptime).
-     *
-     * @return string L'uptime sous la forme "X jour(s), Y heures et Z minutes" ou une chaîne d'erreur.
+     * * @return string L'uptime sous la forme "X jour(s), Y heures et Z minutes" ou une chaîne d'erreur.
      */
-    public function upTime(): string
+    public static function upTime(): string
     {
-        // Récupération du temps de démarrage (btime) via /proc/stat.
-        $btime = $this->safeShellExec("sed -n '/^btime /s///p' /proc/stat");
+        // Remplacement de $this->safeShellExec par self::safeShellExec
+        $btime = self::safeShellExec("sed -n '/^btime /s///p' /proc/stat");
 
         if (empty($btime) || !is_numeric($btime)) {
             return Utils::escapeChar("Erreur: Temps de démarrage non disponible.");
@@ -69,7 +67,7 @@ class SystemStats
 
             return Utils::escapeChar($data);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) { // Ajout de l'antislash pour la classe globale Exception
             error_log("Erreur DateTime dans upTime: " . $e->getMessage());
             return Utils::escapeChar("Erreur: Calcul d'uptime impossible.");
         }
@@ -77,19 +75,18 @@ class SystemStats
 
     /**
      * Récupère les informations sur la distribution et l'architecture du système.
-     *
-     * @return string Infos sous la forme "Debian GNU/Linux X (codename) Ybits (arch)" ou une chaîne d'erreur.
+     * * @return string Infos sous la forme "Debian GNU/Linux X (codename) Ybits (arch)" ou une chaîne d'erreur.
      */
-    public function distribution(): string
+    public static function distribution(): string
     {
         // 1. Nom de la distribution via /etc/os-release (standard moderne)
-        $namedistri = $this->safeShellExec("grep '^PRETTY_NAME' /etc/os-release 2>/dev/null | cut -d'=' -f2 | tr -d '\"'");
+        $namedistri = self::safeShellExec("grep '^PRETTY_NAME' /etc/os-release 2>/dev/null | cut -d'=' -f2 | tr -d '\"'");
 
         // 2. Architecture (e.g., x86_64, aarch64)
-        $arch = $this->safeShellExec("uname -m");
+        $arch = self::safeShellExec("uname -m");
 
         // 3. Bits de l'OS (32 ou 64)
-        $bitdistri = $this->safeShellExec("getconf LONG_BIT");
+        $bitdistri = self::safeShellExec("getconf LONG_BIT");
 
         if (empty($namedistri) || empty($arch) || empty($bitdistri)) {
             error_log("distribution: Infos manquantes (nom: $namedistri, arch: $arch, bits: $bitdistri).");
@@ -105,19 +102,15 @@ class SystemStats
 
     /**
      * Récupère le nombre de coeurs CPU et la fréquence maximale.
-     *
-     * @return string Le nombre de coeurs et la fréquence max sous la forme "X - Y.YYGhz".
+     * * @return string Le nombre de coeurs et la fréquence max sous la forme "X - Y.YYGhz".
      */
-    public function cpu(): string
+    public static function cpu(): string
     {
         // 1. Nombre de cœurs (Processeur(s))
-        // Note : Utilisation de 'Processeur(s)' car la sortie est en français
-        $coresNumberStr = $this->safeShellExec("lscpu | grep 'Processeur(s)' | awk '{print \$NF}'");
+        $coresNumberStr = self::safeShellExec("lscpu | grep 'Processeur(s)' | awk '{print \$NF}'");
 
         // 2. Fréquence maximale en MHz
-        // Utilisation du libellé exact : 'Vitesse maximale du processeur en MHz'
-        // On récupère le 4ème champ après la première tabulation (souvent le cas avec grep/awk)
-        $maxFrequencyStr = $this->safeShellExec("lscpu | grep 'Vitesse maximale du processeur en MHz' | awk '{print \$NF}'");
+        $maxFrequencyStr = self::safeShellExec("lscpu | grep 'Vitesse maximale du processeur en MHz' | awk '{print \$NF}'");
 
         if (empty($coresNumberStr) || !is_numeric($coresNumberStr) || empty($maxFrequencyStr)) {
             error_log("cpu: Infos CPU incomplètes ou non numériques. Cores: $coresNumberStr, Freq: $maxFrequencyStr");
@@ -139,14 +132,13 @@ class SystemStats
 
     /**
      * Récupère la température du CPU (pour les systèmes compatibles).
-     *
-     * @return float La température en degrés Celsius, arrondie à l'entier le plus proche.
+     * * @return float La température en degrés Celsius, arrondie à l'entier le plus proche.
      */
-    public function cpuTemperature(): float
+    public static function cpuTemperature(): float
     {
         // 1. Tentative de lecture de la zone thermique 0 (milli-Celsius)
         $command = "cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null";
-        $milli_temp = $this->safeShellExec($command);
+        $milli_temp = self::safeShellExec($command);
 
         if (!empty($milli_temp) && is_numeric($milli_temp)) {
             $CPUsTemperature = (float)$milli_temp / 1000.0;
@@ -155,7 +147,7 @@ class SystemStats
 
         // 2. Fallback pour les systèmes utilisant 'sensors' (si installé)
         $command_fallback = "sensors | grep 'Core 0' | awk '{print \$3}' | sed 's/+//;s/°C//'";
-        $fallback_temp = $this->safeShellExec($command_fallback);
+        $fallback_temp = self::safeShellExec($command_fallback);
 
         if (!empty($fallback_temp) && is_numeric($fallback_temp)) {
             return (float)round((float)$fallback_temp, 0);
@@ -167,44 +159,43 @@ class SystemStats
 
     /**
      * Récupère la charge moyenne du CPU sur 1 minute.
-     *
-     * @return float La charge moyenne arrondie à 2 décimales.
+     * * @return float La charge moyenne arrondie à 2 décimales.
      */
-    public function loadAverage1min(): float
+    public static function loadAverage1min(): float
     {
-        return $this->getLoadAverage(1);
+        // Remplacement de $this->getLoadAverage par self::getLoadAverage
+        return self::getLoadAverage(1);
     }
 
     /**
      * Récupère la charge moyenne du CPU sur 5 minutes.
-     *
-     * @return float La charge moyenne arrondie à 2 décimales.
+     * * @return float La charge moyenne arrondie à 2 décimales.
      */
-    public function loadAverage5min(): float
+    public static function loadAverage5min(): float
     {
-        return $this->getLoadAverage(5);
+        // Remplacement de $this->getLoadAverage par self::getLoadAverage
+        return self::getLoadAverage(5);
     }
 
     /**
      * Récupère la charge moyenne du CPU sur 15 minutes.
-     *
-     * @return float La charge moyenne arrondie à 2 décimales.
+     * * @return float La charge moyenne arrondie à 2 décimales.
      */
-    public function loadAverage15min(): float
+    public static function loadAverage15min(): float
     {
-        return $this->getLoadAverage(15);
+        // Remplacement de $this->getLoadAverage par self::getLoadAverage
+        return self::getLoadAverage(15);
     }
 
     /**
      * Méthode interne pour récupérer la charge moyenne du CPU.
      * Utilise /proc/loadavg (plus fiable que parser 'uptime').
-     *
-     * @param int $minutes La période (1, 5 ou 15).
+     * * @param int $minutes La période (1, 5 ou 15).
      * @return float La charge moyenne arrondie à 2 décimales.
      */
-    private function getLoadAverage(int $minutes): float
+    private static function getLoadAverage(int $minutes): float
     {
-        $loadAvgStr = $this->safeShellExec("cat /proc/loadavg");
+        $loadAvgStr = self::safeShellExec("cat /proc/loadavg");
 
         if (empty($loadAvgStr)) {
             error_log("getLoadAverage: Impossible de lire /proc/loadavg.");
@@ -241,15 +232,14 @@ class SystemStats
 
     /**
      * Récupère les statistiques d'utilisation du disque pour le point de montage racine (/).
-     *
-     * @return string Stats sous la forme "Total : XGo - Utilisé : YGo (Z%)" ou une chaîne d'erreur.
+     * * @return string Stats sous la forme "Total : XGo - Utilisé : YGo (Z%)" ou une chaîne d'erreur.
      */
-    public function hddStats(): string
+    public static function hddStats(): string
     {
         // Commande : 'df -h' pour des tailles lisibles. 'grep /$' pour la racine.
         // Formatage dans awk pour la structure de la chaîne.
         $command = "df -h | grep ' /$' | awk '{print \"Total : \" \$2 \" - Utilisé : \" \$3 \" (\" \$5 \")\" }'";
-        $hddStats = $this->safeShellExec($command);
+        $hddStats = self::safeShellExec($command);
 
         if (empty($hddStats)) {
             error_log("hddStats: Impossible de récupérer les statistiques de disque.");
@@ -261,12 +251,11 @@ class SystemStats
 
     /**
      * Récupère les statistiques de mémoire (RAM et Swap).
-     *
-     * @return array|null Tableau associatif des statistiques mémoire (Total, Libre, Utilisé) en Mo ou null.
+     * * @return array|null Tableau associatif des statistiques mémoire (Total, Libre, Utilisé) en Mo ou null.
      */
-    public function memoryStats(): ?array
+    public static function memoryStats(): ?array
     {
-        $memInfo = $this->safeShellExec("grep -E 'MemTotal|MemAvailable|SwapTotal|SwapFree' /proc/meminfo 2>/dev/null");
+        $memInfo = self::safeShellExec("grep -E 'MemTotal|MemAvailable|SwapTotal|SwapFree' /proc/meminfo 2>/dev/null");
 
         if (empty($memInfo)) {
             error_log("memoryStats: Impossible de lire /proc/meminfo.");
@@ -314,14 +303,13 @@ class SystemStats
 
     /**
      * Effectue un test de débit descendant (nécessite speedtest-cli).
-     *
-     * @return float La vitesse de téléchargement en Mbit/s arrondie à 2 décimales.
+     * * @return float La vitesse de téléchargement en Mbit/s arrondie à 2 décimales.
      */
-    public function speedTest(): float
+    public static function speedTest(): float
     {
         // Commande pour le test de débit descendant uniquement (champ 6 en CSV).
         $command = "speedtest-cli --no-upload --csv 2>/dev/null | awk -F',' '{print \$6}'";
-        $result = $this->safeShellExec($command);
+        $result = self::safeShellExec($command);
 
         if (empty($result) || !is_numeric($result)) {
             // error_log("speedTest: Résultat non numérique ou speedtest-cli non trouvé/échoué.");
