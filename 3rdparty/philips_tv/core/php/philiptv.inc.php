@@ -9,7 +9,7 @@ $mixedVolume_cmd = '#[Scripts][Philips TV][Volume]#';
 function philipsTV_version()
 {
     $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
-    return "version " . $philipsTV->version();
+    return $philipsTV->version();
 }
 
 function ambihue_on()
@@ -104,7 +104,7 @@ function philipsTV_state()
 //     $philipsTV->action('headphones_volume', intval( $_value ));
 // }
 
-function philipsTV_mixed_volume($_value)
+function philipsTV_mixedVolume($_value)
 {
     $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('general_volume', intval($_value));
@@ -118,7 +118,7 @@ function philipsTV_volume()
     return $json->current;
 }
 
-function philipsTV_turnUp_volume()
+function philipsTV_turnUpVolume()
 {
     $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     // Volume actuelle + 5
@@ -129,7 +129,7 @@ function philipsTV_turnUp_volume()
     philipsTV_mixed_volume($current);
 }
 
-function philipsTV_turnDown_volume()
+function philipsTV_turnDownVolume()
 {
     $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     // $json = json_decode($philipsTV->action('volume'));

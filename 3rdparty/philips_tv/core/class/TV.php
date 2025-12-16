@@ -29,6 +29,7 @@ class TV
     private static ?self $_instance = null;
 
     private string $philipsTV_ip = "192.168.1.54";
+    private const PHILIPS_TV_MAC = "f8:4f:ad:a0:27:e2";
     // ATTENTION : Ces identifiants doivent être stockés de manière sécurisée (variables d'environnement, secrets...)
     private string $username = 'myUXHjRUGShDCWr5';
     private string $password = '***REMOVED***';
@@ -189,6 +190,27 @@ class TV
         return null; // Retourne null si non trouvé
     }
 
+
+    /**
+     * Envoie un paquet Wake-on-LAN via le système.
+     * * @param string $macAddress Adresse MAC du périphérique (ex: f8:4f:ad:a0:27:e2)
+     * @return void
+     */
+    private function sendWakeOnLan(?string $macAddress = null): void
+    {
+        // Si $macAddress est null, on utilise la propriété de la classe
+        $targetMac = $macAddress ?? self::PHILIPS_TV_MAC;
+
+        // Escapeshellarg sécurise l'argument pour éviter les injections de commandes
+        $safeMac = escapeshellarg($targetMac);
+
+        // Construction de la commande avec redirection vers /dev/null
+        $command = "wakeonlan $safeMac >/dev/null 2>&1";
+
+        // Exécution de la commande système
+        exec($command);
+    }
+
     // Le search_nodeStringId est redondant/non utilisé dans l'implémentation actuelle et peut être supprimé
     // ou rendu plus générique si besoin. Je le supprime ici pour alléger.
 
@@ -206,6 +228,9 @@ class TV
     {
         $now = new \DateTime();
         $nowFormatted = $now->format('Ymd');
+
+        // Réveille le poste
+        self::sendWakeOnLan();
 
         // Logique de rafraîchissement quotidien de l'instance (optionnel)
         if (is_null(self::$_instance) || is_null(self::$datetime) || self::$datetime->format('Ymd') !== $nowFormatted) {
