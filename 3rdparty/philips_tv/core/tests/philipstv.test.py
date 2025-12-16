@@ -4,11 +4,11 @@
 import sys
 import json
 
-sys.path.insert(0, "./pylips")  # chemin vers le dossier cloné
+sys.path.insert(0, "./../../pylips")  # chemin vers le dossier cloné
 
 from pylips import Pylips
 
-tv = Pylips("./pylips/settings.ini")
+tv = Pylips("./../../pylips/settings.ini")
 
 
 def hdmi_test():

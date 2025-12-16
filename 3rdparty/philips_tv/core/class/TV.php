@@ -24,34 +24,36 @@ class TV
 {
     // --- Propriétés de la Classe (Singleton et Configuration) ---
 
-    private string $version = "0.0.1";
     private static ?\DateTime $datetime = null;
     private static ?self $_instance = null;
 
-    private string $philipsTV_ip = "192.168.1.54";
-    private const PHILIPS_TV_MAC = "f8:4f:ad:a0:27:e2";
-    // ATTENTION : Ces identifiants doivent être stockés de manière sécurisée (variables d'environnement, secrets...)
-    private string $username = 'myUXHjRUGShDCWr5';
-    private string $password = '***REMOVED***';
-    private string $fileActionsJSON; // Initialisé dans __construct
+    private const ACTIONS_FILEPATH = __DIR__ . '/../config/philipstv_actions.json';
+    private const CONFIG_FILEPATH = __DIR__ . '/../config/philipstv_config.json';
+
+    private static string $version;
+    private static string $philipsTV_ip;
+    private static string $philipsTV_port;
+    private static string $philipsTV_mac;
+    private static string $username;
+    private static string $password;
+
     private ?object $structure = null;
     private ?array $actionsJSON = null;
 
     // --- Propriétés pour la requête (Recommandation : utiliser Guzzle ou une librairie cURL wrapper) ---
     private string $baseUrl;
-    private const PORT = 1926; // Port standard HTTPS pour JointSpace
 
     /**
      * Constructeur privé pour le patron Singleton.
      */
     private function __construct()
     {
-        $this->version = "0.0.2";
+        // Chargement la configuration
+        $this->loadConfig();
+
         static::$datetime = new \DateTime();
 
-        // Utilisation de __DIR__ pour la robustesse du chemin
-        $this->fileActionsJSON = __DIR__ . '/../config/philipstv_actions.json';
-        $this->baseUrl = "https://{$this->philipsTV_ip}:" . self::PORT;
+        $this->baseUrl = "https://" . self::$philipsTV_ip . ":" . self::$philipsTV_port;
 
         // Chargement du fichier JSON des actions
         if (is_null($this->actionsJSON)) {
@@ -73,16 +75,67 @@ class TV
 
     // --- Méthodes de service (Privées) ---
 
+
+    /**
+    * Charge la configuration JSON et récupère la MAC
+    */
+    private function loadConfig(): void
+    {
+        if (!file_exists(self::CONFIG_FILEPATH)) {
+            throw new Exception("Fichier de configuration introuvable : " . self::CONFIG_FILEPATH);
+        }
+
+        $jsonContent = file_get_contents(self::CONFIG_FILEPATH);
+        $data = json_decode($jsonContent, true); // 'true' pour obtenir un tableau associatif
+
+        if (isset($data['version'])) {
+            self::$version = $data['version'];
+        } else {
+            throw new Exception("Le numéro de version est manquant dans le fichier JSON.");
+        }
+
+        if (isset($data['ip'])) {
+            self::$philipsTV_ip = $data['ip'];
+        } else {
+            throw new Exception("L'adresse IP est manquante dans le fichier JSON.");
+        }
+
+        if (isset($data['port'])) {
+            self::$philipsTV_port = $data['port'];
+        } else {
+            throw new Exception("Le port est manquant dans le fichier JSON.");
+        }
+
+        if (isset($data['mac'])) {
+            self::$philipsTV_mac = $data['mac'];
+        } else {
+            throw new Exception("L'adresse MAC est manquante dans le fichier JSON.");
+        }
+
+        if (isset($data['username'])) {
+            self::$username = $data['username'];
+        } else {
+            throw new Exception("Le nom d'utilisateur est manquant dans le fichier JSON.");
+        }
+        if (isset($data['password'])) {
+            self::$password = $data['password'];
+        } else {
+            throw new Exception("Le mot de passe est manquant dans le fichier JSON.");
+        }
+    }
+
+
+
     /**
      * Charge le contenu du fichier JSON des actions.
      * @return void
      */
     private function loadActionsJSON(): void
     {
-        if (!file_exists($this->fileActionsJSON)) {
-            throw new \Exception("Le fichier d'actions JSON est introuvable : " . $this->fileActionsJSON);
+        if (!file_exists(self::ACTIONS_FILEPATH)) {
+            throw new \Exception("Le fichier d'actions JSON est introuvable : " . self::ACTIONS_FILEPATH);
         }
-        $string = file_get_contents($this->fileActionsJSON);
+        $string = file_get_contents(self::ACTIONS_FILEPATH);
         $this->actionsJSON = json_decode($string, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -125,7 +178,7 @@ class TV
         // Options cURL
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Retourne le transfert comme une chaîne de caractères
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_method);
-        curl_setopt($ch, CURLOPT_USERPWD, "{$this->username}:{$this->password}");
+        curl_setopt($ch, CURLOPT_USERPWD, "" . self::$username . ":" . self::$password);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST); // Authentification Digest
 
         // Sécurité/Connexion
@@ -191,26 +244,6 @@ class TV
     }
 
 
-    /**
-     * Envoie un paquet Wake-on-LAN via le système.
-     * * @param string $macAddress Adresse MAC du périphérique (ex: f8:4f:ad:a0:27:e2)
-     * @return void
-     */
-    private function sendWakeOnLan(?string $macAddress = null): void
-    {
-        // Si $macAddress est null, on utilise la propriété de la classe
-        $targetMac = $macAddress ?? self::PHILIPS_TV_MAC;
-
-        // Escapeshellarg sécurise l'argument pour éviter les injections de commandes
-        $safeMac = escapeshellarg($targetMac);
-
-        // Construction de la commande avec redirection vers /dev/null
-        $command = "wakeonlan $safeMac >/dev/null 2>&1";
-
-        // Exécution de la commande système
-        exec($command);
-    }
-
     // Le search_nodeStringId est redondant/non utilisé dans l'implémentation actuelle et peut être supprimé
     // ou rendu plus générique si besoin. Je le supprime ici pour alléger.
 
@@ -229,13 +262,11 @@ class TV
         $now = new \DateTime();
         $nowFormatted = $now->format('Ymd');
 
-        // Réveille le poste
-        self::sendWakeOnLan();
-
         // Logique de rafraîchissement quotidien de l'instance (optionnel)
         if (is_null(self::$_instance) || is_null(self::$datetime) || self::$datetime->format('Ymd') !== $nowFormatted) {
             self::$_instance = new self();
         }
+
         return self::$_instance;
     }
 
@@ -245,7 +276,7 @@ class TV
      */
     public function version(): string
     {
-        return $this->version;
+        return self::$version;
     }
 
     /**
@@ -397,7 +428,7 @@ class TV
     {
         echo "\n*** Debug ***\n";
         echo "Version: {$this->version}\n";
-        echo "IP TV: {$this->philipsTV_ip}\n";
+        echo "IP TV: {self::$philipsTV_ip}\n";
         echo "Actions JSON chargées: " . (is_array($this->actionsJSON) ? count($this->actionsJSON['get'] ?? []) + count($this->actionsJSON['post'] ?? []) : 'Non') . " actions\n";
         echo "Structure des paramètres chargée: " . (is_object($this->structure) ? 'Oui' : 'Non') . "\n";
     }

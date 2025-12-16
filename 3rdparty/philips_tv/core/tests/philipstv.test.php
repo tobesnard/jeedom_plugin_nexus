@@ -13,4 +13,6 @@ require_once __DIR__ . "/../php/philiptv.inc.php";
 echo philipsTV_version();
 echo "\n";
 // echo ambihue_state();
-philipsTV_on();
+// philipsTV_on();
+// echo philipsTV_ambilightState();
+echo philipsTV_ambilightState();
