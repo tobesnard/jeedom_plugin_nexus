@@ -8,24 +8,40 @@ use DateTimeImmutable;
 
 class JeedomKwhReading implements IKwhReading
 {
+    private JeedomClient $client;
+    private int $cmdId;
+
     /**
-     * Récupère l'historique Jeedom de la commande Linky->daily_consumption 2285
+     * @param JeedomClient|null $client Wrapper Jeedom (injectable pour tests)
+     * @param int $cmdId ID de la commande Linky (par défaut 2285)
+     */
+    public function __construct(?JeedomClient $client = null, int $cmdId = 2285)
+    {
+        $this->client = $client ?? new JeedomClient();
+        $this->cmdId = $cmdId;
+    }
+    /**
+     * Récupère l'historique Jeedom de la commande Linky->daily_consumption (par défaut id 2285).
+     * Retour attendu : une liste d'objets history avec getValue() et getDatetime().
+     *
+     * @param DateTimeImmutable $start
+     * @param DateTimeImmutable $end
+     * @return array[]
+     * @throws \Exception si la commande Jeedom n'existe pas
      */
     public function getDailyReadings(DateTimeImmutable $start, DateTimeImmutable $end): array
     {
         $dataset = [];
-        $cmdId = 2285;
-
-        // Récupération de l'objet commande Jeedom
-        $cmd = \cmd::byId($cmdId);
+        // Récupération de l'objet commande Jeedom via le client
+        $cmd = $this->client->getCmdById($this->cmdId);
 
         if (!is_object($cmd)) {
-            throw new \Exception("La commande Jeedom ID {$cmdId} est introuvable.");
+            throw new \Exception("La commande Jeedom ID {$this->cmdId} est introuvable.");
         }
 
-        // Extraction de l'historique sur la période
-        // Format de retour : tableau d'objets history avec méthodes getValue() et getDatetime()
-        $historyList = \history::all($cmdId, $start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s'));
+        // Extraction de l'historique sur la période via le client
+        // Format de retour attendu : tableau d'objets history avec méthodes getValue() et getDatetime()
+        $historyList = $this->client->getHistory($this->cmdId, $start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s'));
 
         foreach ($historyList as $entry) {
             $dataset[] = [
