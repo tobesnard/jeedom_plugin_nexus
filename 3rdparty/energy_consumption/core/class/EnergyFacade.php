@@ -8,7 +8,10 @@ use Nexus\Energy\Electricity\ContractFactory;
 
 /**
  * Facade simplifiant l'accès aux services de calcul d'énergie.
- * Implémente le pattern Singleton pour optimiser les ressources.
+ *
+ * Fournit des méthodes utilitaires statiques pour récupérer rapidement
+ * des indicateurs (kWh / €) pour différentes périodes.
+ * Implémente un singleton pour l'objet `Consumption`.
  */
 class EnergyFacade
 {
@@ -19,7 +22,9 @@ class EnergyFacade
     }
 
     /**
-     * Retourne l'instance unique du moteur de consommation
+        * Retourne l'instance unique du moteur de consommation.
+        *
+        * @return Consumption
      */
     public static function getEngine(): Consumption
     {

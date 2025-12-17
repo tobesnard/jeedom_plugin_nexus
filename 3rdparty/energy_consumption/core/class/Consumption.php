@@ -6,6 +6,12 @@ use Nexus\Energy\Electricity\Service\KwhReading\IKwhReading;
 use InvalidArgumentException;
 use DateTimeImmutable;
 
+/**
+ * Classe principale de calcul de consommation et de coûts.
+ *
+ * Utilise un service de relevés (IKwhReading) et une liste de contrats
+ * pour produire des synthèses journalières, mensuelles et annuelles.
+ */
 class Consumption
 {
     private IKwhReading $kwhReading;
@@ -48,6 +54,14 @@ class Consumption
 
         return $fallbackContract;
     }
+    /**
+     * Calcule le détail de facturation sur une période donnée.
+     * Retourne : ['period'=>..., 'totals'=>..., 'daily_details'=>...]
+     *
+     * @param DateTimeImmutable $start
+     * @param DateTimeImmutable $end
+     * @return array
+     */
     public function getBillingSummary(DateTimeImmutable $start, DateTimeImmutable $end): array
     {
         $readings = $this->kwhReading->getDailyReadings($start, $end);

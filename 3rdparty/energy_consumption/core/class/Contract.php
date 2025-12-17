@@ -2,14 +2,19 @@
 
 namespace Nexus\Energy\Electricity;
 
-require_once __DIR__ . "/../../vendor/autoload.php";
-
+/**
+ * Représente un contrat d'électricité avec son tarif et sa période de validité.
+ */
 class Contract
 {
     public \DateTimeImmutable $startDate;
     public ?\DateTimeImmutable $endDate;
     public float $kwhPrice;
-    public float $subscriptionPrice;
+    /**
+     * Prix d'abonnement mensuel (en unités monétaires).
+     * Nom unifié : `monthlySubscription` pour cohérence avec les getters.
+     */
+    public float $monthlySubscription;
     public string $tariffOption;
     public ?string $accountNumber;
     public ?string $deliveryPointId;
@@ -61,6 +66,7 @@ class Contract
     {
         return $this->monthlySubscription;
     }
+
     public function getTariffOption(): string
     {
         return $this->tariffOption;
