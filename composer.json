@@ -4,7 +4,8 @@
             "Nexus\\": "core/class",
             "Nexus\\HueSync\\": "3rdparty/huesync/core/class/",
             "Nexus\\Interpreter\\": "3rdparty/interpreter/core/class",
-            "Nexus\\Multimedia\\PhilipsTV\\": "3rdparty/philips_tv/core/class"
+            "Nexus\\Multimedia\\PhilipsTV\\": "3rdparty/philips_tv/core/class",
+            "Nexus\\Energy\\Electricity\\": "3rdparty/energy_consumption/core/class"
         }
     }
 }

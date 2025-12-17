@@ -1,0 +1,7 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Nexus\\Energy\\Electricity\\": "core/class/"
+        }
+    }
+}
