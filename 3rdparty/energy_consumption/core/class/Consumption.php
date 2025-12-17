@@ -81,6 +81,9 @@ class Consumption
         ];
     }
 
+    /**
+     * Retourne un résumé condensé avec décomposition Coût/Abonnement
+     */
     private function getCondensedSummary(DateTimeImmutable $start, DateTimeImmutable $end): array
     {
         $summary = $this->getBillingSummary($start, $end);
@@ -88,27 +91,55 @@ class Consumption
         $totalKwh = $summary['totals']['kwh'];
         $totalCost = $summary['totals']['cost'];
 
-        // Calcul du prix moyen (Coût total / kWh total)
-        // Note : On évite la division par zéro si pas de conso
-        $averageUnitPrice = $totalKwh > 0 ? ($totalCost / $totalKwh) : 0;
+        // 1. Calcul du coût de l'abonnement sur la période
+        // On somme le coût quotidien de l'abonnement pour chaque jour traité dans getBillingSummary
+        $totalSubCost = 0.0;
+        foreach ($summary['daily_details'] as $day) {
+            // On retrouve l'abonnement : daily_cost - (kwh * unit_price)
+            $dayKwhCost = $day['kwh'] * ($day['unit_price'] ?? 0);
+            $totalSubCost += ($day['daily_cost'] - $dayKwhCost);
+        }
+
+        $totalKwhCost = $totalCost - $totalSubCost;
+
+        // 2. Calcul des moyennes
+        $avgKwhPrice = $totalKwh > 0 ? ($totalKwhCost / $totalKwh) : 0;
+
+        // Calcul du nombre de jours de la période
+        $daysCount = count($summary['daily_details']);
+        $avgMonthlySub = $daysCount > 0 ? ($totalSubCost / $daysCount * 30.5) : 0;
 
         return [
             'period' => $summary['period'],
-            'totals' => $summary['totals'],
+            'totals' => array_merge($summary['totals'], [
+                'kwh_cost' => $totalKwhCost,
+                'subscription_cost' => $totalSubCost,
+                'avg_kwh_price' => $avgKwhPrice,
+                'avg_monthly_sub' => $avgMonthlySub
+            ]),
             'daily_details' => [[
-                'date' => "Total Période",
-                'kwh' => $totalKwh,
-                'unit_price' => $averageUnitPrice,
+                'date'       => "SYNTHÈSE",
+                'kwh'        => $totalKwh,
+                'unit_price' => $avgKwhPrice,
                 'daily_cost' => $totalCost,
-                'contract' => "Moyenne Pondérée"
+                'contract'   => "Moyenne Pondérée",
+                // Métadonnées additionnelles pour un éventuel rendu étendu
+                'sub_details' => sprintf(
+                    "Conso: %.2f€ | Abo: %.2f€ (Moy: %.2f€/mois)",
+                    $totalKwhCost,
+                    $totalSubCost,
+                    $avgMonthlySub
+                )
             ]]
         ];
     }
 
     public function getYesterdaySummary(): array
     {
-        $yesterday = new DateTimeImmutable('yesterday 00:00:00');
-        return $this->getBillingSummary($yesterday, $yesterday->setTime(23, 59, 59));
+        $yesterdayStart = new DateTimeImmutable('yesterday 00:00:00');
+        $yesterdayEnd   = $yesterdayStart->setTime(23, 59, 59);
+
+        return $this->getCondensedSummary($yesterdayStart, $yesterdayEnd);
     }
 
     public function getCurrentMonthSummary(): array
