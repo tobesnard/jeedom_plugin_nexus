@@ -8,23 +8,42 @@ class PhilipsTV
 {
     private const CONFIG_FILE = __DIR__ . "/../config/philipstv_config.json";
     private static string $mac;
+    private static string $ip;
 
     public static function getInstance()
     {
         self::loadConfig();
-        self::sendWakeOnLan();
+        // self::sendWakeOnLan();
         return Nexus\Multimedia\PhilipsTV\TV::getInstance();
     }
 
     /**
      * Envoie un paquet Wake-on-LAN pour réveiller la carte réseaux du téléviseur.
      */
-    private static function sendWakeOnLan(?string $macAddress = null): void
+    private static function sendWakeOnLan(?string $macAddress = null, ?string $ip = null): void
     {
+        $ip = $ip ?? self::$ip;
         $targetMac = $macAddress ?? self::$mac;
         $safeMac = escapeshellarg($targetMac);
         $command = "wakeonlan $safeMac >/dev/null 2>&1";
-        exec($command);
+
+        $startTime = time();
+        $timeout = 2; // secondes
+
+        while ((time() - $startTime) < $timeout) {
+            // Envoi du Magic Packet
+            exec($command);
+
+            // Vérification de la présence réseau (Ping flash)
+            // -c 1 : 1 paquet, -W 1 : timeout 1s (le plus court en standard)
+            exec("ping -c 1 -W 1 $ip >/dev/null 2>&1", $output, $result);
+
+            if ($result === 0) {
+                return; // La machine répond, on sort
+            }
+
+            usleep(100000); // Pause de 100ms
+        }
     }
 
     /**
@@ -44,6 +63,12 @@ class PhilipsTV
             self::$mac = $data['mac'];
         } else {
             throw new Exception("L'adresse MAC est manquante dans le fichier JSON.");
+        }
+
+        if (isset($data['ip'])) {
+            self::$ip = $data['ip'];
+        } else {
+            throw new Exception("L'adresse IP est manquante dans le fichier JSON.");
         }
     }
 }

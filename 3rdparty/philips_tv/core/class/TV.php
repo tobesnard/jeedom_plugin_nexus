@@ -2,6 +2,9 @@
 
 namespace Nexus\Multimedia\PhilipsTV;
 
+use Exception;
+use DateTime;
+
 /**
  * Classe API PhilipsTV 📺
  *
@@ -19,12 +22,11 @@ namespace Nexus\Multimedia\PhilipsTV;
  * $tv->action('power_on');
  * $tv->setSettings('headphones_volume', '{"value":20}');
  */
-
 class TV
 {
     // --- Propriétés de la Classe (Singleton et Configuration) ---
 
-    private static ?\DateTime $datetime = null;
+    private static ?DateTime $datetime = null;
     private static ?self $_instance = null;
 
     private const ACTIONS_FILEPATH = __DIR__ . '/../config/philipstv_actions.json';
@@ -40,7 +42,7 @@ class TV
     private ?object $structure = null;
     private ?array $actionsJSON = null;
 
-    // --- Propriétés pour la requête (Recommandation : utiliser Guzzle ou une librairie cURL wrapper) ---
+    // --- Propriétés pour la requête ---
     private string $baseUrl;
 
     /**
@@ -51,7 +53,7 @@ class TV
         // Chargement la configuration
         $this->loadConfig();
 
-        static::$datetime = new \DateTime();
+        static::$datetime = new DateTime();
 
         $this->baseUrl = "https://" . self::$philipsTV_ip . ":" . self::$philipsTV_port;
 
@@ -60,10 +62,10 @@ class TV
             $this->loadActionsJSON();
         }
 
-        // Chargement de la structure des paramètres (à ne faire qu'une seule fois)
-        if (is_null($this->structure)) {
-            $this->loadSettingsStructure();
-        }
+        /* * OPTIMISATION EXPERT :
+         * Le chargement de la structure est retiré du constructeur (Lazy Loading).
+         * Cela évite les Fatal Errors de Timeout si la TV est éteinte lors de l'instanciation.
+         */
     }
 
     /**
@@ -75,10 +77,41 @@ class TV
 
     // --- Méthodes de service (Privées) ---
 
+    /**
+     * Envoie un paquet Wake-on-LAN et attend que l'API soit prête sur le port configuré.
+     * Compatible ports 1925, 1926 ou 8443.
+     */
+    private static function ensureTvIsResponsive(?string $macAddress = null): void
+    {
+        $targetMac = $macAddress ?? self::$philipsTV_mac;
+        $ip = self::$philipsTV_ip;
+        $port = self::$philipsTV_port; // Utilise dynamiquement 1926 selon votre config
+        $safeMac = escapeshellarg($targetMac);
+
+        $startTime = microtime(true);
+        $timeout = 2.0;
+
+        while ((microtime(true) - $startTime) < $timeout) {
+            // Émission du Magic Packet
+            exec("wakeonlan $safeMac >/dev/null 2>&1");
+
+            // Test de la socket sur le port spécifique (1926)
+            $connection = @fsockopen($ip, (int)$port, $errno, $errstr, 0.1);
+
+            if ($connection) {
+                fclose($connection);
+                sleep(1); // Latence de confort pour le service
+                // usleep(200000); // Latence de confort pour le service
+                return;
+            }
+
+            usleep(100000);
+        }
+    }
 
     /**
-    * Charge la configuration JSON et récupère la MAC
-    */
+     * Charge la configuration JSON et récupère la MAC
+     */
     private function loadConfig(): void
     {
         if (!file_exists(self::CONFIG_FILEPATH)) {
@@ -86,139 +119,97 @@ class TV
         }
 
         $jsonContent = file_get_contents(self::CONFIG_FILEPATH);
-        $data = json_decode($jsonContent, true); // 'true' pour obtenir un tableau associatif
+        $data = json_decode($jsonContent, true);
 
-        if (isset($data['version'])) {
-            self::$version = $data['version'];
-        } else {
-            throw new Exception("Le numéro de version est manquant dans le fichier JSON.");
+        if (!isset($data['version'], $data['ip'], $data['port'], $data['mac'], $data['username'], $data['password'])) {
+            throw new Exception("Configuration incomplète dans le fichier JSON.");
         }
 
-        if (isset($data['ip'])) {
-            self::$philipsTV_ip = $data['ip'];
-        } else {
-            throw new Exception("L'adresse IP est manquante dans le fichier JSON.");
-        }
-
-        if (isset($data['port'])) {
-            self::$philipsTV_port = $data['port'];
-        } else {
-            throw new Exception("Le port est manquant dans le fichier JSON.");
-        }
-
-        if (isset($data['mac'])) {
-            self::$philipsTV_mac = $data['mac'];
-        } else {
-            throw new Exception("L'adresse MAC est manquante dans le fichier JSON.");
-        }
-
-        if (isset($data['username'])) {
-            self::$username = $data['username'];
-        } else {
-            throw new Exception("Le nom d'utilisateur est manquant dans le fichier JSON.");
-        }
-        if (isset($data['password'])) {
-            self::$password = $data['password'];
-        } else {
-            throw new Exception("Le mot de passe est manquant dans le fichier JSON.");
-        }
+        self::$version = $data['version'];
+        self::$philipsTV_ip = $data['ip'];
+        self::$philipsTV_port = $data['port'];
+        self::$philipsTV_mac = $data['mac'];
+        self::$username = $data['username'];
+        self::$password = $data['password'];
     }
-
-
 
     /**
      * Charge le contenu du fichier JSON des actions.
-     * @return void
      */
     private function loadActionsJSON(): void
     {
         if (!file_exists(self::ACTIONS_FILEPATH)) {
-            throw new \Exception("Le fichier d'actions JSON est introuvable : " . self::ACTIONS_FILEPATH);
+            throw new Exception("Le fichier d'actions JSON est introuvable : " . self::ACTIONS_FILEPATH);
         }
         $string = file_get_contents(self::ACTIONS_FILEPATH);
         $this->actionsJSON = json_decode($string, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception("Erreur lors du décodage du fichier JSON d'actions : " . json_last_error_msg());
+            throw new Exception("Erreur décodage JSON actions : " . json_last_error_msg());
         }
     }
 
     /**
-     * Charge la structure complète des paramètres du téléviseur.
-     * @return void
+     * Charge la structure complète des paramètres du téléviseur (Lazy).
      */
     private function loadSettingsStructure(): void
     {
-        $response = $this->request_https("menuitems/settings/structure", "GET");
-        $this->structure = json_decode($response);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            // Loguer ou ignorer si la structure n'est pas critique au démarrage
-            error_log("Avertissement : Impossible de charger la structure des paramètres de la TV. " . json_last_error_msg());
-            $this->structure = (object)['node' => null]; // Initialisation sécurisée
-        } else {
-            $this->structure = $this->structure->node ?? (object)['node' => null];
+        try {
+            $response = $this->request_https("menuitems/settings/structure", "GET");
+            $decoded = json_decode($response);
+            $this->structure = $decoded->node ?? (object)['node' => null];
+        } catch (Exception $e) {
+            // Évite le blocage si l'API n'est pas encore prête
+            error_log("Avertissement : Structure non disponible. " . $e->getMessage());
+            $this->structure = (object)['node' => null];
         }
     }
 
     /**
-     * Exécute une requête HTTPS vers l'API JointSpace en utilisant cURL (alternative à shell_exec).
-     *
-     * @param string $_uri La partie de l'URI après le port (ex: 'system/powerstate').
-     * @param string $_method La méthode HTTP ('GET' ou 'POST').
-     * @param array|null $_data Le corps de la requête pour 'POST' (sera encodé en JSON).
-     * @return string La réponse brute de l'API.
-     * @throws \Exception En cas d'échec de la requête ou de cURL.
+     * Exécute une requête HTTPS vers l'API JointSpace en utilisant cURL.
      */
     private function request_https(string $_uri, string $_method, ?array $_data = null): string
     {
         $url = "{$this->baseUrl}/{$_uri}";
-        $ch = curl_init($url);
+        $attempts = 0;
+        $maxAttempts = 3; // On tente 3 fois avant de lâcher
 
-        // Options cURL
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Retourne le transfert comme une chaîne de caractères
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_method);
-        curl_setopt($ch, CURLOPT_USERPWD, "" . self::$username . ":" . self::$password);
-        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST); // Authentification Digest
+        while ($attempts < $maxAttempts) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_method);
+            curl_setopt($ch, CURLOPT_USERPWD, self::$username . ":" . self::$password);
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 
-        // Sécurité/Connexion
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // JointSpace utilise un certificat auto-signé, à éviter en prod !
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            if ($_method === 'POST' && !is_null($_data)) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($_data));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            }
 
-        // Données pour POST
-        if ($_method === 'POST' && !is_null($_data)) {
-            $json_data = json_encode($_data);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        }
-
-        $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
+            $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curl_error = curl_errno($ch);
             curl_close($ch);
-            throw new \Exception("Erreur cURL ({$_uri}): " . $error);
+
+            if (!$curl_error && $http_code >= 200 && $http_code < 300) {
+                return $response;
+            }
+
+            $attempts++;
+            if ($attempts < $maxAttempts) {
+                usleep(500000); // Attend 500ms avant de retenter
+            }
         }
 
-        curl_close($ch);
-
-        // Gestion des codes de réponse HTTP (ex: 401 Unauthorized, 400 Bad Request)
-        if ($http_code < 200 || $http_code >= 300) {
-            throw new \Exception("Erreur HTTP ({$_uri}) : Code {$http_code} - Réponse: {$response}");
-        }
-
-        return $response;
+        throw new Exception("Erreur cURL définitive ({$_uri}) après {$maxAttempts} tentatives.");
     }
 
     /**
      * Méthode de recherche récursive du 'node_id' basé sur le 'context'.
-     *
-     * @param string $_key Le 'context' à rechercher (ex: 'headphones_volume').
-     * @param object|null $_json La structure (ou un sous-nœud).
-     * @return int|null Le 'node_id' trouvé ou null.
      */
     private function search_nodeId(string $_key, ?object $_json): ?int
     {
@@ -230,7 +221,6 @@ class TV
             return (int)$_json->node_id;
         }
 
-        // Vérification de l'existence des sous-nœuds et si c'est un tableau d'objets
         if (isset($_json->data->nodes) && is_array($_json->data->nodes)) {
             foreach ($_json->data->nodes as $node) {
                 $result = $this->search_nodeId($_key, $node);
@@ -239,30 +229,19 @@ class TV
                 }
             }
         }
-
-        return null; // Retourne null si non trouvé
+        return null;
     }
-
-
-    // Le search_nodeStringId est redondant/non utilisé dans l'implémentation actuelle et peut être supprimé
-    // ou rendu plus générique si besoin. Je le supprime ici pour alléger.
-
 
     // --- Méthodes Publiques (API) ---
 
     /**
      * Retourne l'instance unique de la classe TV (Singleton).
-     * Le Singleton est régénéré quotidiennement pour recharger potentiellement la structure
-     * des paramètres du téléviseur si elle a changé, mais ce n'est généralement pas nécessaire.
-     *
-     * @return self L'instance unique de la classe.
      */
     public static function getInstance(): self
     {
-        $now = new \DateTime();
+        $now = new DateTime();
         $nowFormatted = $now->format('Ymd');
 
-        // Logique de rafraîchissement quotidien de l'instance (optionnel)
         if (is_null(self::$_instance) || is_null(self::$datetime) || self::$datetime->format('Ymd') !== $nowFormatted) {
             self::$_instance = new self();
         }
@@ -272,7 +251,6 @@ class TV
 
     /**
      * Retourne la version de l'API wrapper.
-     * @return string
      */
     public function version(): string
     {
@@ -280,19 +258,15 @@ class TV
     }
 
     /**
-     * Exécute une action prédéfinie à partir du fichier JSON.
-     * Utilise le fichier de configuration pour accélérer le processus.
-     *
-     * @param string $_action Le nom de l'action à exécuter (ex: 'ambilight_mode').
-     * @param mixed $_value La valeur optionnelle pour remplacer le placeholder dans le body JSON.
-     * @return string|null La réponse JSON de l'API ou null en cas d'échec.
-     * @throws \Exception Si l'action n'est pas trouvée ou si la requête échoue.
+     * Exécute une action prédéfinie.
      */
     public function action(string $_action, $_value = null): ?string
     {
         if (!is_array($this->actionsJSON)) {
-            throw new \Exception("Le fichier d'actions n'a pas été chargé correctement.");
+            throw new Exception("Le fichier d'actions n'est pas chargé.");
         }
+
+        self::ensureTvIsResponsive();
 
         // --- Action GET ---
         if (isset($this->actionsJSON['get'][$_action])) {
@@ -303,26 +277,20 @@ class TV
         // --- Action POST ---
         if (isset($this->actionsJSON['post'][$_action])) {
             $uri = $this->actionsJSON['post'][$_action]['path'];
-            $body = $this->actionsJSON['post'][$_action]['body']; // Corps de base (array)
+            $body = $this->actionsJSON['post'][$_action]['body'];
 
             if (!is_null($_value)) {
-                // Recherche récursive du placeholder '?' et remplacement
                 $body = $this->replacePlaceholder($body, $_value);
             }
 
             return $this->request_https($uri, "POST", $body);
         }
 
-        throw new \Exception("Action '{$_action}' non trouvée dans le fichier d'actions.");
+        throw new Exception("Action '{$_action}' non trouvée.");
     }
 
     /**
-     * Modifie le contenu d'une chaîne ou d'un tableau/objet en remplaçant la valeur
-     * spéciale "?" par la valeur fournie.
-     *
-     * @param mixed $data Le tableau/objet/chaîne où effectuer le remplacement.
-     * @param mixed $value La valeur de remplacement.
-     * @return mixed Le tableau/objet/chaîne modifié.
+     * Remplacement du placeholder "?" par la valeur fournie.
      */
     private function replacePlaceholder($data, $value)
     {
@@ -337,13 +305,8 @@ class TV
         return $data;
     }
 
-
     /**
      * Change la chaîne de télévision par son nom.
-     *
-     * @param string $_channel_name Le nom de la chaîne (ex: "BFM TV").
-     * @return string La réponse JSON de l'API.
-     * @throws \Exception Si la chaîne n'est pas trouvée ou si la requête échoue.
      */
     public function setChannel(string $_channel_name = "BFM TV"): string
     {
@@ -351,7 +314,7 @@ class TV
         $listeChannels = json_decode($listeChannelsJson);
 
         if (json_last_error() !== JSON_ERROR_NONE || !isset($listeChannels->Channel)) {
-            throw new \Exception("Impossible de décoder la liste des chaînes ou format incorrect.");
+            throw new Exception("Erreur décodage liste chaînes.");
         }
 
         $ccid = null;
@@ -363,63 +326,47 @@ class TV
         }
 
         if (is_null($ccid)) {
-            throw new \Exception("Chaîne '{$_channel_name}' non trouvée.");
+            throw new Exception("Chaîne '{$_channel_name}' non trouvée.");
         }
 
-        // Construction du corps de la requête comme un tableau (plus propre qu'une chaîne JSON)
         $channel_data = [
             "channel" => ["ccid" => $ccid],
-            "channelList" => ["id" => "allter"] // Généralement 'allter' pour toutes les chaînes TNT
+            "channelList" => ["id" => "allter"]
         ];
 
         return $this->request_https("activities/tv", "POST", $channel_data);
     }
 
     /**
-     * Modifie un paramètre via le mécanisme menuitems/settings/update.
-     *
-     * @param string $_name Le 'context' du paramètre à modifier (ex: 'headphones_volume').
-     * @param string $_data La valeur à définir, encodée en JSON (ex: '{"value":20}').
-     * @return string La réponse JSON de l'API.
-     * @throws \Exception Si le nodeId n'est pas trouvé ou si la requête échoue.
+     * Modifie un paramètre via menuitems/settings/update.
      */
     public function setSettings(string $_name, string $_data): string
     {
-        // 1. Recherche du nodeid
-        if (!isset($this->structure)) {
-            throw new \Exception("Structure des paramètres non chargée.");
+        // Chargement à la demande de la structure
+        if (is_null($this->structure)) {
+            $this->loadSettingsStructure();
         }
 
         $nodeId = $this->search_nodeId($_name, $this->structure);
-
         if (is_null($nodeId)) {
-            throw new \Exception("NodeId pour le paramètre '{$_name}' non trouvé.");
+            throw new Exception("NodeId pour '{$_name}' non trouvé.");
         }
 
-        // 2. Récupère la structure du paramètre courant pour la modification
+        // Récupère l'état courant
         $bodyCurrent = ['nodes' => [['nodeid' => $nodeId]]];
         $settingJson = $this->request_https("menuitems/settings/current", "POST", $bodyCurrent);
         $setting = json_decode($settingJson);
 
-        if (json_last_error() !== JSON_ERROR_NONE || !isset($setting->values[0])) {
-            throw new \Exception("Erreur lors de la récupération du paramètre courant ou format invalide.");
-        }
-
-        // 3. Modification du paramètre
+        // Application de la nouvelle valeur
         $dataToSet = json_decode($_data, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception("Le JSON de données fourni est invalide: '{$_data}'");
+            throw new Exception("JSON invalide: '{$_data}'");
         }
 
-        // La structure de l'objet 'value' peut varier. On suppose que la valeur est dans 'data'.
-        // NOTE: Cela pourrait nécessiter une logique plus complexe selon le type de paramètre.
         $setting->values[0]->value->data = $dataToSet;
 
-        // 4. Envoie le paramétrage mis à jour
         return $this->request_https("menuitems/settings/update", "POST", (array)$setting);
     }
-
-    // --- Méthode de Débogage ---
 
     /**
      * Affiche des informations de débogage.
@@ -427,9 +374,8 @@ class TV
     public function debug(): void
     {
         echo "\n*** Debug ***\n";
-        echo "Version: {$this->version}\n";
-        echo "IP TV: {self::$philipsTV_ip}\n";
-        echo "Actions JSON chargées: " . (is_array($this->actionsJSON) ? count($this->actionsJSON['get'] ?? []) + count($this->actionsJSON['post'] ?? []) : 'Non') . " actions\n";
-        echo "Structure des paramètres chargée: " . (is_object($this->structure) ? 'Oui' : 'Non') . "\n";
+        echo "Version: {$this->version()}\n";
+        echo "IP TV: " . self::$philipsTV_ip . "\n";
+        echo "Structure chargée: " . (is_object($this->structure) ? 'Oui' : 'Non') . "\n";
     }
 }
