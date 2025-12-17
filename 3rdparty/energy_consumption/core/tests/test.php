@@ -7,25 +7,42 @@ use Nexus\Energy\Electricity\Consumption;
 use Nexus\Energy\Electricity\ContractFactory;
 use Nexus\Energy\Electricity\Util\BillingRenderer;
 
-$contractsJsonFilePath = __DIR__ . '/../config/contrats_fictif.json';
+// $contractsJsonFilePath = __DIR__ . '/../config/contrats_fictif.json';
+$contractsJsonFilePath = __DIR__ . '/../config/contrats.json';
 
 try {
-    // --- Chargement des contrats ---
+    // --- Chargement des contrats et services ---
     $contracts = ContractFactory::createFromConfigFile($contractsJsonFilePath);
-
-    // --- Initialisation des services ---
     $kwhReadingService = new JeedomKwhReading();
     $consumption = new Consumption($kwhReadingService, $contracts);
 
-    // --- Définition de la période ---
+    // --- 0. Rélevé de consommation ---
     $start = new \DateTimeImmutable('2025-12-01');
     $end   = new \DateTimeImmutable('2025-12-17');
-
-    // --- Calcul ---
     $summary = $consumption->getBillingSummary($start, $end);
+    BillingRenderer::renderConsoleTable($summary, "CONSOMMATION SUR PERIODE");
 
-    // --- Affichage ---
-    BillingRenderer::renderConsoleTable($summary);
+    // --- 1. Consommation d'hier ---
+    $yesterdaySummary = $consumption->getYesterdaySummary();
+    BillingRenderer::renderConsoleTable($yesterdaySummary, "CONSOMMATION D'HIER");
+
+    // --- 2. Consommation du mois en cours ---
+    $monthSummary = $consumption->getCurrentMonthSummary();
+    $titleMonth = sprintf(
+        "CONSOMMATION DU MOIS EN COURS (%s au %s)",
+        $monthSummary['period']['start'],
+        $monthSummary['period']['end']
+    );
+    BillingRenderer::renderConsoleTable($monthSummary, $titleMonth);
+
+    // --- 3. Consommation de l'année (Glissante) ---
+    $yearSummary = $consumption->getYearlyRollingSummary();
+    $titleYear = sprintf(
+        "RÉSUMÉ ANNEE GLISSANTE (%s au %s)",
+        $yearSummary['period']['start'],
+        $yearSummary['period']['end']
+    );
+    BillingRenderer::renderConsoleTable($yearSummary, $titleYear);
 
     //
 } catch (\Exception $e) {
