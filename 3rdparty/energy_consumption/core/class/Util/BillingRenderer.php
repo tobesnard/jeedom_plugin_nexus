@@ -67,15 +67,21 @@ class BillingRenderer
              self::fCell(number_format($summary['totals']['cost'], 2, '.', '') . " €", self::W_COST, self::CLR_COST, STR_PAD_LEFT) . "\n";
         echo str_repeat("=", $lineLength) . "\n";
 
-        // 5. Bloc de détails financiers (si disponibles)
+        // 5. Bloc de détails financiers restructuré
         if (isset($summary['totals']['kwh_cost'])) {
             $t = $summary['totals'];
-            echo "\n" . self::CLR_BOLD . "DÉTAILS FINANCIERS :" . self::CLR_RESET . "\n";
-            printf("  • Part Variable (Consommation) : %s\n", self::CLR_KWH . number_format($t['kwh_cost'], 2, '.', '') . " €" . self::CLR_RESET);
-            printf("  • Part Fixe (Abonnement)      : %s\n", self::CLR_SUB . number_format($t['subscription_cost'], 2, '.', '') . " €" . self::CLR_RESET);
-            printf("  • P.U. Moyen du kWh net       : %s\n", self::CLR_PRICE . number_format($t['avg_kwh_price'], 4, '.', '') . " €" . self::CLR_RESET);
-            printf("  • Coût Moyen Abonnement/mois  : %s\n", self::CLR_SUB . number_format($t['avg_monthly_sub'], 2, '.', '') . " €" . self::CLR_RESET);
-            echo str_repeat("-", 40) . "\n\n";
+
+            echo "\n" . self::CLR_BOLD . "RÉPARTITION DES COÛTS RÉELS (TTC) :" . self::CLR_RESET . "\n";
+            echo "  ┌──────────────────────────────────────────────┐\n";
+            printf("  │ • Part Variable (Consommation) : %s │\n", self::fCell(number_format($t['kwh_cost'], 2, '.', '') . " €", 13, self::CLR_KWH, STR_PAD_LEFT));
+            printf("  │ • Part Fixe (Abonnement)       : %s │\n", self::fCell(number_format($t['subscription_cost'], 2, '.', '') . " €", 13, self::CLR_SUB, STR_PAD_LEFT));
+            printf("  │ " . self::CLR_BOLD . "  TOTAL FACTURÉ                : %s" . self::CLR_RESET . " │\n", self::fCell(number_format($t['cost'], 2, '.', '') . " €", 13, self::CLR_COST, STR_PAD_LEFT));
+            echo "  └──────────────────────────────────────────────┘\n";
+
+            echo "\n" . self::CLR_BOLD . "INDICATEURS ET TARIFS MOYENS :" . self::CLR_RESET . "\n";
+            printf("  → Prix de revient moyen du kWh : %s\n", self::CLR_PRICE . number_format($t['avg_kwh_price'], 4, '.', '') . " €" . self::CLR_RESET);
+            printf("  → Coût moyen de l'abonnement   : %s\n", self::CLR_SUB . number_format($t['avg_monthly_sub'], 2, '.', '') . " € / mois" . self::CLR_RESET);
+            echo str_repeat("-", 50) . "\n\n";
         }
     }
 }

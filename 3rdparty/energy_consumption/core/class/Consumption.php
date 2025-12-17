@@ -24,16 +24,30 @@ class Consumption
 
     public function getActiveContract(DateTimeImmutable $date): ?Contract
     {
+        $fallbackContract = null;
+        $closestDiff = null;
+
         foreach ($this->contracts as $contract) {
             $start = $contract->getStartDate();
             $end = $contract->getEndDate();
+
+            // 1. Recherche du contrat exactement actif
             if ($date >= $start && ($end === null || $date <= $end)) {
                 return $contract;
             }
-        }
-        return null;
-    }
 
+            // 2. Logique de Fallback : on cherche le contrat dont la fin est la plus proche avant la date cible
+            if ($end !== null && $date > $end) {
+                $diff = $date->getTimestamp() - $end->getTimestamp();
+                if ($closestDiff === null || $diff < $closestDiff) {
+                    $closestDiff = $diff;
+                    $fallbackContract = $contract;
+                }
+            }
+        }
+
+        return $fallbackContract;
+    }
     public function getBillingSummary(DateTimeImmutable $start, DateTimeImmutable $end): array
     {
         $readings = $this->kwhReading->getDailyReadings($start, $end);
