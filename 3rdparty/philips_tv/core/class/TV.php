@@ -78,35 +78,49 @@ class TV
     // --- Méthodes de service (Privées) ---
 
     /**
-     * Envoie un paquet Wake-on-LAN et attend que l'API soit prête sur le port configuré.
-     * Compatible ports 1925, 1926 ou 8443.
+     * Assure que la TV est non seulement allumée (WoL) mais que l'API répond réellement.
+     * Utilise un polling sur une route système légère.
      */
-    private static function ensureTvIsResponsive(?string $macAddress = null): void
+    private function ensureTvIsResponsive(?string $macAddress = null): void
     {
         $targetMac = $macAddress ?? self::$philipsTV_mac;
-        $ip = self::$philipsTV_ip;
-        $port = self::$philipsTV_port; // Utilise dynamiquement 1926 selon votre config
         $safeMac = escapeshellarg($targetMac);
 
         $startTime = microtime(true);
-        $timeout = 2.0;
+        $maxWait = 10.0; // Augmenté à 10s car le boot complet de l'API est lent
 
-        while ((microtime(true) - $startTime) < $timeout) {
-            // Émission du Magic Packet
+        while ((microtime(true) - $startTime) < $maxWait) {
+            // 1. Envoi du Magic Packet
             exec("wakeonlan $safeMac >/dev/null 2>&1");
 
-            // Test de la socket sur le port spécifique (1926)
-            $connection = @fsockopen($ip, (int)$port, $errno, $errstr, 0.1);
-
-            if ($connection) {
-                fclose($connection);
-                sleep(1); // Latence de confort pour le service
-                // usleep(200000); // Latence de confort pour le service
+            // 2. Polling applicatif : On tente une requête légère sans exception
+            if ($this->pingApi()) {
                 return;
             }
 
-            usleep(100000);
+            usleep(250000); // Pause 250ms entre chaque tentative
         }
+    }
+
+    /**
+     * Teste si l'API est capable de répondre à une requête simple.
+     */
+    private function pingApi(): bool
+    {
+        $ch = curl_init("{$this->baseUrl}/system");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, self::$username . ":" . self::$password);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+
+        curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return ($http_code >= 200 && $http_code < 300);
     }
 
     /**

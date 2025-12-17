@@ -2,393 +2,307 @@
 
 require_once __DIR__ . '/../class/TV.php';
 
-$mixedVolume_cmd = '#[Scripts][Philips TV][Volume]#';
-
-class PhilipsTV
-{
-    private const CONFIG_FILE = __DIR__ . "/../config/philipstv_config.json";
-    private static string $mac;
-    private static string $ip;
-
-    public static function getInstance()
-    {
-        self::loadConfig();
-        // self::sendWakeOnLan();
-        return Nexus\Multimedia\PhilipsTV\TV::getInstance();
-    }
-
-    /**
-     * Envoie un paquet Wake-on-LAN pour réveiller la carte réseaux du téléviseur.
-     */
-    private static function sendWakeOnLan(?string $macAddress = null, ?string $ip = null): void
-    {
-        $ip = $ip ?? self::$ip;
-        $targetMac = $macAddress ?? self::$mac;
-        $safeMac = escapeshellarg($targetMac);
-        $command = "wakeonlan $safeMac >/dev/null 2>&1";
-
-        $startTime = time();
-        $timeout = 2; // secondes
-
-        while ((time() - $startTime) < $timeout) {
-            // Envoi du Magic Packet
-            exec($command);
-
-            // Vérification de la présence réseau (Ping flash)
-            // -c 1 : 1 paquet, -W 1 : timeout 1s (le plus court en standard)
-            exec("ping -c 1 -W 1 $ip >/dev/null 2>&1", $output, $result);
-
-            if ($result === 0) {
-                return; // La machine répond, on sort
-            }
-
-            usleep(100000); // Pause de 100ms
-        }
-    }
-
-    /**
-    * charge la configuration du téléviseur
-    */
-    private static function loadConfig(): void
-    {
-
-        if (!file_exists(self::CONFIG_FILE)) {
-            throw new Exception("Fichier de configuration introuvable : " . self::CONFIG_FILE);
-        }
-
-        $jsonContent = file_get_contents(self::CONFIG_FILE);
-        $data = json_decode($jsonContent, true);
-
-        if (isset($data['mac'])) {
-            self::$mac = $data['mac'];
-        } else {
-            throw new Exception("L'adresse MAC est manquante dans le fichier JSON.");
-        }
-
-        if (isset($data['ip'])) {
-            self::$ip = $data['ip'];
-        } else {
-            throw new Exception("L'adresse IP est manquante dans le fichier JSON.");
-        }
-    }
-}
-
-
+/**
+ * Méthode Proxy : Récupère la version du wrapper API.
+ * @return string
+ */
 function philipsTV_version()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     return $philipsTV->version();
 }
 
+/**
+ * Méthode Proxy : Active la synchronisation Ambilight + Hue.
+ */
 function philipsTV_ambihueOn()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('ambihue_on');
 }
 
+/**
+ * Méthode Proxy : Désactive la synchronisation Ambilight + Hue.
+ */
 function philipsTV_ambihueOff()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('ambihue_off');
 }
 
+/**
+ * Méthode Proxy : Récupère l'état de Ambilight + Hue.
+ * @return int (1 pour On, 0 pour Off)
+ */
 function philipsTV_ambihueState()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $status = $philipsTV->action('ambihue_status') ;
-    $status =  json_decode($status) ;
-    return $status->power === 'On' ? 1 : 0 ;
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    $status = $philipsTV->action('ambihue_status');
+    $status = json_decode($status);
+    return (isset($status->power) && $status->power === 'On') ? 1 : 0;
 }
 
+/**
+ * Méthode Proxy : Active l'Ambilight.
+ */
 function philipsTV_ambilightOn()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('ambilight_on');
-    //$philipsTV->action('ambihue_on');
 }
 
+/**
+ * Méthode Proxy : Désactive l'Ambilight.
+ */
 function philipsTV_ambilightOff()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('ambilight_off');
-    //$philipsTV->action('ambihue_off');
 }
 
+/**
+ * Méthode Proxy : Récupère l'état d'alimentation de l'Ambilight.
+ * @return int (1 pour On, 0 pour Off)
+ */
 function philipsTV_ambilightState()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $status = $philipsTV->action('ambilight_status') ;
-    $status =  json_decode($status) ;
-    return $status->power === 'On' ? 1 : 0 ;
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    $status = $philipsTV->action('ambilight_status');
+    $status = json_decode($status);
+    return (isset($status->power) && $status->power === 'On') ? 1 : 0;
 }
 
+/**
+ * Méthode Proxy : Définit le mode Ambilight sur "Jeu".
+ */
 function philipsTV_ambilightGame()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('ambilight_video_game');
 }
 
+/**
+ * Méthode Proxy : Définit le mode Ambilight sur "Standard".
+ */
 function philipsTV_ambilightStandard()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('ambilight_video_standard');
 }
 
+/**
+ * Méthode Proxy : Allume la TV ou la sort de veille.
+ */
 function philipsTV_on()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $powerstate = $philipsTV->action('powerstate') ;
-    $powerstate =  json_decode($powerstate) ;
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    $powerstate = json_decode($philipsTV->action('powerstate'));
     if ($powerstate->powerstate !== "On") {
         $philipsTV->action('standby');
     }
 }
 
+/**
+ * Méthode Proxy : Met la TV en veille.
+ */
 function philipsTV_off()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $powerstate = $philipsTV->action('powerstate');
-    $powerstate =  json_decode($powerstate) ;
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    $powerstate = json_decode($philipsTV->action('powerstate'));
     if ($powerstate->powerstate === "On") {
         $philipsTV->action('power_off');
     }
 }
 
+/**
+ * Méthode Proxy : Récupère l'état d'alimentation principal de la TV.
+ * @return int (1 pour On, 0 pour Off)
+ */
 function philipsTV_state()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $status = $philipsTV->action('powerstate') ;
-    $status =  json_decode($status) ;
-    return $status->powerstate === 'On' ? 1 : 0 ;
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    $status = json_decode($philipsTV->action('powerstate'));
+    return ($status->powerstate === 'On') ? 1 : 0;
 }
 
-// function general_volume($_value){
-// $philipsTV = PhilipsTV::getInstance();
-//     $philipsTV->action('general_volume', intval( $_value ));
-// }
-
-// function headphones_volume($_value){
-// $philipsTV = PhilipsTV::getInstance();
-//     $philipsTV->action('headphones_volume', intval( $_value ));
-// }
-
+/**
+ * Méthode Proxy : Règle simultanément le volume général et le volume casque.
+ * @param int $_value Valeur de base pour le volume.
+ */
 function philipsTV_mixedVolume($_value)
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('general_volume', intval($_value));
     $philipsTV->action('headphones_volume', intval($_value + 5));
 }
 
+/**
+ * Méthode Proxy : Récupère le niveau de volume actuel.
+ * @return int
+ */
 function philipsTV_volume()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $json = json_decode($philipsTV->action('volume'));
     return $json->current;
 }
 
+/**
+ * Méthode Proxy : Augmente le volume mixte de 8 unités.
+ */
 function philipsTV_turnUpVolume()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    // Volume actuelle + 5
-    // $json = json_decode($philipsTV->action('volume'));
-    // $current = $json->current + 5;
-    $current = cmd::bystring($mixedVolume_cmd)->execCmd();
-    $current += 8;
-    philipsTV_mixed_volume($current);
+    $current = (int) philipsTV_volume();
+    philipsTV_mixedVolume($current + 8);
 }
 
+/**
+ * Méthode Proxy : Diminue le volume mixte de 8 unités.
+ */
 function philipsTV_turnDownVolume()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    // $json = json_decode($philipsTV->action('volume'));
-    // $current = $json->current - 5;
-    $current = cmd::bystring($mixedVolume_cmd)->execCmd();
-    $current -= 8;
-    philipsTV_mixed_volume($current);
+    $current = (int) philipsTV_volume();
+    philipsTV_mixedVolume($current - 8);
 }
+
+// --- Méthodes Proxy : Sélection des chaînes TNT ---
 
 function philipsTV_tf1()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('TF1');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TF1');
 }
-
 function philipsTV_france2()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('France 2');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('France 2');
 }
-
 function philipsTV_france3()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('F3 Centre');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('F3 Centre');
 }
-
 function philipsTV_canalplus()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('CANAL+');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('CANAL+');
 }
-
 function philipsTV_france5()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('France 5');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('France 5');
 }
-
 function philipsTV_m6()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('M6');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('M6');
 }
-
 function philipsTV_arte()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('Arte');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('Arte');
 }
-
 function philipsTV_c8()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('C8');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('C8');
 }
-
 function philipsTV_w9()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('W9');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('W9');
 }
-
 function philipsTV_tmc()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('TMC');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TMC');
 }
-
 function philipsTV_tfx()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('TFX');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TFX');
 }
-
 function philipsTV_nrj12()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('NRJ12');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('NRJ12');
 }
-
 function philipsTV_lcp()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('LCP');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('LCP');
 }
-
 function philipsTV_france4()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('France 4');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('France 4');
 }
-
 function philipsTV_bfmTV()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('BFM TV');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('BFM TV');
 }
-
 function philipsTV_cnews()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('CNEWS');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('CNEWS');
 }
-
 function philipsTV_cstar()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('CSTAR');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('CSTAR');
 }
-
 function philipsTV_gulli()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('Gulli');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('Gulli');
 }
-
 function philipsTV_tf1Series()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('TF1 Séries Films');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TF1 Séries Films');
 }
-
 function philipsTV_lEquipe()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('L\'Equipe');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('L\'Equipe');
 }
-
 function philipsTV_6ter()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('6ter');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('6ter');
 }
-
 function philipsTV_rmcStory()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('RMC STORY');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('RMC STORY');
 }
-
 function philipsTV_rmcDecouverte()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('RMC Découverte');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('RMC Découverte');
 }
-
 function philipsTV_cherie25()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('Chérie 25');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('Chérie 25');
 }
-
 function philipsTV_lci()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('LCI');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('LCI');
 }
-
 function philipsTV_franceinfo()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('franceinfo:');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('franceinfo:');
 }
-
 function philipsTV_tvTours()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('TV Tours');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TV Tours');
 }
-
 function philipsTV_parisPremiere()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    $philipsTV->setChannel('PARIS PREMIERE');
+    Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('PARIS PREMIERE');
 }
 
+/**
+ * Méthode Proxy : Méthode de débogage (interne).
+ */
 function philipsTV_debug()
 {
-    $philipsTV = PhilipsTV::getInstance();
-    // echo var_dump($philipsTV->actionsJSON);
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    $philipsTV->debug();
 }
 
+/**
+ * Méthode Proxy : Bascule la source sur HDMI 1.
+ */
 function philipsTV_hdmi1()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('input_hdmi_1');
 }
 
+/**
+ * Méthode Proxy : Repasse la TV en mode réception antenne (Regarder la TV).
+ */
 function philipsTV_watchTV()
 {
-    $philipsTV = PhilipsTV::getInstance();
+    $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
     $philipsTV->action('watch_tv');
 }
