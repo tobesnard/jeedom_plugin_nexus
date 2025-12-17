@@ -1,0 +1,36 @@
+[
+    {
+        "metadata": {
+            "delivery_point_id": "0964 9493 4796 24",
+            "meter": {
+                "is_smart_meter": true,
+                "serial_number": "3419 6403 4329 43",
+                "type": "Linky"
+            }
+        },
+        "provider": {
+            "name": "EDF"
+        },
+        "contract_details": {
+            "customer_number": "6 030 228 554",
+            "account_number": "4 05 4 051 528 265",
+            "offer_name": "Zen Fixe",
+            "subscribed_power_kva": 6,
+            "tariff_option": "BASE",
+            "currency": "EUR",
+            "validity": {
+                "start_date": "2025-05-29",
+                "end_date": null
+            }
+        },
+        "pricing": {
+            "monthly_subscription": 15.37,
+            "unit_prices": [
+                {
+                    "label": "base",
+                    "price_per_kwh": 0.1899
+                }
+            ]
+        }
+    }
+]
