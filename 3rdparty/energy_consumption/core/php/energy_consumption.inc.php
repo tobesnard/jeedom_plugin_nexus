@@ -2,64 +2,40 @@
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading;
-use Nexus\Energy\Electricity\Consumption;
-use Nexus\Energy\Electricity\ContractFactory;
+use Nexus\Energy\Electricity\EnergyFacade;
 
-/**
- * Helper interne pour initialiser le service Consumption
- * Utilise un pattern static pour éviter de recharger les contrats à chaque appel
- */
-function getConsumptionService(): Consumption
-{
-    static $service = null;
-    if ($service === null) {
-        $contractsJsonFilePath = __DIR__ . '/../config/contrats.json';
-        $contracts = ContractFactory::createFromConfigFile($contractsJsonFilePath);
-        $kwhReadingService = new JeedomKwhReading();
-        $service = new Consumption($kwhReadingService, $contracts);
-    }
-    return $service;
-}
-
-/** Méthode Proxy : Récupère la consommation en Kwh pour la journée d'hier **/
+/** Méthode Proxy : Récupère la consommation en kWh pour la journée d'hier **/
 function energy_kwhDay(): float
 {
-    $summary = getConsumptionService()->getYesterdaySummary();
-    return (float) $summary['totals']['kwh'];
+    return EnergyFacade::kwhDay();
 }
 
-/* Méthode Proxy : Récupère la consommation en KWH pour le mois en cours **/
+/** Méthode Proxy : Récupère la consommation en kWh pour le mois en cours **/
 function energy_kwhMonth(): float
 {
-    $summary = getConsumptionService()->getCurrentMonthSummary();
-    return (float) $summary['totals']['kwh'];
+    return EnergyFacade::kwhMonth();
 }
 
-/* Méthode Proxy : Récupère la consommation en Kwh pour l'année (glissante) en cours **/
+/** Méthode Proxy : Récupère la consommation en kWh pour l'année (glissante) en cours **/
 function energy_kwhYear(): float
 {
-    $summary = getConsumptionService()->getYearlyRollingSummary();
-    return (float) $summary['totals']['kwh'];
+    return EnergyFacade::kwhYear();
 }
 
-/** Méthode Proxy: Récupère le coût total en energy la journée d'hier **/
+/** Méthode Proxy : Récupère le coût total en euros pour la journée d'hier **/
 function energy_euroDay(): float
 {
-    $summary = getConsumptionService()->getYesterdaySummary();
-    return (float) $summary['totals']['cost'];
+    return EnergyFacade::euroDay();
 }
 
-/** Méthode Proxy : Récupère le coût total en energy pour le mois en cours **/
+/** Méthode Proxy : Récupère le coût total en euros pour le mois en cours **/
 function energy_euroMonth(): float
 {
-    $summary = getConsumptionService()->getCurrentMonthSummary();
-    return (float) $summary['totals']['cost'];
+    return EnergyFacade::euroMonth();
 }
 
-/** Méthode Proxy : Récupère le coût total en energy pour l'année en cours (glissant) **/
+/** Méthode Proxy : Récupère le coût total en euros pour l'année en cours (glissante) **/
 function energy_euroYear(): float
 {
-    $summary = getConsumptionService()->getYearlyRollingSummary();
-    return (float) $summary['totals']['cost'];
+    return EnergyFacade::euroYear();
 }
