@@ -28,11 +28,15 @@ async def main(args):
                 print(device.box.hue.connection_state)
                 return
 
+            if args.command == "reboot":
+                await device.box.execution.set_state(sync_active=False)
+                await asyncio.sleep(2)
+                await device.box.execution.set_state(sync_active=True)
+
             if args.command == "power_on":
                 await device.box.execution.set_state(
                     mode="passthrough",
                 )
-                await device.box.execution.update()
 
             if args.command == "power_off":
                 await device.box.execution.set_state(
