@@ -73,3 +73,6 @@ Remarques et recommandations futures (optionnelles) :
 ---
 
 Fichier généré automatiquement par l'assistant lors de la session du 2025-12-17.
+
+Commit actuel (HEAD): b7a84e5
+
