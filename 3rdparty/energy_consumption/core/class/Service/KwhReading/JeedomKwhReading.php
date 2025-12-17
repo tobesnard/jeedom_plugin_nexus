@@ -6,6 +6,12 @@ require_once '/var/www/html/core/php/core.inc.php';
 
 use DateTimeImmutable;
 
+/**
+ * Implémentation `IKwhReading` pour Jeedom.
+ *
+ * Cette classe interroge la commande Linky (par défaut id 2285) via
+ * `JeedomClient` pour récupérer l'historique des consommations journalières.
+ */
 class JeedomKwhReading implements IKwhReading
 {
     private JeedomClient $client;
@@ -22,7 +28,9 @@ class JeedomKwhReading implements IKwhReading
     }
     /**
      * Récupère l'historique Jeedom de la commande Linky->daily_consumption (par défaut id 2285).
-     * Retour attendu : une liste d'objets history avec getValue() et getDatetime().
+     *
+     * Le tableau retourné contient des éléments de la forme :
+     * ['date' => DateTimeImmutable, 'value' => float]
      *
      * @param DateTimeImmutable $start
      * @param DateTimeImmutable $end
@@ -53,6 +61,13 @@ class JeedomKwhReading implements IKwhReading
         return $dataset;
     }
 
+    /**
+     * Somme simple des valeurs retournées par `getDailyReadings`.
+     *
+     * @param DateTimeImmutable $start
+     * @param DateTimeImmutable $end
+     * @return float
+     */
     public function getTotalKwh(DateTimeImmutable $start, DateTimeImmutable $end): float
     {
         $readings = $this->getDailyReadings($start, $end);

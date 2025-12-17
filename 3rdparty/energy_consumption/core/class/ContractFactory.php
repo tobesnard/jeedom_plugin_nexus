@@ -2,11 +2,28 @@
 
 namespace Nexus\Energy\Electricity;
 
+/**
+ * Fabrique de contrats : lit un fichier JSON et retourne une liste d'instances
+ * de `Contract` prêtes à être injectées dans le reste de l'application.
+ */
 class ContractFactory
 {
     /**
      * @param string $jsonPath Chemin vers le fichier config/contrats.json
         * @return Contract[]
+     */
+    /**
+     * Crée un tableau de `Contract` à partir d'un fichier JSON.
+     *
+     * Le fichier attendu contient un tableau d'objets comportant les clés
+     * `contract_details`, `pricing` et `metadata`. La méthode est tolérante
+     * et applique des valeurs par défaut pour les champs manquants afin
+     * d'éviter des notices PHP.
+     *
+     * @param string $jsonPath Chemin vers le fichier config/contrats.json
+     * @return Contract[]
+     * @throws \InvalidArgumentException si le fichier est absent
+     * @throws \RuntimeException si le JSON est invalide
      */
     public static function createFromConfigFile(string $jsonPath): array
     {

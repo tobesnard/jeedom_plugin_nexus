@@ -2,6 +2,11 @@
 
 namespace Nexus\Energy\Electricity\Util;
 
+/**
+ * Classe utilitaire pour rendre en console un tableau de facturation.
+ *
+ * Fournit un rendu CLI avec couleurs ANSI et une mise en forme en colonnes.
+ */
 class BillingRenderer
 {
     private const CLR_RESET  = "\033[0m";
@@ -21,7 +26,14 @@ class BillingRenderer
     private const W_COST    = 12;
 
     /**
-     * Formate une cellule pour garantir la chasse fixe malgré les codes ANSI
+     * Formate une cellule pour garantir une largeur fixe malgré la présence
+     * éventuelle de codes ANSI de couleur.
+     *
+     * @param string $content Contenu texte non coloré
+     * @param int $width Largeur de la cellule souhaitée
+     * @param string $color Code ANSI de couleur (optionnel)
+     * @param int $padType Constante STR_PAD_LEFT/RIGHT
+     * @return string Contenu coloré et paddé
      */
     private static function fCell(string $content, int $width, string $color = "", int $padType = STR_PAD_RIGHT): string
     {
@@ -30,6 +42,15 @@ class BillingRenderer
         return ($color !== "") ? $color . $padded . self::CLR_RESET : $padded;
     }
 
+    /**
+     * Rend un tableau de facturation en sortie console.
+     *
+     * Le tableau `$summary` doit respecter la forme retournée par
+     * `Consumption::getBillingSummary` ou `getCondensedSummary`.
+     *
+     * @param array $summary Résumé contenant `daily_details` et `totals`
+     * @param string|null $title Titre optionnel à afficher
+     */
     public static function renderConsoleTable(array $summary, ?string $title = null): void
     {
         $sep = " | ";

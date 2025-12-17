@@ -9,8 +9,11 @@ use DateTimeImmutable;
 /**
  * Classe principale de calcul de consommation et de coûts.
  *
- * Utilise un service de relevés (IKwhReading) et une liste de contrats
- * pour produire des synthèses journalières, mensuelles et annuelles.
+ * Utilise un service de relevés (`IKwhReading`) et une liste de
+ * contrats (`Contract[]`) pour produire des synthèses journalières,
+ * mensuelles et annuelles. Toutes les méthodes publiques retournent
+ * des tableaux simples décrivant la période, les totaux et le détail
+ * journalier.
  */
 class Consumption
 {
@@ -33,6 +36,14 @@ class Consumption
         $fallbackContract = null;
         $closestDiff = null;
 
+    /**
+     * Calcule le détail de facturation sur une période donnée.
+     * Retourne : ['period'=>..., 'totals'=>..., 'daily_details'=>...]
+     *
+     * @param DateTimeImmutable $start Date de début (incluse)
+     * @param DateTimeImmutable $end Date de fin (incluse)
+     * @return array{period:array, totals:array, daily_details:array}
+     */
         foreach ($this->contracts as $contract) {
             $start = $contract->getStartDate();
             $end = $contract->getEndDate();
@@ -110,7 +121,15 @@ class Consumption
     }
 
     /**
-     * Retourne un résumé condensé avec décomposition Coût/Abonnement
+        * Retourne un résumé condensé avec une décomposition coût / abonnement.
+        *
+        * Méthode privée utilisée pour générer la synthèse présentée par les
+        * méthodes publiques. Elle repose sur `getBillingSummary` pour récupérer
+        * le détail journalier puis calcule les agrégats.
+        *
+        * @param DateTimeImmutable $start
+        * @param DateTimeImmutable $end
+        * @return array
      */
     private function getCondensedSummary(DateTimeImmutable $start, DateTimeImmutable $end): array
     {

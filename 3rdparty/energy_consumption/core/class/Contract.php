@@ -3,7 +3,13 @@
 namespace Nexus\Energy\Electricity;
 
 /**
- * Représente un contrat d'électricité avec son tarif et sa période de validité.
+ * Représente un contrat d'électricité.
+ *
+ * Propriétés principales :
+ * - `startDate` / `endDate` : période de validité du contrat
+ * - `kwhPrice` : prix du kWh appliqué
+ * - `monthlySubscription` : montant mensuel de l'abonnement
+ * - autres métadonnées : `accountNumber`, `deliveryPointId`, `offerName`
  */
 class Contract
 {
@@ -20,6 +26,16 @@ class Contract
     public ?string $deliveryPointId;
     public ?string $offerName;
 
+    /**
+     * @param \DateTimeImmutable $startDate Date de début du contrat
+     * @param float $kwhPrice Prix du kWh
+     * @param float $monthlySubscription Abonnement mensuel
+     * @param string $tariffOption Option tarifaire (ex: mono/tempo)
+     * @param \DateTimeImmutable|null $endDate Date de fin (si null => actif)
+     * @param string|null $accountNumber Référence client
+     * @param string|null $deliveryPointId Identifiant point de livraison (PDR)
+     * @param string|null $offerName Nom de l'offre commerciale
+     */
     public function __construct(
         \DateTimeImmutable $startDate,
         float $kwhPrice,
