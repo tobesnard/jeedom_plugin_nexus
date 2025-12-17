@@ -1,0 +1,70 @@
+[
+    {
+        "metadata": {
+            "delivery_point_id": "0964 9493 4796 24",
+            "meter": {
+                "is_smart_meter": true,
+                "serial_number": "3419 6403 4329 43",
+                "type": "Linky"
+            }
+        },
+        "provider": {
+            "name": "EDF"
+        },
+        "contract_details": {
+            "customer_number": "6 030 228 554",
+            "account_number": "4 05 4 051 528 265",
+            "offer_name": "Offre Actuelle",
+            "subscribed_power_kva": 6,
+            "tariff_option": "BASE",
+            "currency": "EUR",
+            "validity": {
+                "start_date": "2025-12-15",
+                "end_date": null
+            }
+        },
+        "pricing": {
+            "monthly_subscription": 15.37,
+            "unit_prices": [
+                {
+                    "label": "base",
+                    "price_per_kwh": 0.1899
+                }
+            ]
+        }
+    },
+    {
+        "metadata": {
+            "delivery_point_id": "0964 9493 4796 24",
+            "meter": {
+                "is_smart_meter": true,
+                "serial_number": "3419 6403 4329 43",
+                "type": "Linky"
+            }
+        },
+        "provider": {
+            "name": "EDF"
+        },
+        "contract_details": {
+            "customer_number": "6 030 228 554",
+            "account_number": "4 05 4 051 528 265",
+            "offer_name": "Ancienne Offre",
+            "subscribed_power_kva": 6,
+            "tariff_option": "BASE",
+            "currency": "EUR",
+            "validity": {
+                "start_date": "2024-01-01",
+                "end_date": "2025-12-14"
+            }
+        },
+        "pricing": {
+            "monthly_subscription": 14.37,
+            "unit_prices": [
+                {
+                    "label": "base",
+                    "price_per_kwh": 0.2199
+                }
+            ]
+        }
+    }
+]

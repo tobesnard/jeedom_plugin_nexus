@@ -5,41 +5,23 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 use Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading;
 use Nexus\Energy\Electricity\Consumption;
 use Nexus\Energy\Electricity\Contract;
+use Nexus\Energy\Electricity\ContractFactory;
 
-// 1. Définition des contrats (simulation de changement en milieu de mois)
-$contracts = [
-    new Contract(
-        new \DateTimeImmutable('2024-01-01'),
-        0.1999,
-        14.37,
-        'BASE',
-        new \DateTimeImmutable('2025-12-14'), // Fin de contrat le 14
-        null,
-        null,
-        'Ancienne Offre'
-    ),
-    new Contract(
-        new \DateTimeImmutable('2025-12-15'), // Nouveau contrat le 15
-        0.2276,
-        15.10,
-        'BASE',
-        null,
-        null,
-        null,
-        'Offre Renouvelable'
-    )
-];
+// --- Chargement des contrats depuis le JSON ---
+$contractsJsonFilePath = __DIR__ . '/../config/contrats_fictif.json';
+$contracts = ContractFactory::createFromConfigFile($contractsJsonFilePath);
 
+// --- Initialisation des services ---
 $kwhReadingService = new JeedomKwhReading();
 $consumption = new Consumption($kwhReadingService, $contracts);
 
-// 2. Définition de la période (ex: Décembre 2025)
+// Période de test (ex: Décembre 2025)
 $start = new \DateTimeImmutable('2025-12-01');
 $end   = new \DateTimeImmutable('2025-12-17');
 
 $summary = $consumption->getBillingSummary($start, $end);
 
-// 3. Affichage type Tableau
+// --- Affichage ---
 echo "\n" . str_repeat("=", 85) . "\n";
 printf("%-12s | %-20s | %-10s | %-10s | %-10s\n", "Date", "Contrat", "kWh", "Prix Unit.", "Coût Jour");
 echo str_repeat("-", 85) . "\n";
