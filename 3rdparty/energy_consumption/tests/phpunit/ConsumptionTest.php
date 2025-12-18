@@ -6,14 +6,14 @@ use Nexus\Energy\Electricity\Consumption;
 use Nexus\Energy\Electricity\Contract;
 use Nexus\Energy\Electricity\Service\KwhReading\IKwhReading;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 final class ConsumptionTest extends \PHPUnit\Framework\TestCase
 {
     public function testBillingSummaryCalculations(): void
     {
         // Fake readings : 3 days
-        $fake = new class implements IKwhReading {
+        $fake = new class () implements IKwhReading {
             public function getDailyReadings(\DateTimeImmutable $start, \DateTimeImmutable $end): array
             {
                 return [

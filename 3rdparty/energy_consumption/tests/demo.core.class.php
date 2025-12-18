@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../../vendor/autoload.php";
+require_once __DIR__ . "/../vendor/autoload.php";
 
 use Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading;
 use Nexus\Energy\Electricity\Consumption;
@@ -8,7 +8,7 @@ use Nexus\Energy\Electricity\ContractFactory;
 use Nexus\Energy\Electricity\Util\BillingRenderer;
 
 // $contractsJsonFilePath = __DIR__ . '/../config/contrats_fictif.json';
-$contractsJsonFilePath = __DIR__ . '/../config/contrats.json';
+$contractsJsonFilePath = __DIR__ . '/../core/config/contrats.json';
 
 try {
     // --- Chargement des contrats et services ---

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../php/energy_consumption.inc.php";
+require_once __DIR__ . "/../core/php/energy_consumption.inc.php";
 
 use Nexus\Energy\Electricity\Util\BillingRenderer;
 
