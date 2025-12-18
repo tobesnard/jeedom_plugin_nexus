@@ -1,0 +1,14 @@
+{
+    "db_path": "/tmp/test_wake_up_call",
+    "port": "8009",
+    "devices": {
+        "test_device": "127.0.0.1"
+    },
+    "media": {
+        "test_media": {
+            "url": "http://example.com/test.mp3",
+            "type": "BUFFERED",
+            "mime": "audio/mpeg"
+        }
+    }
+}

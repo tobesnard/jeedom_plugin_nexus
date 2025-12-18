@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../php/wake_up_call.inc.php';
+require_once __DIR__ . '/../core/php/wake_up_call.inc.php';
 
 use Nexus\Multimedia\WakeUpCall\WakeUpCall;
 
