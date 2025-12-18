@@ -1,0 +1,26 @@
+{
+    "db_path": "/tmp/nexus/wake_up_call",
+    "port": "8009",
+    "devices": {
+        "cuisine": "192.168.1.90",
+        "escalier": "192.168.1.74",
+        "galets": "192.168.1.90"
+    },
+    "media": {
+        "siren": {
+            "url": "http://edom.eu.jeedom.link/data/media/siren.mp3",
+            "type": "BUFFERED",
+            "mime": "audio/mp3"
+        },
+        "wakeup": {
+            "url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "type": "BUFFERED",
+            "mime": "audio/mp3"
+        },
+        "bunny": {
+            "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            "type": "NONE",
+            "mime": "video/mp4"
+        }
+    }
+}
