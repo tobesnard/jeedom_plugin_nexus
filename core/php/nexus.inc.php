@@ -22,7 +22,8 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 /**
- * Inclusion des fichiers *.inc.php  (Méthodes proxy et librairies)
+ * Inclusion des fichiers *.inc.php (Méthodes proxy et librairies)
+ * Exclusion automatique des répertoires liés aux tests (tests, test, Spec, etc.)
  **/
 function requires_inc_php()
 {
@@ -34,7 +35,7 @@ function requires_inc_php()
         dirname(__DIR__, 2) . '/3rdparty',
     ];
 
-    $currentFile = __FILE__;
+    $currentFile = realpath(__FILE__);
 
     foreach ($includeDirs as $dir) {
         if (!is_dir($dir)) {
@@ -44,24 +45,31 @@ function requires_inc_php()
             continue;
         }
 
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
+        $directory = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
 
         foreach ($iterator as $file) {
-            if (
-                $file->isFile()
-                && $file->getExtension() === 'php'
-                && strpos($file->getFilename(), '.inc.php') !== false
-                && realpath($file->getPathname()) !== realpath($currentFile) // 🔒 exclusion du fichier courant
-            ) {
-                include_once $file->getPathname();
-                if (class_exists('log') && $debug) {
-                    log::add('nexus', 'debug', 'Fichier inclus : ' . $file->getPathname());
-                }
+            $path = $file->getPathname();
+            $realPath = realpath($path);
+
+            // 1. Vérification extension et exclusion fichier courant
+            if (!$file->isFile() || $file->getExtension() !== 'php' || strpos($file->getFilename(), '.inc.php') === false || $realPath === $currentFile) {
+                continue;
+            }
+
+            // 2. Exclusion des répertoires de tests (insensible à la casse)
+            // Filtre les segments de chemin : /tests/, /test/, /UnitTests/, etc.
+            if (preg_match('/[\\\/](tests?|spec|phpunit)[\\\/]/i', $path)) {
+                continue;
+            }
+
+            include_once $path;
+
+            if (class_exists('log') && $debug) {
+                log::add('nexus', 'debug', 'Fichier inclus : ' . $path);
             }
         }
     }
 }
+
 requires_inc_php();
