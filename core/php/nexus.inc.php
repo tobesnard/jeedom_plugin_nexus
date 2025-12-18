@@ -59,7 +59,7 @@ function requires_inc_php()
 
             // 2. Exclusion des répertoires de tests (insensible à la casse)
             // Filtre les segments de chemin : /tests/, /test/, /UnitTests/, etc.
-            if (preg_match('/[\\\/](tests?|spec|phpunit)[\\\/]/i', $path)) {
+            if (preg_match('#[\\\\/](tests?|spec|phpunit)[\\\\/]#i', $path)) {
                 continue;
             }
 

@@ -3,7 +3,7 @@
 
 // require_once __DIR__ . "/../../vendor/autoload.php";
 
-require_once __DIR__ . "/../php/philiptv.inc.php";
+require_once __DIR__ . "/../core/php/philiptv.inc.php";
 
 // $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
 // echo "version " . $philipsTV->version();
