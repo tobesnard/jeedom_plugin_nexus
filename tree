@@ -1,0 +1,132 @@
+.
+├── 3rdparty
+│   ├── ai_client
+│   │   ├── composer.json
+│   │   ├── composer.lock
+│   │   ├── core
+│   │   ├── tests
+│   │   └── vendor
+│   ├── energy_consumption
+│   │   ├── composer.json
+│   │   ├── composer.lock
+│   │   ├── CONVERSATION_TRANSCRIPT_2025-12-17.md
+│   │   ├── core
+│   │   ├── phpunit.xml
+│   │   ├── README.md
+│   │   ├── tests
+│   │   └── vendor
+│   ├── huesync
+│   │   ├── composer.json
+│   │   ├── core
+│   │   ├── hsb_cacert.pem_.txt
+│   │   ├── php
+│   │   ├── readme.md
+│   │   ├── requirements.txt
+│   │   ├── tests
+│   │   └── vendor
+│   ├── interpreter
+│   │   ├── CHANGELOG.md
+│   │   ├── composer.json
+│   │   ├── composer.lock
+│   │   ├── core
+│   │   ├── php
+│   │   ├── phpstan.neon
+│   │   ├── phpunit.xml
+│   │   ├── README.md
+│   │   ├── script
+│   │   ├── stubs
+│   │   ├── tests
+│   │   └── vendor
+│   ├── philips_tv
+│   │   ├── composer.json
+│   │   ├── context_list.txt
+│   │   ├── core
+│   │   ├── debug.sh
+│   │   ├── pylips
+│   │   ├── tests
+│   │   └── vendor
+│   ├── playstation
+│   │   ├── node_modules
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── play.py
+│   │   ├── ps5_wake.py
+│   │   └── requirements.txt
+│   └── wake_up_call
+│       ├── 3rdparty
+│       ├── composer.json
+│       ├── composer.lock
+│       ├── core
+│       ├── README.md
+│       ├── tests
+│       └── vendor
+├── composer.json
+├── composer.lock
+├── core
+│   ├── ajax
+│   │   └── nexus.ajax.php
+│   ├── class
+│   │   ├── Alarm
+│   │   ├── Monitoring
+│   │   ├── nexus.class.php
+│   │   ├── nexustest.class.php
+│   │   └── Utils
+│   ├── config
+│   │   └── jeedom.config.json
+│   ├── i18n
+│   ├── php
+│   │   ├── alarm.inc.php
+│   │   ├── monitoring.inc.php
+│   │   ├── nexus.inc.php
+│   │   └── utils.inc.php
+│   ├── template
+│   │   ├── dashboard
+│   │   └── mobile
+│   └── tests
+│       ├── alarm_alertbroadcast.tests.php
+│       └── monitoring_systemstats.tests.php
+├── desktop
+│   ├── js
+│   │   └── nexus.js
+│   ├── modal
+│   │   └── modal.nexus.php
+│   └── php
+│       └── nexus.php
+├── docs
+│   └── fr_FR
+│       ├── changelog_beta.md
+│       ├── changelog.md
+│       └── index.md
+├── LICENSE
+├── plugin_info
+│   ├── configuration.php
+│   ├── helperConfiguration.php
+│   ├── info.json
+│   ├── install.php
+│   ├── nexus_icon.png
+│   ├── packages.json
+│   └── pre_install.php
+├── README.md
+├── resources
+│   └── demond
+│       ├── demond.py
+│       └── jeedom
+├── script
+│   └── check_venv.sh
+├── test.autoload.php
+├── tree
+└── vendor
+    ├── autoload.php
+    └── composer
+        ├── autoload_classmap.php
+        ├── autoload_namespaces.php
+        ├── autoload_psr4.php
+        ├── autoload_real.php
+        ├── autoload_static.php
+        ├── ClassLoader.php
+        ├── installed.json
+        ├── installed.php
+        ├── InstalledVersions.php
+        └── LICENSE
+
+59 directories, 70 files

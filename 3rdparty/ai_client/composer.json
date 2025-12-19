@@ -1,0 +1,15 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Nexus\\AI\\AIClient\\": "core/class/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "friendsofphp/php-cs-fixer": "^3.0"
+    },
+    "scripts": {
+        "test": "phpunit tests/",
+        "cs-fix": "php-cs-fixer fix"
+    }
+}
