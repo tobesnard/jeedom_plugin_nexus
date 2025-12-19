@@ -1,0 +1,76 @@
+{
+    "house": {
+        "floors": [
+            {
+                "level": "ground_floor",
+                "label": "rez-de-chaussée",
+                "rooms": [
+                    {
+                        "room": "entrée",
+                        "openings": [
+                            {
+                                "type": "porte",
+                                "status": "closed"
+                            }
+                        ]
+                    },
+                    {
+                        "room": "salle de bain",
+                        "openings": [
+                            {
+                                "type": "fenêtre",
+                                "status": "open"
+                            }
+                        ]
+                    },
+                    {
+                        "room": "salon",
+                        "openings": [
+                            {
+                                "type": "fenêtre",
+                                "status": "closed"
+                            },
+                            {
+                                "type": "porte-fenêtre",
+                                "status": "closed"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "level": "first_floor",
+                "label": "étage",
+                "rooms": [
+                    {
+                        "room": "chambre",
+                        "openings": [
+                            {
+                                "type": "fenêtre",
+                                "status": "open"
+                            }
+                        ]
+                    },
+                    {
+                        "room": "bureau",
+                        "openings": [
+                            {
+                                "type": "fenêtre",
+                                "status": "open"
+                            }
+                        ]
+                    },
+                    {
+                        "room": "escalier",
+                        "openings": [
+                            {
+                                "type": "velux",
+                                "status": "open"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
