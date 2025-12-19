@@ -3,11 +3,11 @@
 # Exécute la logique complète (création/installation) pour chaque requirements.txt trouvé.
 
 # --- Configuration Globale ---
-# Dossiers à inspecter : le dossier racine (.) et les sous-dossiers de 3rdparty
+# Dossiers à inspecter : le dossier racine (.) et les sous-dossiers de packages
 SEARCH_DIRS="."
-if [ -d "3rdparty" ]; then
-    # Ajoute les sous-dossiers directs de 3rdparty (ex: 3rdparty/huesync)
-    for SUBDIR in 3rdparty/*/; do
+if [ -d "packages" ]; then
+    # Ajoute les sous-dossiers directs de packages (ex: packages/huesync)
+    for SUBDIR in packages/*/; do
         if [ -d "$SUBDIR" ]; then
             SEARCH_DIRS="$SEARCH_DIRS $SUBDIR"
         fi

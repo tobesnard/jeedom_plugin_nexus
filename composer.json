@@ -2,12 +2,32 @@
     "autoload": {
         "psr-4": {
             "Nexus\\": "core/class",
-            "Nexus\\HueSync\\": "3rdparty/huesync/core/class/",
-            "Nexus\\Interpreter\\": "3rdparty/interpreter/core/class",
-            "Nexus\\Multimedia\\PhilipsTV\\": "3rdparty/philips_tv/core/class",
-            "Nexus\\Multimedia\\WakeUpCall\\": "3rdparty/wake_up_call/core/class",
-            "Nexus\\Energy\\Electricity\\": "3rdparty/energy_consumption/core/class",
-            "Nexus\\AI\\AIClient\\": "3rdparty/ai_client/core/class"
-        }
+            "Nexus\\HueSync\\": "packages/huesync/core/class/",
+            "Nexus\\Interpreter\\": "packages/interpreter/core/class",
+            "Nexus\\Multimedia\\PhilipsTV\\": "packages/philips_tv/core/class",
+            "Nexus\\Multimedia\\WakeUpCall\\": "packages/wake_up_call/core/class",
+            "Nexus\\Energy\\Electricity\\": "packages/energy_consumption/core/class",
+            "Nexus\\AI\\AIClient\\": "packages/ai_client/core/class"
+        },
+        "classmap": [
+            "packages/wake_up_call/3rdparty/cast/"
+        ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "friendsofphp/php-cs-fixer": "^3.0"
+    },
+    "scripts": {
+        "cs-fix": "php-cs-fixer fix",
+        "test-aiclient": "phpunit packages/ai_client/tests/",
+        "demo-energy-core": "php packages/energy_consumption/tests/demo.core.php",
+        "demo-energy-inc": "php packages/energy_consumption/tests/demo.inc.php",
+        "demo-interpret-core": "php packages/interpreter/tests/demo.core.php",
+        "demo-interpret-core-mocked": "php packages/interpreter/tests/demo.core.mocked.php",
+        "demo-huesync-core": "python3 packages/huesync/tests/demo.core.py",
+        "demo-philipstv-inc": "php packages/philips_tv/tests/demo.inc.php",
+        "demo-philipstv-core": "python3 packages/philips_tv/tests/demo.core.py",
+        "demo-wakeupcall-inc": "php packages/wake_up_call/tests/demo.inc.php",
+        "demo-wakeupcall-core": "php packages/wake_up_call/tests/demo.core.php"
     }
 }

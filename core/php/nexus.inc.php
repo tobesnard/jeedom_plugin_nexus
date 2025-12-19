@@ -32,7 +32,7 @@ function requires_inc_php()
     // Tableau de répertoires à inclure
     $includeDirs = [
         __DIR__,
-        dirname(__DIR__, 2) . '/3rdparty',
+        dirname(__DIR__, 2) . '/packages',
     ];
 
     $currentFile = realpath(__FILE__);
