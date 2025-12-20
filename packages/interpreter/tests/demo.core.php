@@ -11,7 +11,7 @@ $parser = new BashRuleParser($cmdService);
 $context = new RuleContext(false, $cmdService); // Mode debug = false, avec service
 
 $rules = [
-    "if true : exec #[Sécurité][Sirènes Heiman][Tweet]#",
+    // "if true : exec #[Sécurité][Sirènes Heiman][Tweet]#",
     // "if true : exec #[Do][Not][Exist]#",
     // "if true : exec #6840#", // 6840 = #[Sécurité][Sirènes Heiman][Tweet]#
     // "if #[Multimédia][Philips TV][Power]# -eq  0  : exec #[Scripts][Philips TV][Power On]#",
@@ -19,8 +19,9 @@ $rules = [
     // "if true: event #[DevZone][Test][Event]# 'hello eventByString'",
     // "if true: event #15137# 'hello eventById'",
     // "exec #6840#, event #15137# yo, log #15137# ",
-    "log 'hello from ...'",
-   ];
+    // "log 'hello from ...'",
+    "if #[Multimédia][Galets][Volume]# -lt 75 : exec #[Multimédia][Galets][Volume Set]# slider->80 ",
+];
 
 foreach ($rules as $i => $ruleString) {
     $start = microtime(true);
