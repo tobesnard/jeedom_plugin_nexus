@@ -1,0 +1,73 @@
+{
+    "ground_floor": {
+        "label": "rez-de-chaussée",
+        "rooms": {
+            "entrée": [
+                {
+                    "type": "porte",
+                    "cmd": 10732
+                }
+            ],
+            "salle de bain": [
+                {
+                    "type": "fenêtre",
+                    "cmd": 10767
+                }
+            ],
+            "salon": [
+                {
+                    "name": "fenêtre sous l'escalier",
+                    "type": "fenêtre",
+                    "cmd": 10753
+                },
+                {
+                    "name": "fenêtre Boudha",
+                    "type": "fenêtre",
+                    "cmd": 10760
+                },
+                {
+                    "name": "fenêtre coté rue",
+                    "type": "fenêtre",
+                    "cmd": 10739
+                },
+                {
+                    "type": "porte-fenêtre",
+                    "cmd": 10746
+                }
+            ]
+        }
+    },
+    "first_floor": {
+        "label": "étage",
+        "rooms": {
+            "chambre": [
+                {
+                    "type": "fenêtre",
+                    "cmd": 10788
+                }
+            ],
+            "bureau": [
+                {
+                    "type": "fenêtre",
+                    "cmd": 10802
+                },
+                {
+                    "type": "velux",
+                    "cmd": 10795
+                }
+            ],
+            "escalier": [
+                {
+                    "name": "petit velux",
+                    "type": "velux",
+                    "cmd": 10774
+                },
+                {
+                    "name": "grand velux",
+                    "type": "velux",
+                    "cmd": 10781
+                }
+            ]
+        }
+    }
+}

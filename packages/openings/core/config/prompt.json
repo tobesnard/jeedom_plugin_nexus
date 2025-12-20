@@ -10,7 +10,7 @@
             "synthesis_rules": {
                 "total_security": {
                     "condition": "all_closed",
-                    "response": "Tous les ouvrants sont sécurisés."
+                    "response": "Tous les ouvrants sont fermés."
                 },
                 "level_saturation": {
                     "condition": "open_elements_per_floor > 3",

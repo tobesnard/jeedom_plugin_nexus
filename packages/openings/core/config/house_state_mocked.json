@@ -27,11 +27,22 @@
                         "room": "salon",
                         "openings": [
                             {
+                                "name": "fenêtre sous l'escalier",
                                 "type": "fenêtre",
                                 "status": "closed"
                             },
                             {
                                 "type": "porte-fenêtre",
+                                "status": "closed"
+                            },
+                            {
+                                "name": "fenêtre Boudha",
+                                "type": "fenêtre",
+                                "status": "open"
+                            },
+                            {
+                                "name": "fenêtre coté rue",
+                                "type": "fenêtre",
                                 "status": "closed"
                             }
                         ]
@@ -56,7 +67,11 @@
                         "openings": [
                             {
                                 "type": "fenêtre",
-                                "status": "open"
+                                "status": "closed"
+                            },
+                            {
+                                "type": "velux",
+                                "status": "closed"
                             }
                         ]
                     },
@@ -64,8 +79,14 @@
                         "room": "escalier",
                         "openings": [
                             {
+                                "name": "petit velux",
                                 "type": "velux",
-                                "status": "open"
+                                "status": "closed"
+                            },
+                            {
+                                "name": "grand velux",
+                                "type": "velux",
+                                "status": "closed"
                             }
                         ]
                     }

@@ -7,7 +7,9 @@
             "Nexus\\Multimedia\\PhilipsTV\\": "packages/philips_tv/core/class",
             "Nexus\\Multimedia\\WakeUpCall\\": "packages/wake_up_call/core/class",
             "Nexus\\Energy\\Electricity\\": "packages/energy_consumption/core/class",
-            "Nexus\\AI\\AIClient\\": "packages/ai_client/core/class"
+            "Nexus\\AI\\AIClient\\": "packages/ai_client/core/class",
+            "Nexus\\Openings\\": "packages/openings/core/class",
+            "Nexus\\Jeedom\\": "packages/jeedom/core/class"
         },
         "classmap": [
             "packages/wake_up_call/3rdparty/cast/"
@@ -20,6 +22,7 @@
     "scripts": {
         "cs-fix": "php-cs-fixer fix",
         "test-aiclient": "phpunit packages/ai_client/tests/",
+        "test-jeedom": "phpunit packages/jeedom/tests/",
         "demo-energy-core": "php packages/energy_consumption/tests/demo.core.php",
         "demo-energy-inc": "php packages/energy_consumption/tests/demo.inc.php",
         "demo-interpret-core": "php packages/interpreter/tests/demo.core.php",
@@ -28,6 +31,10 @@
         "demo-philipstv-inc": "php packages/philips_tv/tests/demo.inc.php",
         "demo-philipstv-core": "python3 packages/philips_tv/tests/demo.core.py",
         "demo-wakeupcall-inc": "php packages/wake_up_call/tests/demo.inc.php",
-        "demo-wakeupcall-core": "php packages/wake_up_call/tests/demo.core.php"
+        "demo-wakeupcall-core": "php packages/wake_up_call/tests/demo.core.php",
+        "demo-openings-core": "php packages/openings/tests/demo.core.php",
+        "demo-openings-inc": "php packages/openings/tests/demo.inc.php",
+        "demo-jeedom-core": "php packages/jeedom/tests/demo.core.php",
+        "demo-jeedom-inc": "php packages/jeedom/tests/demo.inc.php"
     }
 }
