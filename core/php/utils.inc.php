@@ -37,7 +37,7 @@ function extract_notification_value(...$args)
     return Nexus\Utils\Utils::extract_notification_value(...$args);
 }
 
-function utils_askTelegram(string $title, string $answers, int $timeout, ?string $variableName = null)
-{
-    return Nexus\Utils\Utils::askTelegram($title, $answers, $timeout, $variableName);
-}
+// function utils_askTelegram(string $title, string $answers, int $timeout, ?string $variableName = null)
+// {
+//     return Nexus\Utils\Utils::askTelegram($title, $answers, $timeout, $variableName);
+// }

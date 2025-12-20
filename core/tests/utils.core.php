@@ -78,8 +78,8 @@ $raw = 'Ceci est une valeur directe sans json';
 echo "6. extract (RAW) : " . (Utils::extract_notification_value($raw) === $raw ? "OK" : "FAIL") . "\n";
 
 // 6. Test formatHeure
-echo "7. formatHeure (int) : " . (Utils::formatHeure(930) === "09:30" ? "OK" : "FAIL") . "\n";
-echo "8. formatHeure (string) : " . (Utils::formatHeure("2215") === "22:15" ? "OK" : "FAIL") . "\n";
+echo "7. formatHeure (int) : " . (Utils::formatHour(930) === "09:30" ? "OK" : "FAIL") . "\n";
+echo "8. formatHeure (string) : " . (Utils::formatHour("2215") === "22:15" ? "OK" : "FAIL") . "\n";
 
 // 7. Test askTelegram
-echo "9. askTelegram : " . (Utils::askTelegram("Titre", "Oui;Non", 30) === "reponse test" ? "OK" : "FAIL") . "\n";
+// echo "9. askTelegram : " . (Utils::askTelegram("Titre", "Oui;Non", 30) === "reponse test" ? "OK" : "FAIL") . "\n";

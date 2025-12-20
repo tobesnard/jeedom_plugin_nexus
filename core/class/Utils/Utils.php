@@ -2,11 +2,11 @@
 
 namespace Nexus\Utils;
 
-require_once "/var/www/html/core/php/core.inc.php";
+// require_once "/var/www/html/core/php/core.inc.php";
 
-use cmd;
-use dataStore;
-use scenarioExpression;
+// use cmd;
+// use dataStore;
+// use scenarioExpression;
 
 /**
  * Classe utilitaire pour Jeedom - Nexus Framework
@@ -96,33 +96,33 @@ class Utils
     /**
      * Interaction Telegram simplifiée avec gestion de variable DataStore.
      */
-    public static function askTelegram(string $title, string $answers, int $timeout, ?string $variableName = null): string
-    {
-        $varName = $variableName ?? 'ASK_VAR';
-
-        $options = [
-            'question' => $title,
-            'answer'   => $answers,
-            'timeout'  => $timeout,
-            'variable' => $varName,
-            'cmd'      => '#[Télécommunication][Telegram][Tony]#',
-        ];
-
-        echo "yo";
-
-        \scenarioExpression::createAndExec('action', 'ask', $options);
-
-
-        $dataStore = \dataStore::byTypeLinkIdKey('scenario', -1, $varName);
-        $value = is_object($dataStore) ? $dataStore->getValue() : '';
-
-        print_r($dataStore, true);
-
-        // Nettoyage si variable temporaire
-        if (is_object($dataStore) && is_null($variableName)) {
-            $dataStore->remove();
-        }
-
-        return self::uniform($value);
-    }
+    // public static function askTelegram(string $title, string $answers, int $timeout, ?string $variableName = null): string
+    // {
+    //     $varName = $variableName ?? 'ASK_VAR';
+    //
+    //     $options = [
+    //         'question' => $title,
+    //         'answer'   => $answers,
+    //         'timeout'  => $timeout,
+    //         'variable' => $varName,
+    //         'cmd'      => '#[Télécommunication][Telegram][Tony]#',
+    //     ];
+    //
+    //     echo "yo";
+    //
+    //     \scenarioExpression::createAndExec('action', 'ask', $options);
+    //
+    //
+    //     $dataStore = \dataStore::byTypeLinkIdKey('scenario', -1, $varName);
+    //     $value = is_object($dataStore) ? $dataStore->getValue() : '';
+    //
+    //     print_r($dataStore, true);
+    //
+    //     // Nettoyage si variable temporaire
+    //     if (is_object($dataStore) && is_null($variableName)) {
+    //         $dataStore->remove();
+    //     }
+    //
+    //     return self::uniform($value);
+    // }
 }

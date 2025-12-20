@@ -71,7 +71,7 @@ echo "--- FIN DES TESTS ---\n";
 
 
 
-$title = "test ?";
-$answers = 'Oui;Non';
-$timeout = 5;
-$response = utils_askTelegram($title, $answers, $timeout); // Action Bloquante
+// $title = "test ?";
+// $answers = 'Oui;Non';
+// $timeout = 5;
+// $response = utils_askTelegram($title, $answers, $timeout); // Action Bloquante
