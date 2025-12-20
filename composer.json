@@ -35,6 +35,8 @@
         "demo-openings-core": "php packages/openings/tests/demo.core.php",
         "demo-openings-inc": "php packages/openings/tests/demo.inc.php",
         "demo-jeedom-core": "php packages/jeedom/tests/demo.core.php",
-        "demo-jeedom-inc": "php packages/jeedom/tests/demo.inc.php"
+        "demo-jeedom-inc": "php packages/jeedom/tests/demo.inc.php",
+        "demo-aiclient-core": "php packages/ai_client/tests/demo.core.php",
+        "demo-aiclient-inc": "php packages/ai_client/tests/demo.inc.php"
     }
 }
