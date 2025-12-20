@@ -2,88 +2,127 @@
 
 namespace Nexus\Utils;
 
+require_once "/var/www/html/core/php/core.inc.php";
+
+use cmd;
+use dataStore;
+use scenarioExpression;
+
 /**
- * Classe utilitaire pour des fonctions de support (échappement de caractères)
- * et des fonctions d'aide aux statistiques d'historique Jeedom.
+ * Classe utilitaire pour Jeedom - Nexus Framework
+ * Optimisée pour PHP 7.4+ (Type hinting, Performance, Refactoring)
  */
 class Utils
 {
     /**
-     * Échappe certains caractères spéciaux dans une chaîne pour une utilisation spécifique.
-     * Actuellement échappe les parenthèses () pour les rendre littérales (e.g., dans une regex).
-     * * @param string $_str La chaîne à échapper.
-     * @return string La chaîne échappée.
+     * Échappe les parenthèses pour les expressions régulières.
      */
-    public static function escapeChar($_str)
+    public static function escapeChar(string $str): string
     {
-        $data = $_str;
-        $data = str_replace("(", "\(", $data);
-        $data = str_replace(")", "\)", $data);
-        return $data;
+        return str_replace(['(', ')'], ['\(', '\)'], $str);
     }
 
     /**
-     * Récupère la valeur minimale historique d'une commande entre deux dates.
-     * Augmente la précision de la fonction homonyme du core Jeedom.
-     * * @param string $_cmd_id L'ID de la commande (ex: #123#).
-     * @param string $_startDate Date/heure de début.
-     * @param string $_endDate Date/heure de fin.
-     * @return float|string La valeur minimale arrondie à 2 décimales, ou une chaîne vide si erreur/non historisé.
+     * Factorisation de la récupération de statistiques historiques (Min/Max).
      */
-    public static function min_between($_cmd_id, $_startDate, $_endDate)
+    private static function getHistoryStat(string $cmdId, string $startDate, string $endDate, string $type): ?float
     {
-        /** Augmente la précision de la fonction homonyme du core Jeedom */
-        $cmd = cmd::byId(trim(str_replace('#', '', $_cmd_id)));
+        $id = trim(str_replace('#', '', $cmdId));
+        $cmd = cmd::byId($id);
 
-        // Vérification de l'objet commande et de l'historisation
-        if (!is_object($cmd) || $cmd->getIsHistorized() == 0) {
-            return '';
+        if (!is_object($cmd) || !$cmd->getIsHistorized()) {
+            return null;
         }
 
-        // Formatage des dates pour Jeedom
-        $_startTime = date('Y-m-d H:i:s', strtotime($_startDate));
-        $_endTime = date('Y-m-d H:i:s', strtotime($_endDate));
+        $startTime = date('Y-m-d H:i:s', strtotime($startDate));
+        $endTime = date('Y-m-d H:i:s', strtotime($endDate));
 
-        $historyStatistique = $cmd->getStatistique($_startTime, $_endTime);
+        $stats = $cmd->getStatistique($startTime, $endTime);
 
-        if (!isset($historyStatistique['min'])) {
-            return '';
+        if (!isset($stats[$type]) || $stats[$type] === '') {
+            return null;
         }
 
-        // Retourne la valeur minimale arrondie
-        return round($historyStatistique['min'], 2);
+        return round((float) $stats[$type], 2);
     }
 
+    public static function min_between(string $cmdId, string $startDate, string $endDate): ?float
+    {
+        return self::getHistoryStat($cmdId, $startDate, $endDate, 'min');
+    }
+
+    public static function max_between(string $cmdId, string $startDate, string $endDate): ?float
+    {
+        return self::getHistoryStat($cmdId, $startDate, $endDate, 'max');
+    }
 
     /**
-     * Récupère la valeur maximale historique d'une commande entre deux dates.
-     * Augmente la précision de la fonction homonyme du core Jeedom.
-     * * @param string $_cmd_id L'ID de la commande (ex: #123#).
-     * @param string $_startDate Date/heure de début.
-     * @param string $_endDate Date/heure de fin.
-     * @return float|string La valeur maximale arrondie à 2 décimales, ou une chaîne vide si erreur/non historisé.
+     * Supprime les accents et uniformise le texte (Minuscule, Trim).
      */
-    public static function max_between($_cmd_id, $_startDate, $_endDate)
+    public static function uniform(?string $texte): string
     {
-        /** Augmente la précision de la fonction homonyme du core Jeedom */
-        $cmd = cmd::byId(trim(str_replace('#', '', $_cmd_id)));
-
-        // Vérification de l'objet commande et de l'historisation
-        if (!is_object($cmd) || $cmd->getIsHistorized() == 0) {
+        if (empty($texte)) {
             return '';
         }
 
-        // Formatage des dates pour Jeedom
-        $_startTime = date('Y-m-d H:i:s', strtotime($_startDate));
-        $_endTime = date('Y-m-d H:i:s', strtotime($_endDate));
+        $texte = trim(mb_strtolower($texte, 'UTF-8'));
+        $texte = preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);~i', '$1', htmlentities($texte, ENT_QUOTES, 'UTF-8'));
+        return preg_replace('~&[^;]+;~', '', $texte);
+    }
 
-        $historyStatistique = $cmd->getStatistique($_startTime, $_endTime);
+    /**
+     * Extrait la valeur d'un JSON ou d'une chaîne TTS.
+     */
+    public static function extract_notification_value(...$args): string
+    {
+        $message = implode(',', $args);
+        // Utilisation de json_decode si possible, sinon regex
+        $data = json_decode($message, true);
+        if (json_last_error() === JSON_ERROR_NONE && isset($data['value'])) {
+            return (string) $data['value'];
+        }
+        return preg_replace('/.*"value":"([^"]+)".*/', '$1', $message);
+    }
 
-        if (!isset($historyStatistique['max'])) {
-            return '';
+    /**
+     * Formate un entier HHMM en string HH:MM.
+     */
+    public static function formatHour($heure): string
+    {
+        $chaine = str_pad((string) ((int) $heure), 4, "0", STR_PAD_LEFT);
+        return substr($chaine, 0, 2) . ":" . substr($chaine, 2, 2);
+    }
+
+    /**
+     * Interaction Telegram simplifiée avec gestion de variable DataStore.
+     */
+    public static function askTelegram(string $title, string $answers, int $timeout, ?string $variableName = null): string
+    {
+        $varName = $variableName ?? 'ASK_VAR';
+
+        $options = [
+            'question' => $title,
+            'answer'   => $answers,
+            'timeout'  => $timeout,
+            'variable' => $varName,
+            'cmd'      => '#[Télécommunication][Telegram][Tony]#',
+        ];
+
+        echo "yo";
+
+        \scenarioExpression::createAndExec('action', 'ask', $options);
+
+
+        $dataStore = \dataStore::byTypeLinkIdKey('scenario', -1, $varName);
+        $value = is_object($dataStore) ? $dataStore->getValue() : '';
+
+        print_r($dataStore, true);
+
+        // Nettoyage si variable temporaire
+        if (is_object($dataStore) && is_null($variableName)) {
+            $dataStore->remove();
         }
 
-        // Retourne la valeur maximale arrondie
-        return round($historyStatistique['max'], 2);
+        return self::uniform($value);
     }
 }

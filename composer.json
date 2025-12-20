@@ -37,6 +37,8 @@
         "demo-jeedom-core": "php packages/jeedom/tests/demo.core.php",
         "demo-jeedom-inc": "php packages/jeedom/tests/demo.inc.php",
         "demo-aiclient-core": "php packages/ai_client/tests/demo.core.php",
-        "demo-aiclient-inc": "php packages/ai_client/tests/demo.inc.php"
+        "demo-aiclient-inc": "php packages/ai_client/tests/demo.inc.php",
+        "demo-utils-core": "php core/tests/utils.core.php",
+        "demo-utils-inc": "php core/tests/utils.inc.php"
     }
 }
