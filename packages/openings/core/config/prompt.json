@@ -5,43 +5,45 @@
         "instructions": {
             "analysis": {
                 "target_status": "open",
-                "initial_announcement": "Si des éléments sont ouverts, commencer obligatoirement par le décompte exact et détaillé par type (ex: 'Vous avez 3 fenêtres et 1 velux d'ouverts'). Respecter strictement le singulier et le pluriel."
+                "initial_announcement": "Si et seulement si au moins un élément est ouvert, commencer obligatoirement par : 'Vous avez [N] ouvrant(s) d'ouvert(s)'."
             },
             "synthesis_rules": {
                 "total_security": {
                     "condition": "all_closed",
-                    "response": "Tous les ouvrants sont fermés."
+                    "response": "Les portes et les fenêtres sont fermés.",
+                    "priority": "absolute",
+                    "instruction": "Si le nombre d'ouvrants ouverts est 0, retourner uniquement cette phrase. Ne pas afficher 'Vous avez 0 ouvrant'."
                 },
-                "level_saturation": {
-                    "condition": "open_elements_per_floor > 3",
-                    "response_format": "Au [Niveau], plusieurs [types] sont ouverts."
-                },
-                "room_grouping": {
-                    "condition": "all_elements_in_room_open",
-                    "response_format": "Toutes les [types] de la [Pièce] sont ouvertes."
+                "room_aggregation": {
+                    "condition": "multiple_elements_in_same_room",
+                    "instruction": "Regrouper les éléments d'une même pièce (ex: 'la fenêtre Boudha et la porte-fenêtre du salon'). Utiliser 'ainsi que' pour lier les différents éléments ou pièces."
                 },
                 "individual_detail": {
                     "condition": "default",
-                    "response_format": "Lister précisément l'élément et sa pièce."
+                    "response_format": "Lister l'élément (priorité au 'name', sinon 'type') et sa pièce."
                 }
             },
-            "filtering": "Ne jamais mentionner les éléments fermés si au moins un élément est ouvert.",
+            "filtering": "Ignorer les éléments fermés dans le détail.",
             "prohibitions": [
-                "Aucune introduction (pas de 'Voici la synthèse...')",
+                "Aucune introduction",
                 "Aucune conclusion",
-                "Aucun commentaire"
+                "Ne jamais écrire 'Vous avez 0 ouvrant'"
             ],
             "language": "Français uniquement"
         },
         "output_format": {
-            "structure": "Grouper par étage (ex: 'Au Rez-de-chaussée...', 'À l'étage...')",
-            "tone": "Factuel, direct, sans introduction ni conclusion",
-            "grammar": "Respecter les accords de genre et de nombre"
+            "structure": "Soit la phrase unique de sécurité totale, soit la somme totale suivie du détail par étage.",
+            "tone": "Factuel et direct",
+            "grammar": "Respecter strictement les accords de genre et de nombre."
         },
         "examples": [
             {
-                "scenario": "Décompte détaillé",
-                "expected_output": "Vous avez 1 porte et 2 fenêtres d'ouvertes. Au rez-de-chaussée, la porte de l'entrée est ouverte. À l'étage, les fenêtres du bureau sont ouvertes."
+                "scenario": "Zéro ouverture",
+                "expected_output": "Les portes et les fenêtres sont fermés."
+            },
+            {
+                "scenario": "Une ouverture",
+                "expected_output": "Vous avez 1 ouvrant d'ouvert. Au rez-de-chaussée, la fenêtre de la salle de bain est ouverte."
             }
         ]
     }

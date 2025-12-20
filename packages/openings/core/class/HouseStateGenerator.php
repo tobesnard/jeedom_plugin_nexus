@@ -41,18 +41,22 @@ class HouseStateGenerator implements JsonSerializable
         return new self($config, $cmdService);
     }
 
-    private function parseConfig(array $config): void
+    private function parseConfig(array $floors): void
     {
-        foreach ($config as $levelId => $floorData) {
+        foreach ($floors as $levelId => $floorData) {
             $floor = [
                 'level' => $levelId,
                 'label' => $floorData['label'] ?? $levelId,
                 'rooms' => [],
             ];
 
-            foreach ($floorData['rooms'] as $roomName => $openings) {
+            // On extrait les noms des pièces (clés du tableau) pour le tri
+            $roomsRaw = $floorData['rooms'] ?? [];
+            ksort($roomsRaw); // Tri par nom de pièce (clé : "salon", "entrée", etc.)
+
+            foreach ($roomsRaw as $roomName => $openings) {
                 $floor['rooms'][] = [
-                    'room' => $roomName,
+                    'room'     => $roomName,
                     'openings' => $this->hydrateOpenings($openings),
                 ];
             }
@@ -62,13 +66,17 @@ class HouseStateGenerator implements JsonSerializable
 
     private function hydrateOpenings(array $openings): array
     {
+        // Tri par type d'ouvrant
+        usort($openings, function ($a, $b) {
+            return strcmp($a['type'] ?? '', $b['type'] ?? '');
+        });
+
         return array_map(function ($opening) {
             $data = [
                 'type'   => $opening['type'],
                 'status' => $this->getJeedomValue((int) ($opening['cmd'] ?? 0)),
             ];
 
-            // Ajout dynamique du nom s'il est présent dans la config
             if (isset($opening['name'])) {
                 $data['name'] = $opening['name'];
             }
@@ -76,7 +84,6 @@ class HouseStateGenerator implements JsonSerializable
             return $data;
         }, $openings);
     }
-
     /**
      * IMPLÉMENTATION VIA JEEDOMCMDSERVICE
      */

@@ -38,12 +38,12 @@
                             {
                                 "name": "fenêtre Boudha",
                                 "type": "fenêtre",
-                                "status": "open"
+                                "status": "closed"
                             },
                             {
                                 "name": "fenêtre coté rue",
                                 "type": "fenêtre",
-                                "status": "closed"
+                                "status": "open"
                             }
                         ]
                     }
