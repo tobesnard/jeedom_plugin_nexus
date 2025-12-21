@@ -46,15 +46,15 @@ class Utils
         return round((float) $stats[$type], 2);
     }
 
-    public static function min_between(string $cmdId, string $startDate, string $endDate): ?float
-    {
-        return self::getHistoryStat($cmdId, $startDate, $endDate, 'min');
-    }
+    // public static function minBetween(string $cmdId, string $startDate, string $endDate): ?float
+    // {
+    //     return self::getHistoryStat($cmdId, $startDate, $endDate, 'min');
+    // }
 
-    public static function max_between(string $cmdId, string $startDate, string $endDate): ?float
-    {
-        return self::getHistoryStat($cmdId, $startDate, $endDate, 'max');
-    }
+    // public static function maxBetween(string $cmdId, string $startDate, string $endDate): ?float
+    // {
+    //     return self::getHistoryStat($cmdId, $startDate, $endDate, 'max');
+    // }
 
     /**
      * Supprime les accents et uniformise le texte (Minuscule, Trim).
@@ -73,7 +73,7 @@ class Utils
     /**
      * Extrait la valeur d'un JSON ou d'une chaîne TTS.
      */
-    public static function extract_notification_value(...$args): string
+    public static function extractNotificationValue(...$args): string
     {
         $message = implode(',', $args);
         // Utilisation de json_decode si possible, sinon regex
