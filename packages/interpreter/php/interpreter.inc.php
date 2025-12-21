@@ -18,9 +18,9 @@ function interpret($args)
     $context = new RuleContext(false, $cmdService); // Mode debug = false, avec service
 
     // Log la l'instruction reçu
-    // $date = date("Y-m-d H:i:s");
-    // $log = "[{$date}] [Intepret] {$instruction}\n";
-    // file_put_contents("/tmp/interpret.log", $log, FILE_APPEND | LOCK_EX);
+    $date = date("Y-m-d H:i:s");
+    $log = "[{$date}] [Intepret] {$instruction}\n";
+    file_put_contents("/tmp/interpret.log", $log, FILE_APPEND | LOCK_EX);
 
     // Interprétation et exécution de la commande
     try {
