@@ -4,10 +4,6 @@ namespace Nexus\HueSync;
 
 class Syncbox
 {
-    private static $baseDir = '/var/www/html/plugins/nexus/packages/huesync/core/';
-    private static $scriptFile = 'syncbox.py';                  // Le script principal qui gère les commandes
-    private static $configFile = 'config/syncbox_config.json';
-
 
     public static function action(string $commandName)
     {
@@ -26,9 +22,14 @@ class Syncbox
 
     private static function execute(string $type, string $commandName)
     {
-        $configFilePath = self::$baseDir . self::$configFile;
-        $scriptFilePath = self::$baseDir . self::$scriptFile;
-        $commande = escapeshellcmd("/home/jeedom/.pyenv/shims/python3 $scriptFilePath --config $configFilePath --type $type --command $commandName ");
+        $baseDir = defined('HUESYNC_ROOT') ? HUESYNC_ROOT : JEEDOM_ROOT . '/plugins/nexus/packages/huesync';
+        $python  = defined('PYTHON_EXECUTABLE')  ? PYTHON_EXECUTABLE  : '/home/jeedom/.pyenv/shims/python3';
+
+        $scriptPath = $baseDir . '/core/syncbox.py';
+        $configPath = $baseDir . '/core/config/syncbox_config.json';
+
+        $commande = escapeshellcmd("$python $scriptPath --config $configPath --type $type --command $commandName");
+
         return shell_exec($commande);
     }
 }

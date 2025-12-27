@@ -15,7 +15,7 @@
             "packages/wake_up_call/3rdparty/cast/"
         ],
         "files": [
-            "bootstraps_jeedom.php"
+            "core/config/bootstrap.php"
         ]
     },
     "require-dev": {
@@ -31,6 +31,7 @@
         "demo-interpret-core": "php packages/interpreter/tests/demo.core.php",
         "demo-interpret-core-mocked": "php packages/interpreter/tests/demo.core.mocked.php",
         "demo-huesync-core": "python3 packages/huesync/tests/demo.core.py",
+        "demo-huesync-inc": "php packages/huesync/tests/demo.inc.php",
         "demo-philipstv-inc": "php packages/philips_tv/tests/demo.inc.php",
         "demo-philipstv-core": "python3 packages/philips_tv/tests/demo.core.py",
         "demo-wakeupcall-inc": "php packages/wake_up_call/tests/demo.inc.php",
