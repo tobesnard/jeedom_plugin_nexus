@@ -2,7 +2,7 @@
 
 namespace Nexus\Alarm;
 
-require_once __DIR__ . "/../class/Alarm/AlertBroadcaster.php";
+require_once __DIR__ . "/../core/class/AlertBroadcaster.php";
 
 echo "================================================\n";
 echo "           Test AlertBroadcaster \n";

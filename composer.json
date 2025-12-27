@@ -10,7 +10,9 @@
             "Nexus\\AI\\AIClient\\": "packages/ai_client/core/class",
             "Nexus\\Openings\\": "packages/openings/core/class",
             "Nexus\\Jeedom\\": "packages/jeedom/core/class",
-            "NEXUS\\Utils\\": "packages/utils/core/class"
+            "Nexus\\Utils\\": "packages/utils/core/class",
+            "Nexus\\Alarm\\": "packages/alarm/core/class",
+            "Nexus\\Monitoring\\": "packages/monitoring/core/class"
         },
         "classmap": [
             "packages/wake_up_call/3rdparty/cast/"
@@ -27,6 +29,8 @@
         "cs-fix": "php-cs-fixer fix",
         "test-aiclient": "phpunit packages/ai_client/tests/",
         "test-jeedom": "phpunit packages/jeedom/tests/",
+        "test-monitoring": "phpunit packages/monitoring/tests/",
+        "test-alarm": "phpunit packages/alarm/tests/",
         "demo-energy-core": "php packages/energy_consumption/tests/demo.core.php",
         "demo-energy-inc": "php packages/energy_consumption/tests/demo.inc.php",
         "demo-interpret-core": "php packages/interpreter/tests/demo.core.php",
@@ -44,6 +48,8 @@
         "demo-aiclient-core": "php packages/ai_client/tests/demo.core.php",
         "demo-aiclient-inc": "php packages/ai_client/tests/demo.inc.php",
         "demo-utils-core": "php packages/utils/tests/utils.core.php",
-        "demo-utils-inc": "php packages/utils/tests/utils.inc.php"
+        "demo-utils-inc": "php packages/utils/tests/utils.inc.php",
+        "demo-monitoring-core": "php packages/monitoring/tests/monitoring.core.php",
+        "demo-alarm-core": "php packages/alarm/tests/alarm.core.php"
     }
 }

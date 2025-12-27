@@ -2,7 +2,7 @@
 
 namespace Nexus\Monitoring;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use Nexus\Utils\Utils; // Assurez-vous que Utils::escapeChar existe et est accessible statiquement.
 
@@ -94,7 +94,7 @@ class SystemStats
         }
 
         // 4. Assemblage de la chaîne
-        $data = "$namedistri " . (int)$bitdistri . "bits ($arch)";
+        $data = "$namedistri " . (int) $bitdistri . "bits ($arch)";
         return Utils::escapeChar($data);
     }
 
@@ -141,7 +141,7 @@ class SystemStats
         $milli_temp = self::safeShellExec($command);
 
         if (!empty($milli_temp) && is_numeric($milli_temp)) {
-            $CPUsTemperature = (float)$milli_temp / 1000.0;
+            $CPUsTemperature = (float) $milli_temp / 1000.0;
             return round($CPUsTemperature, 0);
         }
 
@@ -150,7 +150,7 @@ class SystemStats
         $fallback_temp = self::safeShellExec($command_fallback);
 
         if (!empty($fallback_temp) && is_numeric($fallback_temp)) {
-            return (float)round((float)$fallback_temp, 0);
+            return (float) round((float) $fallback_temp, 0);
         }
 
         error_log("cpuTemperature: Lecture de température impossible.");
@@ -268,7 +268,7 @@ class SystemStats
         foreach ($lines as $line) {
             if (preg_match('/^(\w+):\s+(\d+)\s+kB$/i', trim($line), $matches)) {
                 $key = $matches[1];
-                $value_kb = (int)$matches[2];
+                $value_kb = (int) $matches[2];
                 // Conversion de Ko en Mo (1 Mo = 1024 Ko), arrondi à l'entier pour la lisibilité
                 $stats[$key] = round($value_kb / 1024, 0);
             }
@@ -295,7 +295,7 @@ class SystemStats
                 'total_mo' => $swapTotal,
                 'used_mo' => $swapUsed,
                 'used_percent' => $swapUsagePercent,
-            ]
+            ],
         ];
     }
 

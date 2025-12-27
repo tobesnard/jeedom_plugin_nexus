@@ -2,7 +2,7 @@
 
 namespace Nexus\Monitoring;
 
-require_once __DIR__ . "/../class/Monitoring/SystemStats.php";
+require_once __DIR__ . "/../core/class/SystemStats.php";
 
 // --- DÉBUT DU SCRIPT DE TEST ---
 
