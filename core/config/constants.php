@@ -14,3 +14,5 @@ define('NEXUS_CORE', NEXUS_ROOT . '/core/php/nexus.inc.php');
 define('NEXUS_TMP_DIR', '/tmp/nexus');
 
 define('HUESYNC_ROOT', JEEDOM_ROOT . '/plugins/nexus/packages/huesync');
+
+define('RCLONE_REMOTE_PATH', 'google-drive:Jeedom/Sauvegardes/');

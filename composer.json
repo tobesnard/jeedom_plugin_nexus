@@ -12,7 +12,8 @@
             "Nexus\\Jeedom\\": "packages/jeedom/core/class",
             "Nexus\\Utils\\": "packages/utils/core/class",
             "Nexus\\Alarm\\": "packages/alarm/core/class",
-            "Nexus\\Monitoring\\": "packages/monitoring/core/class"
+            "Nexus\\Monitoring\\": "packages/monitoring/core/class",
+            "Nexus\\Cloud\\": "packages/cloud/core/class"
         },
         "classmap": [
             "packages/wake_up_call/3rdparty/cast/"
@@ -50,6 +51,7 @@
         "demo-utils-core": "php packages/utils/tests/utils.core.php",
         "demo-utils-inc": "php packages/utils/tests/utils.inc.php",
         "demo-monitoring-core": "php packages/monitoring/tests/monitoring.core.php",
-        "demo-alarm-core": "php packages/alarm/tests/alarm.core.php"
+        "demo-alarm-core": "php packages/alarm/tests/alarm.core.php",
+        "demo-cloud-inc": "php packages/cloud/tests/cloud.inc.php"
     }
 }
