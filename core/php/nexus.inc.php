@@ -16,7 +16,7 @@
 * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__  . '/../../../../core/php/core.inc.php';
+// require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
 // Classes **/core/class généré par `composer dump-autoload` ou dépendance automatique Jeedom
 require_once __DIR__ . '/../../vendor/autoload.php';
