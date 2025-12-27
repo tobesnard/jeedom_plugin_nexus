@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use Nexus\Interpreter\Application\Services\JeedomCmdService;
 use Nexus\Interpreter\Context\RuleContext;
