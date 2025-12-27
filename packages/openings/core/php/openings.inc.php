@@ -21,7 +21,6 @@ function openings_getState()
         );
 
         return OpeningsManager::getStatusText($dataGenerator->getArray());
-
     } catch (\Exception $e) {
         echo "Erreur système : " . $e->getMessage();
     }

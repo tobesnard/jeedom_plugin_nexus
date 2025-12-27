@@ -81,6 +81,7 @@ class Utils
         if (json_last_error() === JSON_ERROR_NONE && isset($data['value'])) {
             return (string) $data['value'];
         }
+        // return json_encode($args);
         return preg_replace('/.*"value":"([^"]+)".*/', '$1', $message);
     }
 

@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../vendor/autoload.php";
-
+// require_once "/var/www/html/core/php/core.inc.php";
 
 function utils_formatHour($heure)
 {

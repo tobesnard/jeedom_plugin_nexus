@@ -34,8 +34,12 @@ class OpeningsManager
             $prompt = "### SYSTEM_RULES\n{$systemInstructions}\n\n";
             $prompt .= "### INPUT_DATA_TO_SYNTHESIZE\n{$inputData}";
 
-            return (string) $aiClient->query($prompt);
+            $output = (string) $aiClient->query($prompt);
 
+            // Supprime les caractères de contrôle ASCII (0 à 31 et 127)
+            $output = preg_replace('/[\x00-\x1F\x7F]/', '', $output);
+
+            return $output;
         } catch (Exception $e) {
             // En tant qu'expert, on prévoit un fallback en cas de fail API
             return "Erreur lors de la génération du statut : " . $e->getMessage();

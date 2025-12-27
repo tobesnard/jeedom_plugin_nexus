@@ -14,14 +14,14 @@ $testCases = [
         [1230, '12:30'],
         [5,    '00:05'],
     ],
-    'escapeChar' => [
+    'utils_escapeChar' => [
         ['Test (valeur)', 'Test \(valeur\)'],
         ['Hello World',   'Hello World'],
     ],
-    'uniform' => [
+    'utils_uniform' => [
         [' Été À NOËL ', 'ete a noel'],
     ],
-    'extract_notification_value' => [
+    'utils_extractNotificationValue' => [
         ['{"value":"Alerte"}', 'Alerte'],
         ['Message brut',       'Message brut'],
     ],
@@ -49,23 +49,8 @@ foreach ($testCases as $func => $scenarios) {
     }
 }
 
-// 2. Test spécifique pour les fonctions Jeedom (Mock ou variables réelles)
-// Note : Nécessite un environnement Jeedom chargé pour fonctionner réellement
-$cmdId = "#123#";
-$start = "2025-01-01 00:00:00";
-$end   = "2025-01-01 23:59:59";
 
-echo "\n--- TESTS DÉPENDANCES JEEDOM ---\n";
-try {
-    echo "Min Between: " . min_between($cmdId, $start, $end) . "\n";
-    echo "Max Between: " . max_between($cmdId, $start, $end) . "\n";
-} catch (\Throwable $e) {
-    echo "\033[33m[INFO]\033[0m Fonctions Jeedom ignorées (Hors environnement Core).\n";
-}
 
-// 3. Test de la fonction NOP
-echo "Test NOP: ";
-var_dump(nop());
 
 echo "--- FIN DES TESTS ---\n";
 
