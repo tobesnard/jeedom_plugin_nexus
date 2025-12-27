@@ -1,20 +1,20 @@
 <?php
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
+require_once "/var/www/html/core/php/core.inc.php";
 
 use Nexus\AI\AIClient\AIFactory;
+use Nexus\Utils\Helpers;
 
 /**
  * Méthode Proxy : Exécute une requête vers un service IA (Gemini par défaut)
  */
-function aiclient_execute(string $prompt, string $provider = 'gemini'): string
+function aiclient_query(string $prompt, string $provider = 'gemini'): string
 {
-    try {
+    return Helpers::execute(function () use ($prompt, $provider) {
         $aiClient = AIFactory::create($provider);
         return (string) $aiClient->query($prompt);
-    } catch (Exception $e) {
-        return "Erreur AI ({$provider}): " . $e->getMessage();
-    }
+    }, "Erreur AI ({$provider}) : consultez les logs nexus");
 }
 
 /**
@@ -22,7 +22,9 @@ function aiclient_execute(string $prompt, string $provider = 'gemini'): string
  */
 function aiclient_gemini(string $prompt): string
 {
-    return aiclient_execute($prompt, 'gemini');
+    return Helpers::execute(function () use ($prompt) {
+        return aiclient_query($prompt, 'gemini');
+    });
 }
 
 /**
@@ -30,7 +32,9 @@ function aiclient_gemini(string $prompt): string
  */
 function aiclient_chatgpt(string $prompt): string
 {
-    return aiclient_execute($prompt, 'chatgpt');
+    return Helpers::execute(function () use ($prompt) {
+        return aiclient_query($prompt, 'chatgpt');
+    });
 }
 
 /**
@@ -38,5 +42,7 @@ function aiclient_chatgpt(string $prompt): string
  */
 function aiclient_copilot(string $prompt): string
 {
-    return aiclient_execute($prompt, 'copilot');
+    return Helpers::execute(function () use ($prompt) {
+        return aiclient_query($prompt, 'copilot');
+    });
 }

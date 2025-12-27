@@ -3,22 +3,8 @@
 require_once __DIR__ . '/../class/TV.php';
 require_once "/var/www/html/core/php/core.inc.php";
 
-/**
- * Helper interne pour l'exécution sécurisée et le logging.
- * @param callable $callback
- * @param mixed $default
- * @return mixed
- */
-function _philipsTV_execute(callable $callback, $default = null)
-{
-    try {
-        return $callback();
-    } catch (Throwable $e) {
-        // error_log("PhilipsTV Exception: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
-        log::add('nexus', 'error', "PhilipsTV Exception : " . $e->getMessage());
-        return $default;
-    }
-}
+use Nexus\Multimedia\PhilipsTV\TV;
+use Nexus\Utils\Helpers;
 
 /**
  * Méthode Proxy : Récupère la version du wrapper API.
@@ -26,8 +12,8 @@ function _philipsTV_execute(callable $callback, $default = null)
  */
 function philipsTV_version()
 {
-    return _philipsTV_execute(function () {
-        return Nexus\Multimedia\PhilipsTV\TV::getInstance()->version();
+    return Helpers::execute(function () {
+        return TV::getInstance()->version();
     });
 }
 
@@ -36,8 +22,8 @@ function philipsTV_version()
  */
 function philipsTV_ambihueOn()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('ambihue_on');
+    Helpers::execute(function () {
+        TV::getInstance()->action('ambihue_on');
     });
 }
 
@@ -46,8 +32,8 @@ function philipsTV_ambihueOn()
  */
 function philipsTV_ambihueOff()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('ambihue_off');
+    Helpers::execute(function () {
+        TV::getInstance()->action('ambihue_off');
     });
 }
 
@@ -57,9 +43,8 @@ function philipsTV_ambihueOff()
  */
 function philipsTV_ambihueState()
 {
-    return _philipsTV_execute(function () {
-        $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
-        $status = json_decode($philipsTV->action('ambihue_status'));
+    return Helpers::execute(function () {
+        $status = json_decode(TV::getInstance()->action('ambihue_status'));
         return (isset($status->power) && $status->power === 'On') ? 1 : 0;
     }, 0);
 }
@@ -69,8 +54,8 @@ function philipsTV_ambihueState()
  */
 function philipsTV_ambilightOn()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('ambilight_on');
+    Helpers::execute(function () {
+        TV::getInstance()->action('ambilight_on');
     });
 }
 
@@ -79,8 +64,8 @@ function philipsTV_ambilightOn()
  */
 function philipsTV_ambilightOff()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('ambilight_off');
+    Helpers::execute(function () {
+        TV::getInstance()->action('ambilight_off');
     });
 }
 
@@ -90,9 +75,8 @@ function philipsTV_ambilightOff()
  */
 function philipsTV_ambilightState()
 {
-    return _philipsTV_execute(function () {
-        $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
-        $status = json_decode($philipsTV->action('ambilight_status'));
+    return Helpers::execute(function () {
+        $status = json_decode(TV::getInstance()->action('ambilight_status'));
         return (isset($status->power) && $status->power === 'On') ? 1 : 0;
     }, 0);
 }
@@ -102,8 +86,8 @@ function philipsTV_ambilightState()
  */
 function philipsTV_ambilightGame()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('ambilight_video_game');
+    Helpers::execute(function () {
+        TV::getInstance()->action('ambilight_video_game');
     });
 }
 
@@ -112,8 +96,8 @@ function philipsTV_ambilightGame()
  */
 function philipsTV_ambilightStandard()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('ambilight_video_standard');
+    Helpers::execute(function () {
+        TV::getInstance()->action('ambilight_video_standard');
     });
 }
 
@@ -122,8 +106,8 @@ function philipsTV_ambilightStandard()
  */
 function philipsTV_on()
 {
-    _philipsTV_execute(function () {
-        $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    Helpers::execute(function () {
+        $philipsTV = TV::getInstance();
         $powerstate = json_decode($philipsTV->action('powerstate'));
         if (isset($powerstate->powerstate) && $powerstate->powerstate !== "On") {
             $philipsTV->action('standby');
@@ -136,8 +120,8 @@ function philipsTV_on()
  */
 function philipsTV_off()
 {
-    _philipsTV_execute(function () {
-        $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    Helpers::execute(function () {
+        $philipsTV = TV::getInstance();
         $powerstate = json_decode($philipsTV->action('powerstate'));
         if (isset($powerstate->powerstate) && $powerstate->powerstate === "On") {
             $philipsTV->action('power_off');
@@ -151,9 +135,8 @@ function philipsTV_off()
  */
 function philipsTV_state()
 {
-    return _philipsTV_execute(function () {
-        $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
-        $status = json_decode($philipsTV->action('powerstate'));
+    return Helpers::execute(function () {
+        $status = json_decode(TV::getInstance()->action('powerstate'));
         return (isset($status->powerstate) && $status->powerstate === 'On') ? 1 : 0;
     }, 0);
 }
@@ -164,8 +147,8 @@ function philipsTV_state()
  */
 function philipsTV_mixedVolume($_value)
 {
-    _philipsTV_execute(function () use ($_value) {
-        $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
+    Helpers::execute(function () use ($_value) {
+        $philipsTV = TV::getInstance();
         $philipsTV->action('general_volume', intval($_value));
         $philipsTV->action('headphones_volume', intval($_value + 5));
     });
@@ -177,9 +160,8 @@ function philipsTV_mixedVolume($_value)
  */
 function philipsTV_volume()
 {
-    return _philipsTV_execute(function () {
-        $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
-        $json = json_decode($philipsTV->action('volume'));
+    return Helpers::execute(function () {
+        $json = json_decode(TV::getInstance()->action('volume'));
         return $json->current ?? 0;
     }, 0);
 }
@@ -189,7 +171,7 @@ function philipsTV_volume()
  */
 function philipsTV_turnUpVolume()
 {
-    _philipsTV_execute(function () {
+    Helpers::execute(function () {
         $current = (int) philipsTV_volume();
         philipsTV_mixedVolume($current + 8);
     });
@@ -200,7 +182,7 @@ function philipsTV_turnUpVolume()
  */
 function philipsTV_turnDownVolume()
 {
-    _philipsTV_execute(function () {
+    Helpers::execute(function () {
         $current = (int) philipsTV_volume();
         philipsTV_mixedVolume($current - 8);
     });
@@ -210,115 +192,115 @@ function philipsTV_turnDownVolume()
 
 function philipsTV_tf1()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TF1'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("TF1"); });
 }
 function philipsTV_france2()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('France 2'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("France 2"); });
 }
 function philipsTV_france3()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('F3 Centre'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("F3 Centre"); });
 }
 function philipsTV_canalplus()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('CANAL+'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("CANAL+"); });
 }
 function philipsTV_france5()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('France 5'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("France 5"); });
 }
 function philipsTV_m6()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('M6'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("M6"); });
 }
 function philipsTV_arte()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('Arte'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("Arte"); });
 }
 function philipsTV_c8()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('C8'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("C8"); });
 }
 function philipsTV_w9()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('W9'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("W9"); });
 }
 function philipsTV_tmc()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TMC'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("TMC"); });
 }
 function philipsTV_tfx()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TFX'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("TFX"); });
 }
 function philipsTV_nrj12()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('NRJ12'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("NRJ12"); });
 }
 function philipsTV_lcp()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('LCP'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("LCP"); });
 }
 function philipsTV_france4()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('France 4'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("France 4"); });
 }
 function philipsTV_bfmTV()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('BFM TV'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("BFM TV"); });
 }
 function philipsTV_cnews()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('CNEWS'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("CNEWS"); });
 }
 function philipsTV_cstar()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('CSTAR'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("CSTAR"); });
 }
 function philipsTV_gulli()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('Gulli'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("Gulli"); });
 }
 function philipsTV_tf1Series()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TF1 Séries Films'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("TF1 Séries Films"); });
 }
 function philipsTV_lEquipe()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('L\'Equipe'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("L'Equipe"); });
 }
 function philipsTV_6ter()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('6ter'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("6ter"); });
 }
 function philipsTV_rmcStory()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('RMC STORY'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("RMC STORY"); });
 }
 function philipsTV_rmcDecouverte()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('RMC Découverte'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("RMC Découverte"); });
 }
 function philipsTV_cherie25()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('Chérie 25'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("Chérie 25"); });
 }
 function philipsTV_lci()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('LCI'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("LCI"); });
 }
 function philipsTV_franceinfo()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('franceinfo:'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("franceinfo:"); });
 }
 function philipsTV_tvTours()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('TV Tours'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("TV Tours"); });
 }
 function philipsTV_parisPremiere()
 {
-    _philipsTV_execute(function () { Nexus\Multimedia\PhilipsTV\TV::getInstance()->setChannel('PARIS PREMIERE'); });
+    Helpers::execute(function () { TV::getInstance()->setChannel("PARIS PREMIERE"); });
 }
 
 /**
@@ -326,8 +308,8 @@ function philipsTV_parisPremiere()
  */
 function philipsTV_debug()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->debug();
+    Helpers::execute(function () {
+        TV::getInstance()->debug();
     });
 }
 
@@ -336,8 +318,8 @@ function philipsTV_debug()
  */
 function philipsTV_hdmi1()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('input_hdmi_1');
+    Helpers::execute(function () {
+        TV::getInstance()->action('input_hdmi_1');
     });
 }
 
@@ -346,7 +328,7 @@ function philipsTV_hdmi1()
  */
 function philipsTV_watchTV()
 {
-    _philipsTV_execute(function () {
-        Nexus\Multimedia\PhilipsTV\TV::getInstance()->action('watch_tv');
+    Helpers::execute(function () {
+        TV::getInstance()->action('watch_tv');
     });
 }

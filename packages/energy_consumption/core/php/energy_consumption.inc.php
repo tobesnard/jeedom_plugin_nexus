@@ -1,21 +1,21 @@
 <?php
 
 require_once __DIR__ . "/../../../../vendor/autoload.php";
+require_once "/var/www/html/core/php/core.inc.php";
 
 use Nexus\Energy\Electricity\EnergyFacade;
+use Nexus\Utils\Helpers;
 
 /**
  * Proxy : consommation d'hier (kWh).
- *
- * Utilisé principalement comme helper global par des scripts ou templates
- * externes (par exemple des widgets Jeedom). Ces fonctions sont fines
- * et délèguent tout le travail à `EnergyFacade`.
  *
  * @return float kWh
  */
 function energy_kwhDay(): float
 {
-    return EnergyFacade::kwhDay();
+    return Helpers::execute(function () {
+        return (float) EnergyFacade::kwhDay();
+    }, 0.0);
 }
 
 /**
@@ -25,7 +25,9 @@ function energy_kwhDay(): float
  */
 function energy_kwhMonth(): float
 {
-    return EnergyFacade::kwhMonth();
+    return Helpers::execute(function () {
+        return (float) EnergyFacade::kwhMonth();
+    }, 0.0);
 }
 
 /**
@@ -35,7 +37,9 @@ function energy_kwhMonth(): float
  */
 function energy_kwhYear(): float
 {
-    return EnergyFacade::kwhYear();
+    return Helpers::execute(function () {
+        return (float) EnergyFacade::kwhYear();
+    }, 0.0);
 }
 
 /**
@@ -45,7 +49,9 @@ function energy_kwhYear(): float
  */
 function energy_euroDay(): float
 {
-    return EnergyFacade::euroDay();
+    return Helpers::execute(function () {
+        return (float) EnergyFacade::euroDay();
+    }, 0.0);
 }
 
 /**
@@ -55,7 +61,9 @@ function energy_euroDay(): float
  */
 function energy_euroMonth(): float
 {
-    return EnergyFacade::euroMonth();
+    return Helpers::execute(function () {
+        return (float) EnergyFacade::euroMonth();
+    }, 0.0);
 }
 
 /**
@@ -65,5 +73,7 @@ function energy_euroMonth(): float
  */
 function energy_euroYear(): float
 {
-    return EnergyFacade::euroYear();
+    return Helpers::execute(function () {
+        return (float) EnergyFacade::euroYear();
+    }, 0.0);
 }

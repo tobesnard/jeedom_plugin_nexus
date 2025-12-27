@@ -1,13 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once "/var/www/html/core/php/core.inc.php";
+
+use Nexus\Utils\Helpers;
+use Nexus\Alarm\AlertBroadcaster;
 
 /**
  * Méthode proxy : Diffuse le message de mise en garde niveau 1
  */
 function alarm_infoMessage()
 {
-    Nexus\Alarm\AlertBroadcaster::infoMessage();
+    Helpers::execute(function () {
+        AlertBroadcaster::infoMessage();
+    });
 }
 
 /**
@@ -15,7 +21,9 @@ function alarm_infoMessage()
  */
 function alarm_warningMessage()
 {
-    Nexus\Alarm\AlertBroadcaster::warningMessage();
+    Helpers::execute(function () {
+        AlertBroadcaster::warningMessage();
+    });
 }
 
 /**
@@ -23,7 +31,9 @@ function alarm_warningMessage()
  */
 function alarm_galetsSirenOn()
 {
-    Nexus\Alarm\AlertBroadcaster::galetsSirenOn();
+    Helpers::execute(function () {
+        AlertBroadcaster::galetsSirenOn();
+    });
 }
 
 /**
@@ -31,5 +41,7 @@ function alarm_galetsSirenOn()
  */
 function alarm_galetsSirenOff()
 {
-    Nexus\Alarm\AlertBroadcaster::galetsSirenOff();
+    Helpers::execute(function () {
+        AlertBroadcaster::galetsSirenOff();
+    });
 }

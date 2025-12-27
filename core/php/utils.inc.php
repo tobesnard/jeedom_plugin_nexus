@@ -1,44 +1,56 @@
 <?php
 
 require_once __DIR__ . "/../../vendor/autoload.php";
-// require_once "/var/www/html/core/php/core.inc.php";
 
-function utils_formatHour($heure)
+use Nexus\Utils\Helpers;
+use Nexus\Utils\Utils;
+
+/**
+ * Méthode Proxy : Formate un entier HHMM en string HH:MM.
+ */
+function utils_formatHour($heure): string
 {
-    return Nexus\Utils\Utils::formatHour($heure);
+    return Helpers::execute(function () use ($heure) {
+        return Utils::formatHour($heure);
+    }, "");
 }
 
-// function utils_nop()
-// {
-//     ;
-// }
-
-function utils_escapeChar($str)
+/**
+ * Méthode Proxy : Échappe les caractères spéciaux pour Regex.
+ */
+function utils_escapeChar($str): string
 {
-    return Nexus\Utils\Utils::escapeChar($str);
+    return Helpers::execute(function () use ($str) {
+        return Utils::escapeChar($str);
+    }, $str);
 }
 
-// function utils_minBetween($cmdId, $startDate, $endDate)
-// {
-//     return Nexus\Utils\Utils::minBetween($cmdId, $startDate, $endDate);
-// }
-
-// function utils_maxBetween($cmdId, $startDate, $endDate)
-// {
-//     return Nexus\Utils\Utils::maxBetween($cmdId, $startDate, $endDate);
-// }
-
-function utils_uniform($str)
+/**
+ * Méthode Proxy : Uniformise le texte (minuscules, sans accents).
+ */
+function utils_uniform($str): string
 {
-    return Nexus\Utils\Utils::uniform($str);
+    return Helpers::execute(function () use ($str) {
+        return Utils::uniform($str);
+    }, $str);
 }
 
-function utils_extractNotificationValue(...$args)
+/**
+ * Méthode Proxy : Extrait la valeur d'une notification JSON ou TTS.
+ */
+function utils_extractNotificationValue(...$args): string
 {
-    return Nexus\Utils\Utils::extractNotificationValue(...$args);
+    return Helpers::execute(function () use ($args) {
+        return Utils::extractNotificationValue(...$args);
+    }, "");
 }
 
+/**
+ * Méthode Proxy : Interaction Telegram avec gestion de timeout.
+ */
 function utils_askTelegram(string $title, string $answers, int $timeout, ?string $variableName = null)
 {
-    return Nexus\Utils\Utils::askTelegram($title, $answers, $timeout, $variableName);
+    return Helpers::execute(function () use ($title, $answers, $timeout, $variableName) {
+        return Utils::askTelegram($title, $answers, $timeout, $variableName);
+    });
 }
