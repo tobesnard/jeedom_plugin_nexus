@@ -2,8 +2,6 @@
 
 namespace Nexus\Utils;
 
-require_once "/var/www/html/core/php/core.inc.php";
-
 use log;
 use Throwable;
 

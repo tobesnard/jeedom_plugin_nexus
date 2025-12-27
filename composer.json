@@ -13,6 +13,9 @@
         },
         "classmap": [
             "packages/wake_up_call/3rdparty/cast/"
+        ],
+        "files": [
+            "bootstraps_jeedom.php"
         ]
     },
     "require-dev": {

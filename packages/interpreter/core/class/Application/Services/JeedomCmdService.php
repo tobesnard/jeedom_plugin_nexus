@@ -2,7 +2,7 @@
 
 namespace Nexus\Interpreter\Application\Services;
 
-require_once '/var/www/html/core/php/core.inc.php';
+require_once __DIR__ . '/../../../../../../vendor/autoload.php';
 
 use Exception;
 use InvalidArgumentException;
@@ -95,7 +95,7 @@ class JeedomCmdService implements ICmdService
         $this->stats['executions']++;
 
         // Vérification du cache
-        $cacheKey = $this->generateCacheKey('id', (string)$id, $options);
+        $cacheKey = $this->generateCacheKey('id', (string) $id, $options);
         if ($this->isCacheValid($cacheKey)) {
             $this->stats['cache_hits']++;
 
@@ -111,13 +111,13 @@ class JeedomCmdService implements ICmdService
 
             $result = $cmd->execCmd($options);
             $this->setCacheValue($cacheKey, $result);
-            $this->logExecution('id', (string)$id, $options, $result, true);
+            $this->logExecution('id', (string) $id, $options, $result, true);
 
             return $result;
 
         } catch (Exception $e) {
             $this->stats['errors']++;
-            $this->handleException('execById', (string)$id, $e);
+            $this->handleException('execById', (string) $id, $e);
 
             return null;
         }
@@ -179,7 +179,7 @@ class JeedomCmdService implements ICmdService
         $this->stats['executions']++;
 
         // Vérification du cache
-        $cacheKey = $this->generateCacheKey('id', (string)$id, [$value]);
+        $cacheKey = $this->generateCacheKey('id', (string) $id, [$value]);
         if ($this->isCacheValid($cacheKey)) {
             $this->stats['cache_hits']++;
 
@@ -195,13 +195,13 @@ class JeedomCmdService implements ICmdService
 
             $result = $cmd->event($value);
             $this->setCacheValue($cacheKey, $result);
-            $this->logExecution('id', (string)$id, [$value], $result, true);
+            $this->logExecution('id', (string) $id, [$value], $result, true);
 
             return true;
 
         } catch (Exception $e) {
             $this->stats['errors']++;
-            $this->handleException('eventById', (string)$id, $e);
+            $this->handleException('eventById', (string) $id, $e);
 
             return false;
         }

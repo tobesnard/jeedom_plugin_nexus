@@ -2,12 +2,6 @@
 
 namespace Nexus\Utils;
 
-// require_once "/var/www/html/core/php/core.inc.php";
-
-// use cmd;
-// use dataStore;
-// use scenarioExpression;
-
 /**
  * Classe utilitaire pour Jeedom - Nexus Framework
  * Optimisée pour PHP 7.4+ (Type hinting, Performance, Refactoring)

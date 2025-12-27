@@ -2,7 +2,7 @@
 
 namespace Nexus\Jeedom;
 
-require_once '/var/www/html/core/php/core.inc.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use Exception;
 use InvalidArgumentException;

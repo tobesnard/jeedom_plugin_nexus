@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../class/TV.php';
-require_once "/var/www/html/core/php/core.inc.php";
 
 use Nexus\Multimedia\PhilipsTV\TV;
 use Nexus\Utils\Helpers;

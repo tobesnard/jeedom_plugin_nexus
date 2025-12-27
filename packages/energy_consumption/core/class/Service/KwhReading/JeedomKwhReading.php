@@ -2,8 +2,6 @@
 
 namespace Nexus\Energy\Electricity\Service\KwhReading;
 
-require_once '/var/www/html/core/php/core.inc.php';
-
 use DateTimeImmutable;
 
 /**
@@ -54,7 +52,7 @@ class JeedomKwhReading implements IKwhReading
         foreach ($historyList as $entry) {
             $dataset[] = [
                 'date'  => new DateTimeImmutable($entry->getDatetime()),
-                'value' => (float)$entry->getValue()
+                'value' => (float) $entry->getValue(),
             ];
         }
 

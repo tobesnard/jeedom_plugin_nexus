@@ -2,7 +2,7 @@
 
 namespace Nexus\Alarm;
 
-require_once  '/var/www/html/core/php/core.inc.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 class AlertBroadcaster
 {
@@ -65,8 +65,8 @@ class AlertBroadcaster
      */
     private static function setVolume(string $equipement_name, int $value)
     {
-        $cmd_vol_get = \cmd::byString("#[Multimédia][".$equipement_name."][Volume]#");
-        $cmd_vol_set = \cmd::byString("#[Multimédia][".$equipement_name."][Volume Set]#");
+        $cmd_vol_get = \cmd::byString("#[Multimédia][" . $equipement_name . "][Volume]#");
+        $cmd_vol_set = \cmd::byString("#[Multimédia][" . $equipement_name . "][Volume Set]#");
 
         $oldVolume = is_object($cmd_vol_get) ? $cmd_vol_get->execCmd() : null;
 
