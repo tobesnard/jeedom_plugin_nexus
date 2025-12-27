@@ -9,7 +9,8 @@
             "Nexus\\Energy\\Electricity\\": "packages/energy_consumption/core/class",
             "Nexus\\AI\\AIClient\\": "packages/ai_client/core/class",
             "Nexus\\Openings\\": "packages/openings/core/class",
-            "Nexus\\Jeedom\\": "packages/jeedom/core/class"
+            "Nexus\\Jeedom\\": "packages/jeedom/core/class",
+            "NEXUS\\Utils\\": "packages/utils/core/class"
         },
         "classmap": [
             "packages/wake_up_call/3rdparty/cast/"
@@ -42,7 +43,7 @@
         "demo-jeedom-inc": "php packages/jeedom/tests/demo.inc.php",
         "demo-aiclient-core": "php packages/ai_client/tests/demo.core.php",
         "demo-aiclient-inc": "php packages/ai_client/tests/demo.inc.php",
-        "demo-utils-core": "php core/tests/utils.core.php",
-        "demo-utils-inc": "php core/tests/utils.inc.php"
+        "demo-utils-core": "php packages/utils/tests/utils.core.php",
+        "demo-utils-inc": "php packages/utils/tests/utils.inc.php"
     }
 }

@@ -5,7 +5,7 @@
  * Lancé en CLI : php test_utils.php
  */
 
-require_once __DIR__ . "/../php/utils.inc.php";
+require_once __DIR__ . "/../core/php/utils.inc.php";
 
 // Configuration des tests (Input => Expected)
 $testCases = [
