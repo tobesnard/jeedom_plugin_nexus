@@ -71,9 +71,7 @@ class TV
     /**
      * Empêche le clonage de l'instance Singleton.
      */
-    private function __clone()
-    {
-    }
+    private function __clone() {}
 
     // --- Méthodes de service (Privées) ---
 
@@ -171,11 +169,11 @@ class TV
         try {
             $response = $this->request_https("menuitems/settings/structure", "GET");
             $decoded = json_decode($response);
-            $this->structure = $decoded->node ?? (object)['node' => null];
+            $this->structure = $decoded->node ?? (object) ['node' => null];
         } catch (Exception $e) {
             // Évite le blocage si l'API n'est pas encore prête
             error_log("Avertissement : Structure non disponible. " . $e->getMessage());
-            $this->structure = (object)['node' => null];
+            $this->structure = (object) ['node' => null];
         }
     }
 
@@ -219,7 +217,7 @@ class TV
             }
         }
 
-        throw new Exception("Erreur cURL définitive ({$_uri}) après {$maxAttempts} tentatives.");
+        throw new Exception("Erreur cURL ({$_uri}) après {$maxAttempts} tentatives.");
     }
 
     /**
@@ -232,7 +230,7 @@ class TV
         }
 
         if (isset($_json->context) && $_json->context === $_key && isset($_json->node_id)) {
-            return (int)$_json->node_id;
+            return (int) $_json->node_id;
         }
 
         if (isset($_json->data->nodes) && is_array($_json->data->nodes)) {
@@ -345,7 +343,7 @@ class TV
 
         $channel_data = [
             "channel" => ["ccid" => $ccid],
-            "channelList" => ["id" => "allter"]
+            "channelList" => ["id" => "allter"],
         ];
 
         return $this->request_https("activities/tv", "POST", $channel_data);
@@ -379,7 +377,7 @@ class TV
 
         $setting->values[0]->value->data = $dataToSet;
 
-        return $this->request_https("menuitems/settings/update", "POST", (array)$setting);
+        return $this->request_https("menuitems/settings/update", "POST", (array) $setting);
     }
 
     /**
