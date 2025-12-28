@@ -12,6 +12,19 @@ use Throwable;
 class Helpers
 {
     /**
+     * Wrapper pour log::add centralisant le flux sur le log 'nexus'
+     *
+     * @param string $message Le message à loguer
+     * @param string $level Niveau de log (error, warning, info, debug)
+     */
+    public static function log(string $message, string $level = 'info'): void
+    {
+        if (class_exists('\log')) {
+            \log::add('nexus', $level, $message);
+        }
+    }
+
+    /**
      * Exécute une fonction anonyme de manière sécurisée avec niveau de log configurable.
      *
      * @param callable $callback Logique à exécuter
@@ -32,8 +45,8 @@ class Helpers
                 $e->getLine(),
             );
 
-            // Centralisation dans le flux de log 'nexus'
-            log::add('nexus', $level, $message);
+            // Utilisation du nouveau wrapper interne
+            self::log($message, $level);
 
             return $default;
         }

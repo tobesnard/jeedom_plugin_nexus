@@ -52,6 +52,7 @@
         "demo-utils-inc": "php packages/utils/tests/utils.inc.php",
         "demo-monitoring-core": "php packages/monitoring/tests/monitoring.core.php",
         "demo-alarm-core": "php packages/alarm/tests/alarm.core.php",
-        "demo-cloud-inc": "php packages/cloud/tests/cloud.inc.php"
+        "demo-cloud-inc": "php packages/cloud/tests/cloud.inc.php",
+        "demo-cloud-core": "php packages/cloud/tests/cloud.core.php"
     }
 }
