@@ -6,6 +6,7 @@ require_once __DIR__ . "/../../../../vendor/autoload.php";
 
 use Nexus\Jeedom\Notification;
 use Nexus\Utils\Helpers;
+use Nexus\Utils\Config;
 
 /**
  * Classe BackupManager - Nexus Framework
@@ -13,23 +14,30 @@ use Nexus\Utils\Helpers;
  */
 class BackupManager
 {
-    private $remotePath;
-    private $configFile;
-    private $source = '/var/www/html/backup/';
-    private $keepCount;
+    private string $remotePath;
+    private string $configFile;
+    private string $source;
+    private int $keepCount;
 
-    public function __construct(string $remotePath = null, string $configFile = null, int $keepCount = 10)
+    /**
+     * @param string|null $remotePath Chemin rclone distant
+     * @param string|null $configFile Chemin du fichier rclone.conf
+     * @param int $keepCount Nombre de sauvegardes à conserver
+     */
+    public function __construct(?string $remotePath = null, ?string $configFile = null, int $keepCount = 10)
     {
-        $this->remotePath = $remotePath ?? (defined('RCLONE_REMOTE_PATH') ? RCLONE_REMOTE_PATH : 'google-drive:Jeedom/Sauvegardes/');
-        $this->configFile = $configFile ?? __DIR__ . '/../config/rclone.conf';
+        $this->remotePath = $remotePath ?? Config::get('rclone_remote_path', 'google-drive:Jeedom/Sauvegardes/');
+        $this->configFile = $configFile ?? Config::get('rclone_config_file', __DIR__ . '/../config/rclone.conf');
+        $this->source     = Config::get('backup_source_path', '/var/www/html/backup/');
         $this->keepCount  = $keepCount;
     }
 
     /**
      * Exécute le cycle complet : Synchronisation puis Nettoyage
      */
-    public function run()
+    public function run(): void
     {
+        // Si lancé hors CLI (ex: via bouton dashboard), on temporise pour laisser le backup local finir
         if (php_sapi_name() !== 'cli') {
             sleep(30);
         }
@@ -55,7 +63,7 @@ class BackupManager
         exec($command, $output, $returnCode);
 
         if ($returnCode !== 0) {
-            $this->notifyError("[Backup Cloud] Échec rclone copy. Code: $returnCode. Détails: " . implode(' ', $output));
+            $this->handleFailure("[Backup Cloud] Échec rclone copy. Code: $returnCode. Détails: " . implode(' ', $output));
             return false;
         }
 
@@ -65,68 +73,68 @@ class BackupManager
     /**
      * Nettoie les anciennes sauvegardes sur le Cloud
      */
-    private function cleanup()
+    private function cleanup(): void
     {
-        Helpers::execute(function () {
-            $listCommand = sprintf(
-                "rclone lsjson %s --config %s",
-                escapeshellarg($this->remotePath),
+        $listCommand = sprintf(
+            "rclone lsjson %s --config %s",
+            escapeshellarg($this->remotePath),
+            escapeshellarg($this->configFile),
+        );
+
+        exec($listCommand, $jsonOutput, $returnCode);
+
+        if ($returnCode !== 0) {
+            $this->handleFailure("[Backup Cloud] Nettoyage : Impossible de lister les fichiers distants.");
+            return;
+        }
+
+        $files = json_decode(implode("\n", $jsonOutput), true);
+        if (!is_array($files)) {
+            return;
+        }
+
+        // Filtrage des fichiers de backup eDOM
+        $backups = array_filter($files, function ($file) {
+            return preg_match('/backup-eDOM-.*\.tar\.gz$/', $file['Name']);
+        });
+
+        // Tri décroissant par nom (date)
+        usort($backups, function ($a, $b) {
+            return strcmp($b['Name'], $a['Name']);
+        });
+
+        // Identification des fichiers en trop
+        $toDelete = array_slice($backups, $this->keepCount);
+
+        foreach ($toDelete as $file) {
+            $deleteCommand = sprintf(
+                "rclone deletefile %s --config %s",
+                escapeshellarg($this->remotePath . $file['Name']),
                 escapeshellarg($this->configFile),
             );
 
-            exec($listCommand, $jsonOutput, $returnCode);
+            exec($deleteCommand, $out, $code);
 
-            if ($returnCode !== 0) {
-                $this->notifyError("[Backup Cloud] Nettoyage : Impossible de lister les fichiers distants.");
-                return;
+            if ($code === 0) {
+                Helpers::log("[Backup Cloud] Supprimé du cloud : {$file['Name']}", 'debug');
+            } else {
+                $this->handleFailure("[Backup Cloud] Échec suppression cloud : {$file['Name']}");
             }
-
-            $files = json_decode(implode("\n", $jsonOutput), true);
-            if (!is_array($files)) {
-                return;
-            }
-
-            $backups = array_filter($files, function ($file) {
-                return preg_match('/backup-eDOM-.*\.tar\.gz$/', $file['Name']);
-            });
-
-            usort($backups, function ($a, $b) {
-                return strcmp($b['Name'], $a['Name']);
-            });
-
-            $toDelete = array_slice($backups, $this->keepCount);
-
-            foreach ($toDelete as $file) {
-                $deleteCommand = sprintf(
-                    "rclone deletefile %s --config %s",
-                    escapeshellarg($this->remotePath . $file['Name']),
-                    escapeshellarg($this->configFile),
-                );
-
-                exec($deleteCommand, $out, $code);
-
-                if ($code === 0) {
-                    Helpers::log("[Backup Cloud] Supprimé du cloud : {$file['Name']}", 'debug');
-                } else {
-                    $this->notifyError("[Backup Cloud] Échec suppression cloud : {$file['Name']}");
-                }
-            }
-        });
+        }
     }
 
     /**
-     * Notification via Helpers, Notification et Jeedom Message
+     * Gestion centralisée des alertes en cas d'échec
      */
-    private function notifyError(string $message)
+    private function handleFailure(string $message): void
     {
+        // 1. Log dans le fichier Nexus
         Helpers::log($message, 'error');
 
-        // Notification d'urgence
+        // 2. Notification d'urgence (SMS/Telegram via Config)
         Notification::emergencyThreadNotification($message);
 
-        // Ajout au centre de message Jeedom
-        if (class_exists('\message')) {
-            \message::add("Backup Cloud Error", $message);
-        }
+        // 3. Centre de messages Jeedom
+        Helpers::message("Backup Cloud", $message);
     }
 }

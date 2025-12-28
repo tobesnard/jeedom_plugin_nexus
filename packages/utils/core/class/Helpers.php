@@ -26,7 +26,19 @@ class Helpers
     }
 
     /**
-     * Exécute une fonction anonyme de manière sécurisée avec traçabilité complète
+     * Ajoute un message dans le centre de messages de Jeedom
+     * Utile pour les alertes critiques nécessitant une action utilisateur.
+     * * @param string $type Le type de message (ex: Alarme, Sécurité)
+     * @param string $message Le contenu du message
+     */
+    public static function message(string $type, string $message): void
+    {
+        $sanitizedMessage = str_replace(["\r", "\n"], ['\r', '\n'], $message);
+        JeedomLogService::getInstance()->addMessage($type, $sanitizedMessage);
+    }
+
+    /**
+     * Exécute une fonction anonyme de manière sécurisée avec traçabilité complète. Utilisation principalement dans les *.inc.php
      *
      * @param callable $callback
      * @param mixed $default

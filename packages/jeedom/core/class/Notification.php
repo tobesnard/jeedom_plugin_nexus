@@ -26,10 +26,10 @@ class Notification
         }
 
         // Récupération du chemin de la commande via le service Config
-        $cmdString = Config::get('emergency_thread_notification');
+        $cmdString = Config::get('cmd_emergency_thread_notification');
 
         if (!$cmdString) {
-            Helpers::log("Configuration manquante : 'emergency_thread_notification'", 'warning');
+            Helpers::log("Configuration manquante : 'cmd_emergency_thread_notification'", 'warning');
             return false;
         }
 
