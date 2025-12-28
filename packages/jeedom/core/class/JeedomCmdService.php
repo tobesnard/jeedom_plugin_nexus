@@ -307,11 +307,11 @@ class JeedomCmdService implements ICmdService
         $message = "[Nexus::Jeedom::{$method}] Erreur pour '{$identifier}': {$e->getMessage()}";
 
         if (function_exists('\\log::add')) {
-            \log::add('Edom', 'ERROR', $message);
+            \log::add('nexus', 'error', $message);
         }
 
         if (function_exists('\\message::add')) {
-            \message::add('Edom', $message);
+            \message::add('nexus', $message);
         }
 
         // En mode debug, on peut aussi logger la stack trace
@@ -338,7 +338,7 @@ class JeedomCmdService implements ICmdService
                 $message .= " Options: " . json_encode($options);
             }
 
-            \log::add('Edom', 'DEBUG', $message);
+            \log::add('nexus', 'debug', $message);
         }
     }
 
@@ -358,7 +358,7 @@ class JeedomCmdService implements ICmdService
                 $message .= " avec valeur: " . json_encode($value);
             }
 
-            \log::add('Edom', 'INFO', $message);
+            \log::add('nexus', 'info', $message);
         }
     }
 
