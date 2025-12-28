@@ -2,7 +2,7 @@
 
 namespace Nexus\Interpreter\Context;
 
-use Nexus\Jeedom\Services\ICmdService;
+use Nexus\Interpreter\Application\Services\ICmdService;
 use InvalidArgumentException;
 
 /**

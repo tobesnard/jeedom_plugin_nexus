@@ -3,32 +3,34 @@
 namespace Nexus\Utils;
 
 use Throwable;
-use Nexus\Jeedom\Services\JeedomCmdService;
+use Nexus\Jeedom\Services\JeedomLogService;
 
 /**
  * Classe Helpers - Nexus Framework
- * Centralisation de la gestion des erreurs et du logging via le service Jeedom
+ * Gestion durcie du logging et de l'exécution sécurisée.
  */
 class Helpers
 {
     /**
-     * Wrapper utilisant le Singleton JeedomCmdService
+     * Log sécurisé (protection contre le Log Injection)
      *
-     * @param string $message Le message à loguer
-     * @param string $level Niveau de log (error, warning, info, debug)
+     * @param string $message
+     * @param string $level
      */
     public static function log(string $message, string $level = 'info'): void
     {
-        // Utilisation de l'instance unique du service pour logger
-        JeedomCmdService::getInstance()->log($message, $level);
+        // Nettoyage des caractères de contrôle pour éviter la falsification de logs (CWE-117)
+        $sanitizedMessage = str_replace(["\r", "\n"], ['\r', '\n'], $message);
+
+        JeedomLogService::getInstance()->log($sanitizedMessage, $level);
     }
 
     /**
-     * Exécute une fonction anonyme de manière sécurisée
+     * Exécute une fonction anonyme de manière sécurisée avec traçabilité complète
      *
-     * @param callable $callback Logique à exécuter
-     * @param mixed $default Valeur de retour en cas d'exception
-     * @param string $level Niveau de log en cas d'erreur
+     * @param callable $callback
+     * @param mixed $default
+     * @param string $level
      * @return mixed
      */
     public static function execute(callable $callback, $default = null, string $level = 'error')
@@ -36,15 +38,21 @@ class Helpers
         try {
             return $callback();
         } catch (Throwable $e) {
-            $message = sprintf(
-                "[%s]: %s | File: %s:%d",
+            // Construction d'un rapport d'erreur complet pour expert
+            $report = sprintf(
+                "Exception: %s | Message: %s | File: %s:%d",
                 get_class($e),
                 $e->getMessage(),
                 $e->getFile(),
                 $e->getLine(),
             );
 
-            self::log($message, $level);
+            // Ajout de la stack trace pour analyse profonde
+            if ($level === 'debug') {
+                $report .= " | Trace: " . $e->getTraceAsString();
+            }
+
+            self::log($report . $context, $level);
 
             return $default;
         }

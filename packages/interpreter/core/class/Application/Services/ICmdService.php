@@ -1,6 +1,6 @@
 <?php
 
-namespace Nexus\Jeedom\Services;
+namespace Nexus\Interpreter\Application\Services;
 
 /**
  * Interface pour les services de commande Jeedom
@@ -65,4 +65,13 @@ interface ICmdService
      * @throws \RuntimeException Si le déclenchement échoue
      */
     public function eventById(int $cmd, $value): bool;
+
+    /**
+     * Journalise un message dans le flux du service
+     *
+     * @param string $logMessage
+     * @param string $level Niveau de log (info, error, debug, etc.)
+     * @return bool
+     */
+    public function log(string $logMessage, string $level = 'info'): bool;
 }

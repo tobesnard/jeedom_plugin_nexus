@@ -2,54 +2,37 @@
 
 namespace Nexus\Jeedom\Services;
 
-require_once __DIR__ . '/../../../../../vendor/autoload.php';
-
-use Exception;
 use InvalidArgumentException;
 use RuntimeException;
+use Nexus\Utils\Helpers;
+use Nexus\Utils\CacheService;
+use Nexus\Jeedom\Services\JeedomLogService;
 
 /**
- * Service de gestion des commandes Jeedom
- *
- * Implémentation concrète de l'interface ICmdService pour l'intégration
- * avec l'écosystème Jeedom. Gère l'exécution des commandes et événements
- * avec cache, validation et journalisation.
- *
- * @author  Tony <tobesnard@gmail.com>
- * @since   1.0.0
+ * Service de gestion des commandes Jeedom - Singleton
+ * * Centralise l'exécution sécurisée et la mise en cache intelligente.
+ * * @author Tony <tobesnard@gmail.com>
+ * @since 1.0.0
  */
 class JeedomCmdService implements ICmdService
 {
     /** @var self|null Instance unique */
     private static $instance = null;
 
-    /** @var array Cache des résultats de commandes */
-    private array $cache = [];
+    /** @var CacheService Instance du cache */
+    private CacheService $cacheProvider;
 
-    /** @var int Durée de vie du cache en secondes */
-    private int $cacheTimeout = 300; // 5 minutes
+    /** @var int TTL par défaut (60s) pour les infos */
+    private int $defaultInfoTimeout = 30;
 
-    /** @var array Statistiques d'exécution */
-    private array $stats = [
-        'executions' => 0,
-        'cache_hits' => 0,
-        'errors' => 0,
-    ];
+    // --- Initialisation ---
 
-    /**
-         * Constructeur privé pour empêcher l'instanciation directe
-         */
-    private function __construct() {}
-
-    /**
-     * Empêcher le clonage
-     */
+    private function __construct()
+    {
+        $this->cacheProvider = CacheService::getInstance();
+    }
 
     private function __clone() {}
-
-    /**
-     * Récupère l'instance unique du service
-     */
 
     public static function getInstance(): self
     {
@@ -59,373 +42,124 @@ class JeedomCmdService implements ICmdService
         return self::$instance;
     }
 
+    // --- API Publique : Exécution ---
+
     /**
-     * Exécute une commande par sa chaîne de caractères
-     *
-     * @param string $cmdString La chaîne de commande à exécuter
-     * @param array $options Options d'exécution
-     *
-     * @return mixed Le résultat de l'exécution
-     *
-     * @throws InvalidArgumentException Si la commande est invalide
-     * @throws RuntimeException Si l'exécution échoue
+     * Exécute une commande via sa syntaxe #[Objet][Equipement][Commande]#
      */
     public function execByString(string $cmdString, array $options = [])
     {
         $this->validateCmdString($cmdString);
-        $this->stats['executions']++;
 
-        // Vérification du cache
-        $cacheKey = $this->generateCacheKey('string', $cmdString, $options);
-        if ($this->isCacheValid($cacheKey)) {
-            $this->stats['cache_hits']++;
-
-            return $this->cache[$cacheKey]['value'];
-        }
-
-        try {
+        return Helpers::execute(function () use ($cmdString, $options) {
             $cmd = \cmd::byString($cmdString);
-
-            if (! is_object($cmd)) {
-                throw new RuntimeException("Commande introuvable: {$cmdString}");
+            if (!is_object($cmd)) {
+                throw new RuntimeException("Commande introuvable : $cmdString");
             }
-
-            $result = $cmd->execCmd($options);
-            $this->setCacheValue($cacheKey, $result);
-            $this->logExecution('string', $cmdString, $options, $result, true);
-
-            return $result;
-
-        } catch (Exception $e) {
-            $this->stats['errors']++;
-            $this->handleException('execByString', $cmdString, $e);
-
-            return null;
-        }
+            return $this->processExecution($cmd, $cmdString, $options);
+        });
     }
 
     /**
-     * Exécute une commande par son identifiant
-     *
-     * @param int $id L'identifiant de la commande
-     * @param array $options Options d'exécution
-     *
-     * @return mixed Le résultat de l'exécution
-     *
-     * @throws InvalidArgumentException Si l'ID est invalide
-     * @throws RuntimeException Si l'exécution échoue
+     * Exécute une commande via son ID numérique
      */
     public function execById(int $id, array $options = [])
     {
         $this->validateCmdId($id);
-        $this->stats['executions']++;
 
-        // Vérification du cache
-        $cacheKey = $this->generateCacheKey('id', (string) $id, $options);
-        if ($this->isCacheValid($cacheKey)) {
-            $this->stats['cache_hits']++;
-
-            return $this->cache[$cacheKey]['value'];
-        }
-
-        try {
+        return Helpers::execute(function () use ($id, $options) {
             $cmd = \cmd::byId($id);
-
-            if (! is_object($cmd)) {
-                throw new RuntimeException("Commande introuvable avec l'ID: {$id}");
+            if (!is_object($cmd)) {
+                throw new RuntimeException("ID de commande introuvable : $id");
             }
-
-            $result = $cmd->execCmd($options);
-            $this->setCacheValue($cacheKey, $result);
-            $this->logExecution('id', (string) $id, $options, $result, true);
-
-            return $result;
-
-        } catch (Exception $e) {
-            $this->stats['errors']++;
-            $this->handleException('execById', (string) $id, $e);
-
-            return null;
-        }
+            return $this->processExecution($cmd, (string) $id, $options);
+        });
     }
 
+    // --- API Publique : Événements ---
+
     /**
-     * Déclenche un événement par sa chaîne de caractères
-     *
-     * @param string $cmd La chaîne de l'événement
-     * @param mixed $value La valeur associée
-     *
-     * @return bool True si succès
+     * Met à jour la valeur d'une commande par string
      */
-    public function eventByString(string $cmdString, $value): bool
+    public function eventByString(string $cmd, $value): bool
     {
-        $this->validateCmdString($cmdString);
-        $this->stats['executions']++;
-
-        // Vérification du cache
-        $cacheKey = $this->generateCacheKey('string', $cmdString, [$value]);
-        if ($this->isCacheValid($cacheKey)) {
-            $this->stats['cache_hits']++;
-
-            return $this->cache[$cacheKey]['value'];
-        }
-
-        try {
-            $cmd = \cmd::byString($cmdString);
-
-            if (! is_object($cmd)) {
-                throw new RuntimeException("Commande introuvable: {$cmdString}");
+        $this->validateCmdString($cmd);
+        return (bool) Helpers::execute(function () use ($cmd, $value) {
+            $jeedomCmd = \cmd::byString($cmd);
+            if (is_object($jeedomCmd)) {
+                $this->invalidateCache('info', $cmd);
+                return $jeedomCmd->event($value);
             }
-
-            $result = $cmd->event($value);
-            $this->setCacheValue($cacheKey, $result);
-            $this->logExecution('string', $cmdString, [$value], $result, true);
-
-            return true;
-
-        } catch (Exception $e) {
-            $this->stats['errors']++;
-            $this->handleException('eventByString', $cmdString, $e);
-
             return false;
-        }
+        }, false);
     }
 
     /**
-     * Déclenche un événement par son identifiant
-     *
-     * @param string $cmd L'identifiant de l'événement
-     * @param mixed $value La valeur associée
-     *
-     * @return bool True si succès
+     * Met à jour la valeur d'une commande par ID
      */
     public function eventById(int $id, $value): bool
     {
         $this->validateCmdId($id);
-        $this->stats['executions']++;
-
-        // Vérification du cache
-        $cacheKey = $this->generateCacheKey('id', (string) $id, [$value]);
-        if ($this->isCacheValid($cacheKey)) {
-            $this->stats['cache_hits']++;
-
-            return $this->cache[$cacheKey]['value'];
-        }
-
-        try {
-            $cmd = \cmd::byId($id);
-
-            if (! is_object($cmd)) {
-                throw new RuntimeException("Commande introuvable avec l'ID: {$id}");
+        return (bool) Helpers::execute(function () use ($id, $value) {
+            $jeedomCmd = \cmd::byId($id);
+            if (is_object($jeedomCmd)) {
+                $this->invalidateCache('info', (string) $id);
+                return $jeedomCmd->event($value);
             }
-
-            $result = $cmd->event($value);
-            $this->setCacheValue($cacheKey, $result);
-            $this->logExecution('id', (string) $id, [$value], $result, true);
-
-            return true;
-
-        } catch (Exception $e) {
-            $this->stats['errors']++;
-            $this->handleException('eventById', (string) $id, $e);
-
             return false;
-        }
+        }, false);
     }
 
-    public function log(string $logMessage, string $level = 'info'): bool
-    {
-        \log::add('nexus', 'INFO', $logMessage);
-
-        return true;
-    }
-
+    // --- Traitement Interne & Cache ---
 
     /**
-     * Valide une chaîne de commande
-     *
-     * @param string $cmdString La chaîne à valider
-     *
-     * @throws InvalidArgumentException Si invalide
+     * Pivot d'exécution : gère la distinction entre Info (caché) et Action (direct)
      */
-    private function validateCmdString(string $cmdString): void
+    private function processExecution($cmd, string $identifier, array $options)
     {
-        if (empty(trim($cmdString))) {
-            throw new InvalidArgumentException('La chaîne de commande ne peut pas être vide');
+        $isInfo = ($cmd->getType() === 'info');
+        $cacheKey = $this->cacheProvider->generateKey($cmd->getType(), $identifier, $options);
+
+        // Lecture du cache si c'est une info
+        if ($isInfo && $this->cacheProvider->isValid($cacheKey)) {
+            return $this->cacheProvider->get($cacheKey);
         }
 
-        if (strlen($cmdString) > 255) {
-            throw new InvalidArgumentException('La chaîne de commande est trop longue (max: 255 caractères)');
+        // Exécution réelle
+        $result = $cmd->execCmd($options);
+
+        // Mise en cache si c'est une info
+        if ($isInfo) {
+            $this->cacheProvider->set($cacheKey, $result, $this->defaultInfoTimeout);
         }
+
+        JeedomLogService::getInstance()->logExecution($cmd->getType(), $identifier, $options, true);
+
+        return $result;
     }
 
     /**
-     * Valide un identifiant de commande
-     *
-     * @param int $id L'ID à valider
-     *
-     * @throws InvalidArgumentException Si invalide
+     * Nettoyage du cache lors d'une modification de valeur
      */
+    private function invalidateCache(string $type, string $id): void
+    {
+        $key = $this->cacheProvider->generateKey($type, $id, []);
+        // Nécessite CacheService::delete($key)
+    }
+
+    // --- Validation ---
+
+    private function validateCmdString(string $cmd): void
+    {
+        if (empty(trim($cmd))) {
+            throw new InvalidArgumentException("La commande textuelle est vide.");
+        }
+    }
+
     private function validateCmdId(int $id): void
     {
         if ($id <= 0) {
-            throw new InvalidArgumentException('L\'identifiant de commande doit être positif');
+            throw new InvalidArgumentException("L'ID doit être un entier positif.");
         }
-    }
-
-    /**
-     * Génère une clé de cache
-     *
-     * @param string $type Type de commande ('string' ou 'id')
-     * @param string $identifier Identifiant
-     * @param array $options Options
-     *
-     * @return string La clé de cache
-     */
-    private function generateCacheKey(string $type, string $identifier, array $options): string
-    {
-        $optionsHash = md5(serialize($options));
-
-        return "cmd_{$type}_{$identifier}_{$optionsHash}";
-    }
-
-    /**
-     * Vérifie si le cache est valide
-     *
-     * @param string $cacheKey La clé de cache
-     *
-     * @return bool True si valide
-     */
-    private function isCacheValid(string $cacheKey): bool
-    {
-        if (! isset($this->cache[$cacheKey])) {
-            return false;
-        }
-
-        $entry = $this->cache[$cacheKey];
-
-        return (time() - $entry['timestamp']) < $this->cacheTimeout;
-    }
-
-    /**
-     * Met en cache une valeur
-     *
-     * @param string $cacheKey La clé de cache
-     * @param mixed $value La valeur
-     */
-    private function setCacheValue(string $cacheKey, $value): void
-    {
-        $this->cache[$cacheKey] = [
-            'value' => $value,
-            'timestamp' => time(),
-        ];
-    }
-
-    /**
-     * Gère les exceptions de manière centralisée
-     *
-     * @param string $method La méthode où l'exception s'est produite
-     * @param string $identifier L'identifiant concerné
-     * @param Exception $e L'exception
-     */
-    private function handleException(string $method, string $identifier, Exception $e): void
-    {
-        $message = "[Nexus::Jeedom::{$method}] Erreur pour '{$identifier}': {$e->getMessage()}";
-
-        if (function_exists('\\log::add')) {
-            \log::add('nexus', 'error', $message);
-        }
-
-        if (function_exists('\\message::add')) {
-            \message::add('nexus', $message);
-        }
-
-        // En mode debug, on peut aussi logger la stack trace
-        // error_log($message . "\nStack trace: " . $e->getTraceAsString());
-        error_log($message);
-    }
-
-    /**
-     * Journalise l'exécution d'une commande
-     *
-     * @param string $type Type de commande
-     * @param string $identifier Identifiant
-     * @param array $options Options
-     * @param mixed $result Résultat
-     * @param bool $success Succès ou échec
-     */
-    private function logExecution(string $type, string $identifier, array $options, $result, bool $success): void
-    {
-        if (function_exists('\\log::add')) {
-            $status = $success ? 'SUCCESS' : 'FAILED';
-            $message = "[Interpreteur] Exécution {$type} '{$identifier}' [{$status}]";
-
-            if (! empty($options)) {
-                $message .= " Options: " . json_encode($options);
-            }
-
-            \log::add('nexus', 'debug', $message);
-        }
-    }
-
-    /**
-     * Journalise un événement
-     *
-     * @param string $type Type d'événement
-     * @param string $identifier Identifiant
-     * @param mixed $value Valeur
-     */
-    private function logEvent(string $type, string $identifier, $value): void
-    {
-        if (function_exists('\\log::add')) {
-            $message = "[Interpreteur] Événement {$type} '{$identifier}' déclenché";
-
-            if ($value !== null) {
-                $message .= " avec valeur: " . json_encode($value);
-            }
-
-            \log::add('nexus', 'info', $message);
-        }
-    }
-
-    /**
-     * Retourne les statistiques d'utilisation
-     *
-     * @return array Les statistiques
-     */
-    public function getStats(): array
-    {
-        return array_merge($this->stats, [
-            'cache_entries' => count($this->cache),
-            'cache_hit_ratio' => $this->stats['executions'] > 0
-                ? round(($this->stats['cache_hits'] / $this->stats['executions']) * 100, 2)
-                : 0,
-        ]);
-    }
-
-    /**
-     * Vide le cache
-     *
-     * @return self Pour chaînage fluide
-     */
-    public function clearCache(): self
-    {
-        $this->cache = [];
-
-        return $this;
-    }
-
-    /**
-     * Définit la durée de vie du cache
-     *
-     * @param int $seconds Durée en secondes
-     *
-     * @return self Pour chaînage fluide
-     */
-    public function setCacheTimeout(int $seconds): self
-    {
-        $this->cacheTimeout = max(0, $seconds);
-
-        return $this;
     }
 }

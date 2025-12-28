@@ -2,11 +2,11 @@
 
 require 'vendor/autoload.php'; // Générer avec `composer dump-autoload`
 
-use Nexus\Jeedom\Services\JeedomCmdService;
+use Nexus\Interpreter\Application\Services\JeedomService;
 use Nexus\Interpreter\Context\RuleContext;
 use Nexus\Interpreter\Parser\BashRuleParser;
 
-$cmdService = JeedomCmdService::getInstance();
+$cmdService = JeedomService::getInstance();
 $parser = new BashRuleParser($cmdService);
 $context = new RuleContext(false, $cmdService); // Mode debug = false, avec service
 

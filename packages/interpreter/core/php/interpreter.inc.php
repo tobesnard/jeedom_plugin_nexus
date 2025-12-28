@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use Nexus\Jeedom\Services\JeedomCmdService;
+use Nexus\Interpreter\Application\Services\JeedomService;
 use Nexus\Interpreter\Context\RuleContext;
 use Nexus\Interpreter\Parser\BashRuleParser;
 use Nexus\Utils\Helpers;
@@ -20,7 +20,7 @@ function interpret($args)
     file_put_contents("/tmp/interpret.log", $log, FILE_APPEND | LOCK_EX);
 
     return Helpers::execute(function () use ($instruction) {
-        $cmdService = JeedomCmdService::getInstance();
+        $cmdService = JeedomService::getInstance();
         $parser = new BashRuleParser($cmdService);
         $context = new RuleContext(false, $cmdService); // Mode debug = false
 

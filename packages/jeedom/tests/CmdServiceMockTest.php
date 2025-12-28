@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Nexus\Tests\Jeedom;
 
 use PHPUnit\Framework\TestCase;
-use Nexus\Jeedom\CmdServiceMock;
+use Nexus\Jeedom\Services\CmdServiceMock;
 
 /**
  * Test de validation du Mock Service Jeedom

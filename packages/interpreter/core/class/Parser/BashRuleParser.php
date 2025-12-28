@@ -3,7 +3,7 @@
 namespace Nexus\Interpreter\Parser;
 
 use Exception;
-use Nexus\Jeedom\Services\ICmdService;
+use Nexus\Interpreter\Application\Services\ICmdService;
 use Nexus\Interpreter\Expression\Expression;
 use Nexus\Interpreter\Expression\NonTerminal\Action\EventExpression;
 // Service
