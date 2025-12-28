@@ -1,0 +1,20 @@
+: hi
+
+id: 1762174490:0
+data: [{"creationtime":"2025-11-03T12:54:50Z","data":[{"id":"420d17f9-b53c-4a9a-827b-aa207378ace1","name":"jeedom_3tgs2","type":"geofence_client"}],"id":"98302431-84d9-4a86-a810-b259794c2c11","type":"update"}]
+
+id: 1762174503:0
+data: [{"creationtime":"2025-11-03T12:55:03Z","data":[{"id":"887ab1a1-45c0-4855-a421-e5fdf77b76d1","id_v1":"/sensors/50","owner":{"rid":"daa0b295-6fc0-42ff-9ffe-2924a179f874","rtype":"device"},"temperature":{"temperature":18.25,"temperature_report":{"changed":"2025-11-03T12:55:03.680Z","temperature":18.25},"temperature_valid":true},"type":"temperature"}],"id":"7fe6c1c0-f560-49f9-bd62-02f42484dbdf","type":"update"}]
+
+id: 1762174505:0
+data: [{"creationtime":"2025-11-03T12:55:05Z","data":[{"id":"5102a8d4-57b1-4de5-a293-ebea39edb76f","id_v1":"/lights/43","on":{"on":true},"owner":{"rid":"0476404b-e4bc-4729-83f3-bf1050e25bba","rtype":"device"},"service_id":0,"type":"light"},{"id":"f493af67-20a7-4f56-abe6-16a81fefb7f2","id_v1":"/lights/41","on":{"on":true},"owner":{"rid":"7ad770a6-1b6b-40e8-8ab7-e7b540fb7838","rtype":"device"},"service_id":0,"type":"light"},{"id":"cde4e911-3632-444b-ac98-70315ede9e6f","id_v1":"/lights/47","on":{"on":true},"owner":{"rid":"be453b88-a4ce-4caa-bb7d-ec35d7e01a4b","rtype":"device"},"service_id":0,"type":"light"}],"id":"1e883a1b-be76-454d-ad0b-b3492f828a2c","type":"update"}]
+
+id: 1762174506:0
+data: [{"creationtime":"2025-11-03T12:55:05Z","data":[{"dimming":{"brightness":92.88571428571429},"id":"6365be15-a733-41e9-916b-f6c8d6307986","id_v1":"/groups/0","owner":{"rid":"de051fc6-30d0-4328-820c-e5be6b0f692a","rtype":"bridge_home"},"type":"grouped_light"},{"dimming":{"brightness":100.0},"id":"bbfeda8c-974d-429c-8002-b4458a2befb6","id_v1":"/groups/81","on":{"on":true},"owner":{"rid":"40aa44ee-927e-4d97-ae42-614c5ae629a7","rtype":"zone"},"type":"grouped_light"},{"dimming":{"brightness":100.0},"id":"da6951ff-d19c-4ba6-b1d5-1d35fec00b25","id_v1":"/groups/7","on":{"on":true},"owner":{"rid":"d920ff78-45e2-4bba-952c-25bb399822c8","rtype":"room"},"type":"grouped_light"},{"dimming":{"brightness":100.0},"id":"feb4fdd9-7cd2-4ea1-b24b-ee21e9dc9a33","id_v1":"/groups/4","on":{"on":true},"owner":{"rid":"6e257ccd-8e84-4fb3-9bfc-8f73bcebdba4","rtype":"zone"},"type":"grouped_light"}],"id":"97e5b842-1110-479f-90e7-28deb7f6db4d","type":"update"}]
+
+id: 1762174507:0
+data: [{"creationtime":"2025-11-03T12:55:07Z","data":[{"id":"5102a8d4-57b1-4de5-a293-ebea39edb76f","id_v1":"/lights/43","on":{"on":false},"owner":{"rid":"0476404b-e4bc-4729-83f3-bf1050e25bba","rtype":"device"},"service_id":0,"type":"light"},{"id":"f493af67-20a7-4f56-abe6-16a81fefb7f2","id_v1":"/lights/41","on":{"on":false},"owner":{"rid":"7ad770a6-1b6b-40e8-8ab7-e7b540fb7838","rtype":"device"},"service_id":0,"type":"light"},{"id":"cde4e911-3632-444b-ac98-70315ede9e6f","id_v1":"/lights/47","on":{"on":false},"owner":{"rid":"be453b88-a4ce-4caa-bb7d-ec35d7e01a4b","rtype":"device"},"service_id":0,"type":"light"}],"id":"972ae6f2-872d-47af-8b4f-91c8b2f8e82e","type":"update"}]
+
+id: 1762174508:0
+data: [{"creationtime":"2025-11-03T12:55:07Z","data":[{"dimming":{"brightness":87.55000000000001},"id":"6365be15-a733-41e9-916b-f6c8d6307986","id_v1":"/groups/0","owner":{"rid":"de051fc6-30d0-4328-820c-e5be6b0f692a","rtype":"bridge_home"},"type":"grouped_light"},{"dimming":{"brightness":0.0},"id":"bbfeda8c-974d-429c-8002-b4458a2befb6","id_v1":"/groups/81","on":{"on":false},"owner":{"rid":"40aa44ee-927e-4d97-ae42-614c5ae629a7","rtype":"zone"},"type":"grouped_light"},{"dimming":{"brightness":0.0},"id":"da6951ff-d19c-4ba6-b1d5-1d35fec00b25","id_v1":"/groups/7","on":{"on":false},"owner":{"rid":"d920ff78-45e2-4bba-952c-25bb399822c8","rtype":"room"},"type":"grouped_light"},{"dimming":{"brightness":0.0},"id":"feb4fdd9-7cd2-4ea1-b24b-ee21e9dc9a33","id_v1":"/groups/4","on":{"on":false},"owner":{"rid":"6e257ccd-8e84-4fb3-9bfc-8f73bcebdba4","rtype":"zone"},"type":"grouped_light"}],"id":"496c1c2d-79fb-492b-808b-c0f972e022db","type":"update"}]
+
