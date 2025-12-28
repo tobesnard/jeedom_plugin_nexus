@@ -7,13 +7,13 @@ namespace Nexus\Utils;
  */
 class Config
 {
-    /** @var array|null */
-    private static $cache = null;
+    /** @var array Stockage des contenus indexés par chemin de fichier */
+    private static array $cache = [];
 
     /**
-     * Chemin vers le fichier JSON de configuration
+     * Chemin par défaut vers le fichier JSON de configuration
      */
-    private static function getPath(): string
+    private static function getDefaultPath(): string
     {
         return NEXUS_ROOT . '/core/config/jeedom.config.json';
     }
@@ -22,12 +22,15 @@ class Config
      * Récupère un paramètre de configuration
      * * @param string $key Clé JSON
      * @param mixed $default Valeur par défaut
+     * @param string|null $filename Chemin optionnel vers un fichier config spécifique
      * @return mixed
      */
-    public static function get(string $key, $default = null)
+    public static function get(string $key, $default = null, ?string $filename = null)
     {
-        if (self::$cache === null) {
-            $path = self::getPath();
+        $path = $filename ?? self::getDefaultPath();
+
+        // Si le fichier n'est pas encore en cache, on le charge
+        if (!isset(self::$cache[$path])) {
 
             if (!is_readable($path)) {
                 Helpers::log("Fichier de configuration absent ou illisible : $path", 'error');
@@ -38,13 +41,13 @@ class Config
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 Helpers::log("Erreur de parsing JSON ($path) : " . json_last_error_msg(), 'error');
-                self::$cache = [];
+                self::$cache[$path] = [];
                 return $default;
             }
 
-            self::$cache = $data;
+            self::$cache[$path] = $data;
         }
 
-        return self::$cache[$key] ?? $default;
+        return self::$cache[$path][$key] ?? $default;
     }
 }
