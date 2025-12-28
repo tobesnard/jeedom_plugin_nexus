@@ -25,9 +25,9 @@ function createTestContext(bool $debugMode = false): \Nexus\Interpreter\Context\
     return new \Nexus\Interpreter\Context\RuleContext($debugMode);
 }
 
-function createMockCmdService(): \Nexus\Interpreter\Application\Services\ICmdService
+function createMockCmdService(): \Nexus\Jeedom\Services\ICmdService
 {
-    return new class () implements \Nexus\Interpreter\Application\Services\ICmdService {
+    return new class implements \Nexus\Jeedom\Services\ICmdService {
         private array $commands = [];
         private array $events = [];
 
@@ -76,4 +76,3 @@ function createMockCmdService(): \Nexus\Interpreter\Application\Services\ICmdSer
         }
     };
 }
-

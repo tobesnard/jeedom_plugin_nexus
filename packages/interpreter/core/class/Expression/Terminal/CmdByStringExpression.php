@@ -2,7 +2,7 @@
 
 namespace Nexus\Interpreter\Expression\Terminal;
 
-use Nexus\Interpreter\Application\Services\ICmdService;
+use Nexus\Jeedom\Services\ICmdService;
 use Nexus\Interpreter\Context\RuleContext;
 use Nexus\Interpreter\Expression\AbstractExpression;
 

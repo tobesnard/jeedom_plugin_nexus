@@ -1,6 +1,6 @@
 <?php
 
-namespace Nexus\Interpreter\Application\Services;
+namespace Nexus\Jeedom\Services;
 
 /**
  * Interface pour les services de commande Jeedom
@@ -67,7 +67,11 @@ interface ICmdService
     public function eventById(int $cmd, $value): bool;
 
     /**
+     * Journalise un message dans le flux du service
      *
+     * @param string $logMessage
+     * @param string $level Niveau de log (info, error, debug, etc.)
+     * @return bool
      */
-    public function log(string $logMessage): bool;
+    public function log(string $logMessage, string $level = 'info'): bool;
 }

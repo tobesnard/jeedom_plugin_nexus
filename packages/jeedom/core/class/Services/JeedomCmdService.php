@@ -1,8 +1,8 @@
 <?php
 
-namespace Nexus\Interpreter\Application\Services;
+namespace Nexus\Jeedom\Services;
 
-require_once __DIR__ . '/../../../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../../vendor/autoload.php';
 
 use Exception;
 use InvalidArgumentException;
@@ -20,6 +20,9 @@ use RuntimeException;
  */
 class JeedomCmdService implements ICmdService
 {
+    /** @var self|null Instance unique */
+    private static $instance = null;
+
     /** @var array Cache des résultats de commandes */
     private array $cache = [];
 
@@ -32,6 +35,29 @@ class JeedomCmdService implements ICmdService
         'cache_hits' => 0,
         'errors' => 0,
     ];
+
+    /**
+         * Constructeur privé pour empêcher l'instanciation directe
+         */
+    private function __construct() {}
+
+    /**
+     * Empêcher le clonage
+     */
+
+    private function __clone() {}
+
+    /**
+     * Récupère l'instance unique du service
+     */
+
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
 
     /**
      * Exécute une commande par sa chaîne de caractères
@@ -207,9 +233,9 @@ class JeedomCmdService implements ICmdService
         }
     }
 
-    public function log($logMessage): bool
+    public function log(string $logMessage, string $level = 'info'): bool
     {
-        \log::add('interpreter', 'INFO', $logMessage);
+        \log::add('nexus', 'INFO', $logMessage);
 
         return true;
     }
@@ -304,18 +330,19 @@ class JeedomCmdService implements ICmdService
      */
     private function handleException(string $method, string $identifier, Exception $e): void
     {
-        $message = "[Interpreteur::{$method}] Erreur pour '{$identifier}': {$e->getMessage()}";
+        $message = "[Nexus::Jeedom::{$method}] Erreur pour '{$identifier}': {$e->getMessage()}";
 
         if (function_exists('\\log::add')) {
-            \log::add('Edom', 'ERROR', $message);
+            \log::add('nexus', 'error', $message);
         }
 
         if (function_exists('\\message::add')) {
-            \message::add('Edom', $message);
+            \message::add('nexus', $message);
         }
 
         // En mode debug, on peut aussi logger la stack trace
-        error_log($message . "\nStack trace: " . $e->getTraceAsString());
+        // error_log($message . "\nStack trace: " . $e->getTraceAsString());
+        error_log($message);
     }
 
     /**
@@ -337,7 +364,7 @@ class JeedomCmdService implements ICmdService
                 $message .= " Options: " . json_encode($options);
             }
 
-            \log::add('Edom', 'DEBUG', $message);
+            \log::add('nexus', 'debug', $message);
         }
     }
 
@@ -357,7 +384,7 @@ class JeedomCmdService implements ICmdService
                 $message .= " avec valeur: " . json_encode($value);
             }
 
-            \log::add('Edom', 'INFO', $message);
+            \log::add('nexus', 'info', $message);
         }
     }
 

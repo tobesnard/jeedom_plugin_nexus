@@ -3,7 +3,7 @@
 namespace Nexus\Interpreter\Parser;
 
 use Exception;
-use Nexus\Interpreter\Application\Services\ICmdService;
+use Nexus\Jeedom\Services\ICmdService;
 use Nexus\Interpreter\Expression\Expression;
 use Nexus\Interpreter\Expression\NonTerminal\Action\EventExpression;
 // Service
@@ -189,7 +189,7 @@ class BashRuleParser
         // Test la forme #1234# pour CmdByIdExpression (avec ancrage ^ et $)
         $pattern = '/^(\#\d+\#)$/';
         if (preg_match($pattern, $operandString, $matches)) {
-            $id = (int)trim($matches[1], '#');
+            $id = (int) trim($matches[1], '#');
 
             // MODIF : La commande ne prend plus d'options ici
             return new CmdByIdExpression($id, $this->cmdService);
@@ -312,9 +312,9 @@ class BashRuleParser
 
                 // On accepte soit un Littéral, soit une Commande (CmdBy*)
                 if (
-                    $argExpression instanceof LiteralExpression ||
-                    $argExpression instanceof CmdByIdExpression ||
-                    $argExpression instanceof CmdByStringExpression
+                    $argExpression instanceof LiteralExpression
+                    || $argExpression instanceof CmdByIdExpression
+                    || $argExpression instanceof CmdByStringExpression
                 ) {
                     // LogExpression doit être mis à jour pour accepter une Expression et non seulement une valeur
                     return new LogExpression($argExpression);
@@ -333,8 +333,8 @@ class BashRuleParser
 
                 // 1. Validation de la Commande
                 if (
-                    ! $commandExpression instanceof CmdByStringExpression &&
-                    ! $commandExpression instanceof CmdByIdExpression
+                    ! $commandExpression instanceof CmdByStringExpression
+                    && ! $commandExpression instanceof CmdByIdExpression
                 ) {
                     throw new Exception("Le premier argument de 'exec' doit être une commande (#ID# ou #[...]#).");
                 }

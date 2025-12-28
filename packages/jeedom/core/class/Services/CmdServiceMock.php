@@ -1,6 +1,6 @@
 <?php
 
-namespace Nexus\Jeedom;
+namespace Nexus\Jeedom\Services;
 
 /**
  * Service mock pour les commandes - Implémentation de test
@@ -118,7 +118,7 @@ class CmdServiceMock implements ICmdService
     }
 
 
-    public function log(string $logMessage): bool
+    public function log(string $logMessage, string $level = 'info'): bool
     {
         echo "\033[32m \n[LOG] {$logMessage} \033[0m\n";
 

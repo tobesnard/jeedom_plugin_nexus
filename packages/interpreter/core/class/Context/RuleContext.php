@@ -2,7 +2,7 @@
 
 namespace Nexus\Interpreter\Context;
 
-use Nexus\Interpreter\Application\Services\ICmdService;
+use Nexus\Jeedom\Services\ICmdService;
 use InvalidArgumentException;
 
 /**
@@ -420,7 +420,7 @@ class RuleContext
 
             // Nombres
             if (is_numeric($trimmed)) {
-                return strpos($trimmed, '.') !== false ? (float)$trimmed : (int)$trimmed;
+                return strpos($trimmed, '.') !== false ? (float) $trimmed : (int) $trimmed;
             }
         }
 
@@ -449,7 +449,7 @@ class RuleContext
             return 'Object(' . get_class($value) . ')';
         }
 
-        return (string)$value;
+        return (string) $value;
     }
 
     /**
@@ -460,7 +460,7 @@ class RuleContext
     private function log(string $message): void
     {
         if ($this->debugMode) {
-            $timestamp = date('Y-m-d H:i:s', (int)microtime(true));
+            $timestamp = date('Y-m-d H:i:s', (int) microtime(true));
             error_log("[RuleContext {$timestamp}] {$message}");
         }
     }

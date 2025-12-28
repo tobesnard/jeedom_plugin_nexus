@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 require 'vendor/autoload.php'; // Générer avec `composer dump-autoload`
 
-use Nexus\Interpreter\Application\Services\CmdServiceMock;
+use Nexus\Jeedom\Services\CmdServiceMock;
 use Nexus\Interpreter\Context\RuleContext;
 use Nexus\Interpreter\Parser\BashRuleParser;
 
