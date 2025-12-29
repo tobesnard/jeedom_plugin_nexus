@@ -48,8 +48,7 @@ class TelegramBot
 
         $this->config = json_decode(file_get_contents($this->configPath), true);
 
-        // Récupération du chemin de stockage depuis la configuration
-        // On utilise par défaut /tmp/nexus/nexus_bot_last_response.txt si non défini
+        // Récupération dynamique du chemin de stockage depuis le JSON
         $this->storageFile = $this->config['telegram']['settings']['storage_file'] ?? '/tmp/nexus/nexus_bot_last_response.txt';
 
         $this->token  = $this->config['telegram']['token'] ?? '';
@@ -62,49 +61,7 @@ class TelegramBot
     }
 
     /**
-     * Retourne l'identifiant de chat actuel.
-     * * @return int|null ID unique de la conversation Telegram.
-     */
-    public function getChatId(): ?int
-    {
-        return $this->chatId;
-    }
-
-    /**
-     * Envoie un message texte simple au chat enregistré.
-     * * @param string $message Le texte à envoyer.
-     * @return bool True en cas de succès, false sinon.
-     */
-    public function ask(string $message): bool
-    {
-        return $this->sendRequest('sendMessage', [
-            'chat_id' => $this->chatId,
-            'text'    => $message,
-        ]);
-    }
-
-    /**
-     * Envoie une question avec des boutons Inline (callback_data).
-     * * @param string $message Le texte de la question.
-     * @param array $buttons Tableau associatif ["Label" => "callback_data"].
-     * @return bool True en cas de succès.
-     */
-    public function askWithInlineKeyboard(string $message, array $buttons): bool
-    {
-        $keyboard = [];
-        foreach ($buttons as $text => $callbackData) {
-            $keyboard[] = [['text' => $text, 'callback_data' => $callbackData]];
-        }
-
-        return $this->sendRequest('sendMessage', [
-            'chat_id'      => $this->chatId,
-            'text'         => $message,
-            'reply_markup' => ['inline_keyboard' => $keyboard],
-        ]);
-    }
-
-    /**
-     * Envoie une question avec un clavier de réponse physique.
+     * Envoie un message avec un clavier de réponse (Reply Keyboard).
      * * @param string $message Le texte de la question.
      * @param array $options Liste de textes pour les boutons.
      * @param bool $oneTime Si vrai, le clavier se masque après l'usage.
@@ -122,11 +79,27 @@ class TelegramBot
             'text'         => $message,
             'reply_markup' => [
                 'keyboard'          => $keyboard,
-                'resize_keyboard'   => true,
-                'one_time_keyboard' => $oneTime,
+                'resize_keyboard'   => true,    // Adapte la taille des boutons
+                'one_time_keyboard' => $oneTime, // Masque le clavier après appui
             ],
         ]);
     }
+
+    /**
+     * Supprime le clavier physique (Reply Keyboard) de l'écran de l'utilisateur.
+     * @param string $text Message à afficher lors de la suppression.
+     */
+    public function removeKeyboard(string $text = "Traitement terminé."): bool
+    {
+        return $this->sendRequest('sendMessage', [
+            'chat_id'      => $this->chatId,
+            'text'         => $text,
+            'reply_markup' => [
+                'remove_keyboard' => true,
+            ],
+        ]);
+    }
+
 
     /**
      * Attend une réponse en détectant automatiquement le mode (Webhook ou Polling).
@@ -144,53 +117,6 @@ class TelegramBot
         }
 
         return $isWebhook ? $this->waitForWebhookFile($maxWait) : $this->waitForPolling($maxWait);
-    }
-
-    /**
-     * Analyse les messages entrants pour identifier l'ID via un mot-clé.
-     * * @return int L'identifiant du chat découvert.
-     */
-    public function discoverAndSaveId(): int
-    {
-        $keyword = $this->config['telegram']['settings']['discovering_keyword'];
-        echo "[-] En attente du mot-clé : {$keyword}\n";
-
-        while (true) {
-            try {
-                $response = $this->client->post('getUpdates', [
-                    'json' => ['limit' => 1, 'offset' => -1, 'timeout' => 20],
-                ]);
-                $data = json_decode($response->getBody(), true);
-
-                if (!empty($data['result'])) {
-                    $update = $data['result'][0];
-                    if (isset($update['message']['text']) && str_contains($update['message']['text'], $keyword)) {
-                        $this->chatId = $update['message']['chat']['id'];
-                        $this->saveIdToConfig($this->chatId);
-                        return $this->chatId;
-                    }
-                }
-            } catch (GuzzleException $e) {
-            }
-            sleep(1);
-        }
-    }
-
-    /**
-     * Active le mode Webhook sur l'URL de configuration.
-     */
-    public function setWebhook(): bool
-    {
-        $url = $this->config['telegram']['settings']['webhook_url'];
-        return $this->sendRequest('setWebhook', ['url' => $url]);
-    }
-
-    /**
-     * Supprime le Webhook pour revenir au mode Polling.
-     */
-    public function deleteWebhook(): bool
-    {
-        return $this->sendRequest('deleteWebhook', []);
     }
 
     /**
@@ -213,7 +139,7 @@ class TelegramBot
                     $data = trim(file_get_contents($this->storageFile));
 
                     if (!empty($data)) {
-                        // On vide le fichier après lecture pour éviter les lectures en boucle
+                        // Vidage propre par écrasement
                         @file_put_contents($this->storageFile, '');
                         return $data;
                     }
@@ -289,8 +215,45 @@ class TelegramBot
     }
 
     /**
-     * Sauvegarde l'identifiant découvert dans la configuration JSON.
+     * Analyse les messages entrants pour identifier l'ID via un mot-clé.
      */
+    public function discoverAndSaveId(): int
+    {
+        $keyword = $this->config['telegram']['settings']['discovering_keyword'];
+        echo "[-] En attente du mot-clé : {$keyword}\n";
+
+        while (true) {
+            try {
+                $response = $this->client->post('getUpdates', [
+                    'json' => ['limit' => 1, 'offset' => -1, 'timeout' => 20],
+                ]);
+                $data = json_decode($response->getBody(), true);
+
+                if (!empty($data['result'])) {
+                    $update = $data['result'][0];
+                    if (isset($update['message']['text']) && str_contains($update['message']['text'], $keyword)) {
+                        $this->chatId = $update['message']['chat']['id'];
+                        $this->saveIdToConfig($this->chatId);
+                        return $this->chatId;
+                    }
+                }
+            } catch (GuzzleException $e) {
+            }
+            sleep(1);
+        }
+    }
+
+    public function setWebhook(): bool
+    {
+        $url = $this->config['telegram']['settings']['webhook_url'];
+        return $this->sendRequest('setWebhook', ['url' => $url]);
+    }
+
+    public function deleteWebhook(): bool
+    {
+        return $this->sendRequest('deleteWebhook', []);
+    }
+
     private function saveIdToConfig(int $id): void
     {
         $this->config['telegram']['chat_id'] = $id;
