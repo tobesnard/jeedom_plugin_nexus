@@ -2,7 +2,7 @@
 
 /**
  * Script de démonstration de l'Interpréteur Jeedom refactorisé
- * 
+ *
  * Ce script montre l'utilisation des nouvelles fonctionnalités
  * et des améliorations apportées au code.
  */
@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Nexus\Interpreter\Context\RuleContext;
 use Nexus\Interpreter\Expression\Terminal\LiteralExpression;
-use Nexus\Interpreter\Application\Services\JeedomCmdService;
+use Nexus\Interpreter\Application\Services\JeedomService;
 
 echo "\n";
 echo "===========================================\n";
@@ -61,7 +61,7 @@ $expressions = [
     ['Null', new LiteralExpression(null)],
     ['Chaîne avec guillemets', new LiteralExpression('"message important"')],
     ['Booléen depuis string', new LiteralExpression('true')],
-    ['Nombre depuis string', new LiteralExpression('123')]
+    ['Nombre depuis string', new LiteralExpression('123')],
 ];
 
 foreach ($expressions as [$description, $expression]) {
@@ -81,7 +81,7 @@ $staticExpressions = [
     ['fromString()', LiteralExpression::fromString('test')],
     ['boolean(true)', LiteralExpression::boolean(true)],
     ['number(100)', LiteralExpression::number(100)],
-    ['null()', LiteralExpression::null()]
+    ['null()', LiteralExpression::null()],
 ];
 
 foreach ($staticExpressions as [$method, $expr]) {
@@ -95,7 +95,7 @@ echo "------------------------------------\n";
 $context->triggerEvent('alarme_temperature', [
     'valeur' => 25.8,
     'seuil' => 25.0,
-    'capteur' => 'salon'
+    'capteur' => 'salon',
 ]);
 
 $context->triggerEvent('changement_mode', 'economie');
@@ -107,14 +107,14 @@ foreach ($context->getTriggeredEvents() as $event) {
     if ($event['data'] !== null) {
         echo "(données: " . json_encode($event['data']) . ")";
     }
-    echo " à " . date('H:i:s', (int)$event['timestamp']) . "\n";
+    echo " à " . date('H:i:s', (int) $event['timestamp']) . "\n";
 }
 
 // Test 5 : Service de commandes avec statistiques
 echo "\n5. Test du service de commandes amélioré\n";
 echo "-----------------------------------------\n";
 
-$cmdService = new JeedomCmdService();
+$cmdService = new JeedomService();
 
 // Simulation d'exécutions
 echo "Simulation d'exécutions de commandes...\n";
@@ -167,3 +167,4 @@ echo "  ✅ Cache et optimisations\n";
 echo "  ✅ Debug et profiling\n";
 echo "  ✅ Validation et tests\n";
 echo "===========================================\n";
+

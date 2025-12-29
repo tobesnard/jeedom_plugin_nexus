@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use Nexus\Jeedom\JeedomCmdService;
+use Nexus\Jeedom\Services\JeedomCmdService;
 use Nexus\Openings\HouseStateGenerator;
 use Nexus\Openings\OpeningsManager;
 use Nexus\Utils\Helpers;
