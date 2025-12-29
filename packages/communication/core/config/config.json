@@ -4,7 +4,9 @@
         "chat_id": 8103651855,
         "settings": {
             "timeout": 30,
-            "discovering_keyword": "Hey"
+            "discovering_keyword": "Hey",
+            "webhook_url": "https://edom.eu.jeedom.link/plugins/nexus/packages/communication/webhook.php",
+            "storage_file": "/tmp/nexus/nexus_bot_last_response.txt"
         }
     },
     "app": {
