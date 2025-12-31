@@ -12,9 +12,10 @@ use Nexus\Utils\Helpers;
  **/
 function openings_getState()
 {
-    return Helpers::execute(function () {
+    $jeedomService = JeedomCmdService::getInstance();
+
+    return Helpers::execute(function () use ($jeedomService) {
         $configFilePath = __DIR__ . "/../config/house_config.json";
-        $jeedomService = new JeedomCmdService();
 
         $dataGenerator = HouseStateGenerator::fromJsonFile(
             $configFilePath,
