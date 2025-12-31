@@ -184,7 +184,7 @@ class TV
     {
         $url = "{$this->baseUrl}/{$_uri}";
         $attempts = 0;
-        $maxAttempts = 3; // On tente 3 fois avant de lâcher
+        $maxAttempts = 10; // On tente 10 fois avant de lâcher
 
         while ($attempts < $maxAttempts) {
             $ch = curl_init($url);
