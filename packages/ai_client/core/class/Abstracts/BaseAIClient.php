@@ -27,7 +27,15 @@ abstract class BaseAIClient
             throw new Exception("Fichier de configuration introuvable.");
         }
 
-        $json = json_decode(file_get_contents($configPath), true);
+        $content = file_get_contents($configPath);
+
+        // Remplacement dynamique des variables d'environnement {{VAR}}
+        $content = preg_replace_callback('/\{\{([^}]+)\}\}/', function ($matches) {
+            $envValue = getenv($matches[1]);
+            return $envValue !== false ? $envValue : $matches[0];
+        }, $content);
+
+        $json = json_decode($content, true);
 
         if (!isset($json['providers'][$provider])) {
             throw new Exception("Configuration manquante pour le provider : $provider");

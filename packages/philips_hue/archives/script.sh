@@ -3,9 +3,9 @@
 # retourne un json de la ressource demandée
 # ./hue.sh <nom de la resource
 
-hub_ip=192.168.1.172
-jeton=7fy3lMUACAR7A7KUWcxDgh-n3WrLJ4bjqJG6bp59
-jeton=***REMOVED***
+hub_ip=$PHILIPS_HUE_HUB_IP
+jeton=$PHILIPS_HUE_TOKEN
+# jeton=$PHILIPS_HUE_TOKEN_ALT
 
 if [ -z $1 ]; then
     url="https://${hub_ip}/clip/v2/resource"

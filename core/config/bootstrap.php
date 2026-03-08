@@ -7,7 +7,17 @@
 // 1. Chargement des constantes
 require_once __DIR__ . '/constants.php';
 
-// 2. Chargement du Core Jeedom si présent
+// 2. Chargement de l'Autoloader et de l'environnement (.env)
+if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
+    require_once __DIR__ . '/../../vendor/autoload.php';
+}
+
+if (file_exists(__DIR__ . '/../../.env')) {
+    $dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__ . '/../../');
+    $dotenv->safeLoad();
+}
+
+// 3. Chargement du Core Jeedom si présent
 if (file_exists(JEEDOM_CORE)) {
     require_once JEEDOM_CORE;
 }

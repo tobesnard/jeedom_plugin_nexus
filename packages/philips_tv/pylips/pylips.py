@@ -15,14 +15,28 @@ from requests.auth import HTTPDigestAuth
 import paho.mqtt.client as mqttc
 import os 
 
+# Load environment variables from .env file if it exists
+def load_dotenv(dotenv_path):
+    if os.path.exists(dotenv_path):
+        with open(dotenv_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                key, value = line.split('=', 1)
+                os.environ[key] = value
+
+dotenv_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), '.env')
+load_dotenv(dotenv_file)
+
 # Suppress "Unverified HTTPS request is being made" error message
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 session = requests.Session()
 session.verify = False
 session.mount('https://', requests.adapters.HTTPAdapter(pool_connections=1))
 
-# Key used for generated the HMAC signature
-secret_key="***REMOVED***"
+# Key used for generate the HMAC signature
+secret_key = os.getenv('PHILIPS_TV_SECRET')
 
 parser = argparse.ArgumentParser(description="Control Philips TV API (versions 5 and 6)")
 parser.add_argument("--host", dest="host", help="TV's ip address")

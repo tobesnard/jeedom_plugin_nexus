@@ -47,8 +47,7 @@
         "demo-openings-core": "php packages/openings/tests/demo.core.php",
         "demo-openings-inc": "php packages/openings/tests/demo.inc.php",
         "demo-jeedom-core": "php packages/jeedom/tests/demo.core.php",
-        "demo-jeedom-inc": "php packages/jeedom/tests/demo.inc.php",
-        "demo-aiclient-core": "php packages/ai_client/tests/demo.core.php",
+        "demo-aiclient-core": "php packages/ai_client/tests/runAiTest.php",
         "demo-aiclient-inc": "php packages/ai_client/tests/demo.inc.php",
         "demo-utils-core": "php packages/utils/tests/utils.core.php",
         "demo-utils-inc": "php packages/utils/tests/utils.inc.php",
@@ -61,6 +60,7 @@
         "demo-communication-inc": "php packages/communication/tests/communication.inc.php"
     },
     "require": {
-        "guzzlehttp/guzzle": "^7.10"
+        "guzzlehttp/guzzle": "^7.10",
+        "vlucas/phpdotenv": "^5.6"
     }
 }

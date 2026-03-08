@@ -1,6 +1,6 @@
 {
     "jeeApi_endpoint": "http://192.168.1.63/core/api/jeeApi.php",
-    "notification_manager_api_key": "***REMOVED***",
+    "notification_manager_api_key": "{{NOTIFICATION_MANAGER_API_KEY}}",
     "cmd_emergency_thread_notification": "#[Télécommunication][Notification Manager][SMS]#",
     "cmd_galets_tts": "#[Multimédia][Galets][TTS]#",
     "cmd_galets_sound": "#[Multimédia][Galets][Sounds]#",

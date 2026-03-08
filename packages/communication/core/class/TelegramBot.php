@@ -100,6 +100,41 @@ class TelegramBot
         ]);
     }
 
+    /**
+     * Envoie un message simple.
+     * @param string $message
+     * @return bool
+     */
+    public function ask(string $message): bool
+    {
+        return $this->sendRequest('sendMessage', [
+            'chat_id' => $this->chatId,
+            'text'    => $message,
+        ]);
+    }
+
+    /**
+     * Envoie un message avec un clavier de boutons Inline.
+     * @param string $message
+     * @param array $options Tableau associatif ["Label" => "callback_data"]
+     * @return bool
+     */
+    public function askWithInlineKeyboard(string $message, array $options): bool
+    {
+        $inline_keyboard = [];
+        foreach ($options as $text => $callback_data) {
+            $inline_keyboard[] = [['text' => $text, 'callback_data' => $callback_data]];
+        }
+
+        return $this->sendRequest('sendMessage', [
+            'chat_id'      => $this->chatId,
+            'text'         => $message,
+            'reply_markup' => [
+                'inline_keyboard' => [$inline_keyboard],
+            ],
+        ]);
+    }
+
 
     /**
      * Attend une réponse en détectant automatiquement le mode (Webhook ou Polling).
@@ -252,6 +287,15 @@ class TelegramBot
     public function deleteWebhook(): bool
     {
         return $this->sendRequest('deleteWebhook', []);
+    }
+
+    /**
+     * Retourne l'identifiant du chat Telegram configuré.
+     * @return int|null
+     */
+    public function getChatId(): ?int
+    {
+        return $this->chatId;
     }
 
     private function saveIdToConfig(int $id): void

@@ -6,13 +6,15 @@ class ePhilipsHue
     private static $datetime = null;
     private static $_instance = null;
 
-    private $hub_ip = "192.168.1.172";
-    private $token = "***REMOVED***";
+    private $hub_ip;
+    private $token;
     private $resources = null;
 
 
     private function __construct()
     {
+        $this->hub_ip = getenv('PHILIPS_HUE_HUB_IP');
+        $this->token = getenv('PHILIPS_HUE_TOKEN');
         $this->version = "0.0.2";
         static::$datetime = new DateTime();
 

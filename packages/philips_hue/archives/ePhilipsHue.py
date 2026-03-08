@@ -8,6 +8,22 @@ import subprocess
 import dbm
 import signal
 
+# Load environment variables from .env file if it exists
+def load_dotenv(dotenv_path):
+    if os.path.exists(dotenv_path):
+        with open(dotenv_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key] = value
+
+# Le fichier .env est à la racine du plugin
+dotenv_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), '.env')
+load_dotenv(dotenv_file)
+
 
 # objectif 1 : afficher sur la sortie standard l'identifiant de la scene rubis
 # objectif 2 : afficher sur la sortie standard les infos du stream
@@ -17,8 +33,8 @@ class ePhilipsHue:
     def __init__(self, hub_ip):
         self._version = "0.0.1"
         self._jeedom_ip = hub_ip
-        self._hub_ip = "192.168.1.172"
-        self._token = "***REMOVED***"
+        self._hub_ip = os.getenv('PHILIPS_HUE_HUB_IP')
+        self._token = os.getenv('PHILIPS_HUE_TOKEN')
         self._resources = self.getResources()
         self._infoCommands = []
         self.pidStringKey = "ePhilipsHue_{ip}_pid".format(ip=hub_ip)
@@ -143,7 +159,7 @@ class ePhilipsHue:
                 "params": {
                     "id": self.jeedomId,
                     "value": self.value,
-                    "apikey": "***REMOVED***",
+                    "apikey": os.getenv('JEEDOM_API_KEY'),
                     "datetime": "0",
                 },
             }

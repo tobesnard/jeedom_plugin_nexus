@@ -131,6 +131,13 @@ class TV
         }
 
         $jsonContent = file_get_contents(self::CONFIG_FILEPATH);
+
+        // Remplacement dynamique des variables d'environnement {{VAR}}
+        $jsonContent = preg_replace_callback('/\{\{([^}]+)\}\}/', function ($matches) {
+            $envValue = getenv($matches[1]);
+            return $envValue !== false ? $envValue : $matches[0];
+        }, $jsonContent);
+
         $data = json_decode($jsonContent, true);
 
         if (!isset($data['version'], $data['ip'], $data['port'], $data['mac'], $data['username'], $data['password'])) {

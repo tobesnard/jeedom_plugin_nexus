@@ -37,7 +37,15 @@ class Config
                 return $default;
             }
 
-            $data = json_decode(file_get_contents($path), true);
+            $content = file_get_contents($path);
+
+            // Remplacement dynamique des variables d'environnement {{VAR}}
+            $content = preg_replace_callback('/\{\{([^}]+)\}\}/', function ($matches) {
+                $envValue = getenv($matches[1]);
+                return $envValue !== false ? $envValue : $matches[0];
+            }, $content);
+
+            $data = json_decode($content, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 Helpers::log("Erreur de parsing JSON ($path) : " . json_last_error_msg(), 'error');
