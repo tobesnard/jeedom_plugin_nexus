@@ -6,7 +6,7 @@
 
 
 $_hue_hub_ip = "192.168.1.172";
-$_hue_jeton = "***REMOVED***";
+$_hue_jeton = "Q3t3U-TWmmQLhJJGd-pIe6oVwUXpzIWStQoaplgo";
 
 
 

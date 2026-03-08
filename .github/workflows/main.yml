@@ -1,0 +1,48 @@
+name: build
+
+on:
+  push:
+    branches: [ main, master, beta ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, xml, ctype, iconv, mysql, curl
+          coverage: none
+
+      - name: Install Dependencies and Generate .env
+        env:
+          # Ici, on lie chaque secret GitHub aux variables système consommées par Composer (via setup_env.php)
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+          COPILOT_API_KEY: ${{ secrets.COPILOT_API_KEY }}
+          NOTIFICATION_MANAGER_API_KEY: ${{ secrets.NOTIFICATION_MANAGER_API_KEY }}
+          HYDRAO_API_KEY: ${{ secrets.HYDRAO_API_KEY }}
+          HYDRAO_EMAIL: ${{ secrets.HYDRAO_EMAIL }}
+          HYDRAO_PASSWORD: ${{ secrets.HYDRAO_PASSWORD }}
+          HYDRAO_UUID: ${{ secrets.HYDRAO_UUID }}
+          PHILIPS_HUE_TOKEN: ${{ secrets.PHILIPS_HUE_TOKEN }}
+          PHILIPS_HUE_HUB_IP: ${{ secrets.PHILIPS_HUE_HUB_IP }}
+          PHILIPS_HUE_CLIENT_KEY: ${{ secrets.PHILIPS_HUE_CLIENT_KEY }}
+          PHILIPS_TV_PASSWORD: ${{ secrets.PHILIPS_TV_PASSWORD }}
+          PHILIPS_TV_SECRET: ${{ secrets.PHILIPS_TV_SECRET }}
+          PHILIPS_TV_IP: ${{ secrets.PHILIPS_TV_IP }}
+          PHILIPS_TV_PORT: ${{ secrets.PHILIPS_TV_PORT }}
+          PHILIPS_TV_MAC: ${{ secrets.PHILIPS_TV_MAC }}
+          PHILIPS_TV_USERNAME: ${{ secrets.PHILIPS_TV_USERNAME }}
+          JEEDOM_API_KEY: ${{ secrets.JEEDOM_API_KEY }}
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist && php script/setup_env.php
+
+      - name: Run Core Tests
+        run: composer test-aiclient

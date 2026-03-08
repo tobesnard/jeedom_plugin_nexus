@@ -1,5 +1,5 @@
 #! /bin/bash
-# [{"success":{"username":"7fy3lMUACAR7A7KUWcxDgh-n3WrLJ4bjqJG6bp59","clientkey":"***REMOVED***"}}]
+# [{"success":{"username":"7fy3lMUACAR7A7KUWcxDgh-n3WrLJ4bjqJG6bp59","clientkey":"4747DBC71C9C34DCD732616EA3575014"}}]
 # retourne un json de la ressource demandée
 # ./hue.sh <nom de la resource
 

@@ -38,3 +38,8 @@ package-lock.json
 .php-cs-fixer.cache
 /tmp/
 
+# Secrets
+.env
+.env.local
+
+
