@@ -19,10 +19,33 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 // Fonction exécutée automatiquement après l'installation du plugin
 function nexus_install() {
+    $path = realpath(__DIR__ . '/../');
+    log::add('nexus', 'info', '[Nexus] Installation des dépendances Composer...');
+
+    // 1. Exécute composer install pour charger les librairies (phpdotenv, etc.)
+    // On force HOME=/tmp pour éviter l'erreur de Composer en environnement web (www-data)
+    $cmd = 'export HOME=/tmp && cd ' . $path . ' && composer install --no-dev --no-interaction --no-ansi 2>&1';
+    exec($cmd, $output, $return_var);
+
+    if ($return_var !== 0) {
+        log::add('nexus', 'error', '[Nexus] Erreur lors de l\'installation Composer : ' . implode("\n", $output));
+    } else {
+        log::add('nexus', 'info', '[Nexus] Dépendances installées.');
+        
+        // 2. Lancement EXPLICITE de la génération du .env (contourne le --no-scripts de Jeedom)
+        $scriptEnv = $path . '/script/setup_env.php';
+        if (file_exists($scriptEnv)) {
+            $res = shell_exec('php ' . escapeshellarg($scriptEnv) . ' 2>&1');
+            log::add('nexus', 'debug', '[Nexus] Résultat génération .env initial : ' . $res);
+        } else {
+            log::add('nexus', 'error', '[Nexus] Script de configuration introuvable : ' . $scriptEnv);
+        }
+    }
 }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function nexus_update() {
+    nexus_install();
 }
 
 // Fonction exécutée automatiquement après la suppression du plugin

@@ -37,6 +37,41 @@ class nexus extends eqLogic
 
     /*     * ***********************Methode static*************************** */
 
+    /**
+     * Donne le statut des dépendances
+     */
+    public static function dependancy_info() {
+        $return = array();
+        $return['log'] = 'nexus_packages';
+        $return['progress_file'] = jeedom::getTmpFolder('nexus') . '/dependance';
+        
+        if (class_exists('log')) {
+            log::add('nexus', 'debug', '[Nexus] Appel de dependancy_info');
+        }
+
+        if (file_exists($return['progress_file'])) {
+            $return['state'] = 'in_progress';
+        } else {
+            $vendor_dir = __DIR__ . '/../../vendor';
+            $autoload = $vendor_dir . '/autoload.php';
+            if (is_dir($vendor_dir) && file_exists($autoload)) {
+                $return['state'] = 'ok';
+            } else {
+                if (class_exists('log')) {
+                    log::add('nexus', 'debug', '[Nexus] Statut NOK car vendor/autoload.php absent ou dossier vendor absent');
+                }
+                $return['state'] = 'nok';
+            }
+        }
+        return $return;
+    }
+
+    /**
+     * Installe les dépendances via le mécanisme packages.json de Jeedom
+     */
+    public static function dependancy_install() {
+    }
+
     /*
     * Fonction exécutée automatiquement toutes les minutes par Jeedom
     public static function cron() {}
@@ -88,6 +123,46 @@ class nexus extends eqLogic
       // no return value
     }
     */
+
+    /**
+     * Méthode appelée par Jeedom après la sauvegarde de la configuration du plugin.
+     */
+    public static function post_save() {
+        self::postUpdateConfig();
+    }
+
+    public static function postConfig_gemini_api_key($_value) { self::postUpdateConfig(); }
+    public static function postConfig_chatgpt_api_key($_value) { self::postUpdateConfig(); }
+    public static function postConfig_copilot_api_key($_value) { self::postUpdateConfig(); }
+    public static function postConfig_notification_manager_api_key($_value) { self::postUpdateConfig(); }
+    public static function postConfig_hydrao_api_key($_value) { self::postUpdateConfig(); }
+    public static function postConfig_hydrao_email($_value) { self::postUpdateConfig(); }
+    public static function postConfig_hydrao_password($_value) { self::postUpdateConfig(); }
+    public static function postConfig_hydrao_uuid($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_hue_token($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_hue_hub_ip($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_hue_client_key($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_tv_password($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_tv_secret($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_tv_ip($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_tv_port($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_tv_mac($_value) { self::postUpdateConfig(); }
+    public static function postConfig_philips_tv_username($_value) { self::postUpdateConfig(); }
+    public static function postConfig_jeedom_api_key($_value) { self::postUpdateConfig(); }
+
+    public static function postUpdateConfig() {
+        if (class_exists('log')) {
+            log::add('nexus', 'debug', 'Lancement de postUpdateConfig');
+        }
+        $script = '/var/www/html/plugins/nexus/script/setup_env.php';
+        if (file_exists($script)) {
+            if (!class_exists('EnvGenerator')) {
+                require_once $script;
+            }
+            $generator = new EnvGenerator();
+            $generator->run();
+        }
+    }
 
     /*
      * Permet d'indiquer des éléments supplémentaires à remonter dans les informations de configuration
