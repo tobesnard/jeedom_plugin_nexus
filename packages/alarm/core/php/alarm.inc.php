@@ -44,3 +44,23 @@ function alarm_galetsSirenOff()
         AlertBroadcaster::galetsSirenOff();
     });
 }
+
+/**
+ * Méthode proxy : Active la sirène le haut parleur HK
+ */
+function alarm_securitySirenOn()
+{
+    Helpers::execute(function () {
+        AlertBroadcaster::securitySirenOn();
+    });
+}
+
+/**
+ * Méthode proxy : Coupe la sirène sur les hauts-parleurs HK
+ */
+function alarm_securitySirenOff()
+{
+    Helpers::execute(function () {
+        AlertBroadcaster::securitySirenOff();
+    });
+}

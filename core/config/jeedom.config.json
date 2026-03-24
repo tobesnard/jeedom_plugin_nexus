@@ -7,5 +7,8 @@
     "cmd_galets_stop": "#[Multimédia][Galets][Media Stop]#",
     "rclone_remote_path": "google-drive:Jeedom/Sauvegardes/",
     "rclone_config_file": "/var/www/html/plugins/nexus/packages/cloud/core/config/rclone.conf",
-    "backup_source_path": "/var/www/html/backup/"
+    "backup_source_path": "/var/www/html/backup/",
+    "cmd_security_tts": "#[Multimédia][Chromecast Sécurité][TTS]#",
+    "cmd_security_sound": "#[Multimédia][Chromecast Sécurité][Sounds]#",
+    "cmd_security_stop": "#[Multimédia][Chromecast Sécurité][Media Stop]#"
 }
