@@ -30,7 +30,7 @@ elseif (isset($update['callback_query']['data'])) {
     $responseData = $update['callback_query']['data'];
 
     // Accuse de reception pour Telegram
-    $token = $config['telegram']['token'] ?? null;
+    $token = $_ENV['TELEGRAM_BOT_TOKEN'] ?? $config['telegram']['token'] ?? null;
     if ($token) {
         $cbId = $update['callback_query']['id'];
         @file_get_contents("https://api.telegram.org/bot$token/answerCallbackQuery?callback_query_id=$cbId");

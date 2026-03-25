@@ -1,7 +1,7 @@
 {
     "telegram": {
-        "token": "REDACTED",
-        "chat_id": 8103651855,
+        "token": "",
+        "chat_id": 0,
         "settings": {
             "timeout": 30,
             "discovering_keyword": "Hey",

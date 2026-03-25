@@ -51,8 +51,9 @@ class TelegramBot
         // Récupération dynamique du chemin de stockage depuis le JSON
         $this->storageFile = $this->config['telegram']['settings']['storage_file'] ?? '/tmp/nexus/nexus_bot_last_response.txt';
 
-        $this->token  = $this->config['telegram']['token'] ?? '';
-        $this->chatId = $this->config['telegram']['chat_id'] ?? null;
+        // Priorité aux variables d'environnement, puis config.json
+        $this->token  = $_ENV['TELEGRAM_BOT_TOKEN'] ?? $this->config['telegram']['token'] ?? '';
+        $this->chatId = $_ENV['TELEGRAM_CHAT_ID'] ?? $this->config['telegram']['chat_id'] ?? null;
 
         $this->client = new Client([
             'base_uri' => "https://api.telegram.org/bot{$this->token}/",
