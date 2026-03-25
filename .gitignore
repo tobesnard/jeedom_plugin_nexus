@@ -38,3 +38,7 @@ package-lock.json
 .php-cs-fixer.cache
 /tmp/
 
+.env
+.env.local
+.env.*.local
+
