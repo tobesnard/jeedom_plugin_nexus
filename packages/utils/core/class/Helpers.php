@@ -52,7 +52,7 @@ class Helpers
         } catch (Throwable $e) {
             // Construction d'un rapport d'erreur complet pour expert
             $report = sprintf(
-                "[%s] %s | %s:%d",
+                "Exception: %s | Message: %s | File: %s:%d",
                 get_class($e),
                 $e->getMessage(),
                 $e->getFile(),

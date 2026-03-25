@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Nexus\Openings;
 
-use Nexus\Jeedom\Services\ICmdService;
+use Nexus\Jeedom\ICmdService;
 use JsonSerializable;
 use RuntimeException;
 

@@ -80,8 +80,6 @@ class JeedomLogService implements ILogService
      */
     public function logExecution(string $type, string $id, array $opts, bool $success): void
     {
-        return;
-
         $status = $success ? 'SUCCESS' : 'FAILED';
         $msg = sprintf("Exécution %s '%s' [%s]", $type, $id, $status);
 

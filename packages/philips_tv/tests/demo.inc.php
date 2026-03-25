@@ -1,6 +1,8 @@
 <?php
 
-require_once __DIR__ . "/../../../vendor/autoload.php";
+
+// require_once __DIR__ . "/../../vendor/autoload.php";
+
 require_once __DIR__ . "/../core/php/philiptv.inc.php";
 
 // $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();

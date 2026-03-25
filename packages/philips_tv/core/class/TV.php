@@ -131,13 +131,6 @@ class TV
         }
 
         $jsonContent = file_get_contents(self::CONFIG_FILEPATH);
-
-        // Remplacement dynamique des variables d'environnement {{VAR}}
-        $jsonContent = preg_replace_callback('/\{\{([^}]+)\}\}/', function ($matches) {
-            $envValue = getenv($matches[1]);
-            return $envValue !== false ? $envValue : $matches[0];
-        }, $jsonContent);
-
         $data = json_decode($jsonContent, true);
 
         if (!isset($data['version'], $data['ip'], $data['port'], $data['mac'], $data['username'], $data['password'])) {
@@ -191,7 +184,7 @@ class TV
     {
         $url = "{$this->baseUrl}/{$_uri}";
         $attempts = 0;
-        $maxAttempts = 10; // On tente 10 fois avant de lâcher
+        $maxAttempts = 3; // On tente 3 fois avant de lâcher
 
         while ($attempts < $maxAttempts) {
             $ch = curl_init($url);

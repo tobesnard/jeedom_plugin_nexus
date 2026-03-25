@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../../../core/config/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use Nexus\Jeedom\Services\JeedomCmdService;
+use Nexus\Jeedom\JeedomCmdService;
 use Nexus\Openings\HouseStateGenerator;
 use Nexus\Openings\OpeningsManager;
 

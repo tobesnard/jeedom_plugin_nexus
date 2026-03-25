@@ -76,16 +76,3 @@ function energy_euroYear(): float
         return (float) EnergyFacade::euroYear();
     }, 0.0);
 }
-
-/**
- * Proxy : réécriture complète de l'historique (kWh et Euros).
- * Déclenche le recalcul massif depuis le premier relevé disponible jusqu'à hier.
- *
- * @return void
- */
-function energy_rewriteHistory(): void
-{
-    Helpers::execute(function () {
-        EnergyFacade::rewriteHistory();
-    });
-}

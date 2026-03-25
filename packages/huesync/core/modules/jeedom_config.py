@@ -5,9 +5,7 @@ import logging
 logger = logging.getLogger("JeedomConfigLogger")
 logger.setLevel(logging.DEBUG)
 
-# Utilisation d'un fichier de log spécifique à l'utilisateur pour éviter les conflits de permission
-log_file = f"/tmp/jeedomconfig_{os.getlogin() if hasattr(os, 'getlogin') else 'default'}.log"
-file_handler = logging.FileHandler(log_file)
+file_handler = logging.FileHandler("/tmp/jeedomconfig.log")
 file_handler.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")

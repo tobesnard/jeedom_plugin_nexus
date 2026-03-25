@@ -21,7 +21,7 @@ try {
 }
 
 // Diffuse le message d'information
-// AlertBroadcaster::infoMessage();
+AlertBroadcaster::infoMessage();
 
 // Diffuser le message de mise en garde
 // AlertBroadcaster::warningMessage();
@@ -30,8 +30,3 @@ try {
 // AlertBroadcaster::galetsSirenOn();
 // sleep(3);
 // AlertBroadcaster::galetsSirenOff();
-//
-
-AlertBroadcaster::securitySirenOn();
-sleep(3);
-AlertBroadcaster::securitySirenOff();

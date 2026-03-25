@@ -25,12 +25,4 @@ interface IKwhReading
      * @return float
      */
     public function getTotalKwh(\DateTimeImmutable $start, \DateTimeImmutable $end): float;
-
-    /**
-     * Retourne la date du tout premier relevé disponible en base de données.
-     * Utile pour déterminer la borne de départ lors d'une réécriture d'historique.
-     *
-     * @return \DateTimeImmutable|null
-     */
-    public function getFirstReadingDate(): ?\DateTimeImmutable;
 }

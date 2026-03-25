@@ -7,13 +7,13 @@ namespace Nexus\Utils;
  */
 class Config
 {
-    /** @var array Stockage des contenus indexés par chemin de fichier */
-    private static array $cache = [];
+    /** @var array|null */
+    private static $cache = null;
 
     /**
-     * Chemin par défaut vers le fichier JSON de configuration
+     * Chemin vers le fichier JSON de configuration
      */
-    private static function getDefaultPath(): string
+    private static function getPath(): string
     {
         return NEXUS_ROOT . '/core/config/jeedom.config.json';
     }
@@ -22,40 +22,29 @@ class Config
      * Récupère un paramètre de configuration
      * * @param string $key Clé JSON
      * @param mixed $default Valeur par défaut
-     * @param string|null $filename Chemin optionnel vers un fichier config spécifique
      * @return mixed
      */
-    public static function get(string $key, $default = null, ?string $filename = null)
+    public static function get(string $key, $default = null)
     {
-        $path = $filename ?? self::getDefaultPath();
-
-        // Si le fichier n'est pas encore en cache, on le charge
-        if (!isset(self::$cache[$path])) {
+        if (self::$cache === null) {
+            $path = self::getPath();
 
             if (!is_readable($path)) {
                 Helpers::log("Fichier de configuration absent ou illisible : $path", 'error');
                 return $default;
             }
 
-            $content = file_get_contents($path);
-
-            // Remplacement dynamique des variables d'environnement {{VAR}}
-            $content = preg_replace_callback('/\{\{([^}]+)\}\}/', function ($matches) {
-                $envValue = getenv($matches[1]);
-                return $envValue !== false ? $envValue : $matches[0];
-            }, $content);
-
-            $data = json_decode($content, true);
+            $data = json_decode(file_get_contents($path), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 Helpers::log("Erreur de parsing JSON ($path) : " . json_last_error_msg(), 'error');
-                self::$cache[$path] = [];
+                self::$cache = [];
                 return $default;
             }
 
-            self::$cache[$path] = $data;
+            self::$cache = $data;
         }
 
-        return self::$cache[$path][$key] ?? $default;
+        return self::$cache[$key] ?? $default;
     }
 }

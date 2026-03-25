@@ -3,93 +3,60 @@
 namespace Nexus\Energy\Electricity;
 
 use Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading;
-use Nexus\Utils\Helpers;
+use Nexus\Energy\Electricity\Consumption;
+use Nexus\Energy\Electricity\ContractFactory;
 
 /**
- * Façade d'accès simplifiée pour le moteur de consommation électrique.
- * * Centralise l'accès aux calculs de coûts et de consommation (kWh) tout en
- * gérant l'instanciation automatique des services requis via la configuration.
+ * Facade simplifiant l'accès aux services de calcul d'énergie.
+ *
+ * Fournit des méthodes utilitaires statiques pour récupérer rapidement
+ * des indicateurs (kWh / €) pour différentes périodes.
+ * Implémente un singleton pour l'objet `Consumption`.
+ */
+/**
+ * Façade d'accès simple au moteur de consommation.
+ *
+ * Fournit des méthodes statiques pratiques pour récupérer des indicateurs
+ * (kWh / €) pour des périodes courantes (hier, mois, année glissante).
+ *
+ * Utilise un singleton pour instancier `Consumption` une seule fois.
  */
 class EnergyFacade
 {
-    /** @var Consumption|null Instance unique du moteur de calcul (Singleton) */
     private static ?Consumption $instance = null;
 
-    /**
-     * Constructeur privé pour empêcher l'instanciation directe.
-     */
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     /**
-     * Initialise et retourne l'instance partagée du moteur de consommation.
-     * Charge automatiquement les contrats et le service de lecture Jeedom.
-     * * @return Consumption
-     * @throws \RuntimeException Si la configuration est manquante
+        * Retourne l'instance unique du moteur de consommation.
+        *
+        * @return Consumption
+     */
+    /**
+     * Retourne l'instance partagée de `Consumption`.
+     *
+     * @return Consumption
      */
     public static function getEngine(): Consumption
     {
         if (self::$instance === null) {
-            // Utilisation du manager pour identifier l'ID source défini dans config.json
-            $manager = new JeedomHistoryManager(null, true);
-            $contractsPath = __DIR__ . '/../config/contrats.json';
+            $configPath = __DIR__ . '/../config/contrats.json';
 
-            if (!file_exists($contractsPath)) {
-                throw new \RuntimeException("Fichier de configuration des contrats absent : $contractsPath");
+            if (!file_exists($configPath)) {
+                throw new \RuntimeException("Fichier de configuration absent : $configPath");
             }
 
-            $contracts = ContractFactory::createFromConfigFile($contractsPath);
-            $readingService = new JeedomKwhReading($manager->getSourceCmdId());
-
+            $contracts = ContractFactory::createFromConfigFile($configPath);
+            $readingService = new JeedomKwhReading();
             self::$instance = new Consumption($readingService, $contracts);
         }
         return self::$instance;
     }
 
     /**
-     * Lance une simulation de réécriture d'historique (sans modification DB).
-     * Affiche les résultats directement dans la console.
-     * * @param string $start Date de début (YYYY-MM-DD ou 'yesterday')
-     * @param string $end   Date de fin (YYYY-MM-DD ou 'yesterday')
-     * @return void
-     */
-    public static function dryRun(string $start = 'yesterday', string $end = 'yesterday'): void
-    {
-        try {
-            $manager = new JeedomHistoryManager(null, true);
-            $manager->rewriteAll($start, $end);
-        } catch (\Exception $e) {
-            echo "\033[31m[ERREUR DRY-RUN] " . $e->getMessage() . "\033[0m\n";
-        }
-    }
-
-    /**
-     * Exécute une réécriture réelle des données historiques en base de données.
-     * La période est calculée automatiquement de la première donnée source trouvée à hier.
-     * * @return void
-     */
-    public static function rewriteHistory(): void
-    {
-        try {
-            $manager = new JeedomHistoryManager(null, false);
-            $readingService = new JeedomKwhReading($manager->getSourceCmdId());
-
-            // Détermination de la borne de départ automatique
-            $firstDate = $readingService->getFirstReadingDate();
-            $start = $firstDate ? $firstDate->format('Y-m-d') : date('Y-m-d', strtotime('-1 year'));
-            $end = date('Y-m-d', strtotime('yesterday'));
-
-            Helpers::log("Lancement réécriture massive (Source: {$manager->getSourceCmdId()}) de $start à $end", 'info');
-
-            $manager->rewriteAll($start, $end);
-
-            Helpers::log("Réécriture massive terminée avec succès", 'info');
-        } catch (\Exception $e) {
-            Helpers::log("Erreur lors de la réécriture massive : " . $e->getMessage(), 'error');
-        }
-    }
-
-    /**
-     * @return float Consommation totale d'hier en kWh
+     * Consommation d'hier en kWh.
      */
     public static function kwhDay(): float
     {
@@ -97,7 +64,7 @@ class EnergyFacade
     }
 
     /**
-     * @return float Consommation du mois calendaire en cours en kWh
+     * Consommation du mois en cours en kWh.
      */
     public static function kwhMonth(): float
     {
@@ -105,7 +72,7 @@ class EnergyFacade
     }
 
     /**
-     * @return float Consommation sur 365 jours glissants en kWh
+     * Consommation annuelle glissante (12 derniers mois) en kWh.
      */
     public static function kwhYear(): float
     {
@@ -113,7 +80,7 @@ class EnergyFacade
     }
 
     /**
-     * @return float Coût total d'hier en Euros
+     * Coût total d'hier en euros (TTC si les prix sont TTC).
      */
     public static function euroDay(): float
     {
@@ -121,7 +88,7 @@ class EnergyFacade
     }
 
     /**
-     * @return float Coût total du mois calendaire en cours en Euros
+     * Coût total du mois en cours en euros.
      */
     public static function euroMonth(): float
     {
@@ -129,7 +96,7 @@ class EnergyFacade
     }
 
     /**
-     * @return float Coût sur 365 jours glissants en Euros
+     * Coût total de l'année glissante (12 derniers mois) en euros.
      */
     public static function euroYear(): float
     {

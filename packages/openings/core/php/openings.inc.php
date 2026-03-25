@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use Nexus\Jeedom\Services\JeedomCmdService;
+use Nexus\Jeedom\JeedomCmdService;
 use Nexus\Openings\HouseStateGenerator;
 use Nexus\Openings\OpeningsManager;
 use Nexus\Utils\Helpers;
@@ -12,10 +12,9 @@ use Nexus\Utils\Helpers;
  **/
 function openings_getState()
 {
-    $jeedomService = JeedomCmdService::getInstance();
-
-    return Helpers::execute(function () use ($jeedomService) {
+    return Helpers::execute(function () {
         $configFilePath = __DIR__ . "/../config/house_config.json";
+        $jeedomService = new JeedomCmdService();
 
         $dataGenerator = HouseStateGenerator::fromJsonFile(
             $configFilePath,

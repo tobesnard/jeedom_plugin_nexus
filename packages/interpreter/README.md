@@ -35,14 +35,12 @@ composer require jeedom/rule-interpreter
 ### Installation manuelle
 
 1. Clonez le repository :
-
 ```bash
 git clone https://github.com/jeedom/rule-interpreter.git
 cd rule-interpreter
 ```
 
 2. Installez les dépendances :
-
 ```bash
 composer install
 ```
@@ -56,10 +54,10 @@ composer install
 
 use Interpreter\Context\RuleContext;
 use Interpreter\Expression\Terminal\LiteralExpression;
-use Interpreter\Application\Services\JeedomService;
+use Interpreter\Application\Services\JeedomCmdService;
 
 // Création du contexte avec service Jeedom
-$cmdService = new JeedomService();
+$cmdService = new JeedomCmdService();
 $context = new RuleContext();
 
 // Création d'une expression littérale
@@ -73,19 +71,16 @@ echo $result; // Affiche : 42
 ### Expressions supportées
 
 #### Expressions terminales
-
 - **LiteralExpression** : Valeurs constantes (nombres, chaînes, booléens)
 - **CmdByIdExpression** : Commandes par ID
 - **CmdByStringExpression** : Commandes par chaîne
 
 #### Expressions logiques
-
 - **AndExpression** : Opérateur ET logique
 - **OrExpression** : Opérateur OU logique
 - **NotExpression** : Opérateur NON logique
 
 #### Expressions de comparaison
-
 - **EqExpression** : Égalité (==)
 - **NeExpression** : Inégalité (!=)
 - **GtExpression** : Supérieur (>)

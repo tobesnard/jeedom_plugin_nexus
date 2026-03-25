@@ -1,57 +1,25 @@
-# Nexus Project - Jeedom Expansion Framework
+# Template de plugin pour Jeedom
 
-[![Jeedom V4.2+](https://img.shields.io/badge/Jeedom-V4.2+-blue.svg)](https://www.jeedom.com)
-[![PHP 7.4+](https://img.shields.io/badge/PHP-7.4+-777bb4.svg)](https://www.php.net)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776ab.svg)](https://www.python.org)
+Ce "template de plugin" sert de base à la réalisation de plugins pour **Jeedom**.
 
-**Nexus** est une infrastructure logicielle modulaire conçue pour étendre les capacités de votre installation Jeedom via une architecture robuste basée sur des packages spécialisés.
-
-## Caractéristiques Principales
-- **Architecture Modulaire** : 17 packages indépendants (PSR-4) pour une maintenance et une extensibilité optimales.
-- **Moteur de Règles (Interpreter)** : Système de logique avancée basé sur des patterns de conception.
-- **Orchestration IA** : Client unifié pour l'intégration de services d'intelligence artificielle.
-- **Gestion Énergétique** : Suivi détaillé de la consommation électrique et calcul des coûts.
-- **Écosystème Connecté** : Intégrations natives pour Philips Hue, TV, PS5, Chromecast, et Hydrao.
-- **Qualité de Code** : Typage strict PHP 7.4+, tests unitaires (PHPUnit) et respect des standards PSR.
-
-## Structure du Projet
-Le projet est divisé en packages autonomes situés dans le dossier `packages/` :
-- `ai_client` : Orchestration des clients IA.
-- `energy_consumption` : Calcul de consommation et gestion de contrats.
-- `interpreter` : Cœur de l'interpréteur de commandes et règles.
-- `philips_hue` / `philips_tv` : Contrôle des équipements Philips.
-- `wake_up_call` : Gestion multicast pour les réveils via Chromecast.
-- ... et bien plus.
-
-## Installation & Développement
-Le plugin utilise Composer pour gérer ses dépendances et l'autoloading.
-
-1. **Installation des dépendances** :
-   ```bash
-   composer install
-   ```
-2. **Configuration de l'environnement** :
-   ```bash
-   php script/setup_env.php
-   ```
-3. **Tests** :
-   Le projet inclut une suite complète de tests PHPUnit. Vous pouvez les lancer via npm :
-   ```bash
-   npm run test-all
-   ```
-
-## Technologies
-- **PHP** (Core & Business Logic)
-- **Python** (IoT & Background tasks)
-- **Composer** (Dependency Management)
-- **Guzzle** (HTTP Client)
-- **PHPUnit** (Testing Framework)
-
-## Auteur
-- **Tony**
+La documentation générale relative à la conception de plugin est consultable [ici](https://doc.jeedom.com/fr_FR/dev/). Dans le détail :   
+* [Utilisation du template de plugin](https://doc.jeedom.com/fr_FR/dev/plugin_template) : Le template de plugin est une base de plugin pour Jeedom qui doit être adaptée avec l'id de votre plugin et à laquelle il suffit d'ajouter vos propres fonctions. 
+* [Fichier info.json](https://doc.jeedom.com/fr_FR/dev/structure_info_json) : Intégré depuis la version 3.0 de Jeedom, le fichier **info.json** est obligatoire pour le bon fonctionnement des plugins et leur bon déploiement sur le Market Jeedom.
+* [Icône du plugin](https://doc.jeedom.com/fr_FR/dev/Icone_de_plugin) : Afin de pouvoir être publié sur le Market Jeedom, tout plugin doit disposer d’une icône. Attention à ne pas utiliser le même code couleur que les icônes des plugins Jeedom officiels.
+* [Widget du plugin](https://doc.jeedom.com/fr_FR/dev/widget_plugin) : Présentation des différentes manières d'inclure des widgets personnalisés au plugin.
+* [Documentation du plugin](https://doc.jeedom.com/fr_FR/dev/documentation_plugin) : Présentation de la mise en place d'une documentation car un bon plugin n'est rien sans documentation adéquate.
+* [Publication du plugin](https://doc.jeedom.com/fr_FR/dev/publication_plugin) : Description des pré-requis indispensables à la publication du plugin.
 
 ---
-*Ce projet fait partie du plugin Nexus pour Jeedom.*
+Si vous créez une branch nommée prettier, le robot workflows fera une passe complete sur le code pour que le code soit le plus uniforme possible.
+---
+test workflow en cours... for commit
 
+---
+Nouvel assistant pour un gain de temps à la création de votre plugin
+---
+Sur votre terminal, vous pouvez vous rendre dans plugin_info, et executer : php helperConfiguration.php
+Un assistant en CLI vous posera quelques questions, (l'id du plugin, la catégorie, si démon, etcc), puis s'occupera de renommer tous les fichiers et le reste.
+Voila, votre plugin est basiquement prêt pour coder votre travail.
 
 

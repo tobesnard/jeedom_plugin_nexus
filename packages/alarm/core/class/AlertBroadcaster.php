@@ -43,8 +43,6 @@ class AlertBroadcaster
         }
     }
 
-
-
     /**
      * Arrête les diffusions multimédia sur les galets
      */
@@ -55,47 +53,6 @@ class AlertBroadcaster
             JeedomCmdService::getInstance()->execByString($cmdString);
         }
     }
-
-    /**
-     * Diffuse une alerte de type sirène sur les Google Home (Galets)
-     * @param string $soundName Nom du label sonore à rechercher
-     */
-    public static function securitySirenOn(string $soundName = "Tornado Siren")
-    {
-        $cmdString = Config::get('cmd_security_sound');
-        $cmd = \cmd::byString($cmdString);
-
-        if (!is_object($cmd)) {
-            Helpers::log("[AlertBroadcaster] Erreur : Commande son introuvable ($cmdString)", 'error');
-            return;
-        }
-
-        // Gestion du volume via l'équipement parent
-        $eqName = $cmd->getEqLogic()->getName();
-        $oldVolume = self::setVolume($eqName, 100);
-
-        Helpers::log("[AlertBroadcaster] galetAlert ON : $eqName (Volume précédent: $oldVolume)", 'info');
-
-        // Recherche du fichier son dans la liste de la commande
-        $filename = self::getSoundFile($cmd, $soundName);
-        if ($filename) {
-            JeedomCmdService::getInstance()->execByString($cmdString, ['select' => $filename]);
-        } else {
-            Helpers::log("[AlertBroadcaster] Fichier son '$soundName' introuvable dans la configuration de $eqName", 'warning');
-        }
-    }
-
-    /**
-     * Arrête les diffusions multimédia sur les haut-parleurs HK
-     */
-    public static function securitySirenOff()
-    {
-        $cmdString = Config::get('cmd_security_stop');
-        if ($cmdString) {
-            JeedomCmdService::getInstance()->execByString($cmdString);
-        }
-    }
-
 
     /**
      * Messages TTS prédéfinis
