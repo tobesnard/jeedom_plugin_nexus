@@ -53,20 +53,31 @@ class BackupManager
      */
     private function upload(): bool
     {
+        echo sprintf("[%s] [INFO] Démarrage de l'upload : %s vers %s\n", date('Y-m-d H:i:s'), $this->source, $this->remotePath);
+
+        // --tpslimit adapté au quota utilisateur (12 par défaut)
+        $tpslimit = Config::get('rclone_tpslimit', 12);
         $command = sprintf(
-            "rclone copy %s %s --config %s",
+            "rclone copy %s %s --config %s --tpslimit %d 2>&1",
             escapeshellarg($this->source),
             escapeshellarg($this->remotePath),
             escapeshellarg($this->configFile),
+            $tpslimit
         );
 
+        // Ajout de 2>&1 pour capturer les erreurs standard (stderr) dans $output
         exec($command, $output, $returnCode);
 
         if ($returnCode !== 0) {
-            $this->handleFailure("[Backup Cloud] Échec rclone copy. Code: $returnCode. Détails: " . implode(' ', $output));
+            $errorDetails = implode("\n", $output);
+            echo sprintf("[%s] [ERROR] Échec du transfert (Code: %d)\n", date('Y-m-d H:i:s'), $returnCode);
+            echo "[DÉTAILS] " . $errorDetails . "\n";
+
+            $this->handleFailure("[Backup Cloud] Échec rclone copy. Code: $returnCode. Détails: " . $errorDetails);
             return false;
         }
 
+        echo sprintf("[%s] [SUCCESS] Upload terminé avec succès.\n", date('Y-m-d H:i:s'));
         return true;
     }
 
@@ -75,15 +86,24 @@ class BackupManager
      */
     private function cleanup(): void
     {
+
+        $tpslimit = Config::get('rclone_tpslimit', 12);
+        $delay = Config::get('rclone_delete_delay', 2); // délai en secondes entre suppressions
         $listCommand = sprintf(
-            "rclone lsjson %s --config %s",
+            "rclone lsjson %s --config %s --tpslimit %d",
             escapeshellarg($this->remotePath),
             escapeshellarg($this->configFile),
+            $tpslimit
         );
+
+        Helpers::log('[Backup Cloud] Commande de listing exécutée : ' . $listCommand);
+        Helpers::log('[Backup Cloud] Fichier rclone.conf utilisé : ' . $this->configFile);
 
         exec($listCommand, $jsonOutput, $returnCode);
 
         if ($returnCode !== 0) {
+            Helpers::log('[Backup Cloud] Retour commande : ' . implode("\n", $jsonOutput));
+            Helpers::log('[Backup Cloud] Code retour : ' . $returnCode);
             $this->handleFailure("[Backup Cloud] Nettoyage : Impossible de lister les fichiers distants.");
             return;
         }
@@ -107,19 +127,42 @@ class BackupManager
         $toDelete = array_slice($backups, $this->keepCount);
 
         foreach ($toDelete as $file) {
-            $deleteCommand = sprintf(
-                "rclone deletefile %s --config %s",
-                escapeshellarg($this->remotePath . $file['Name']),
+            $fullPath = $this->remotePath . $file['Name'];
+            // Vérification existence fichier sur le cloud
+            $checkCommand = sprintf(
+                "rclone lsjson %s --config %s --tpslimit %d",
+                escapeshellarg($fullPath),
                 escapeshellarg($this->configFile),
+                $tpslimit
             );
-
+            $checkOutput = [];
+            $checkReturn = 0;
+            exec($checkCommand, $checkOutput, $checkReturn);
+            Helpers::log("[Backup Cloud][DEBUG] Résultat existence fichier (lsjson) : code $checkReturn, output : " . implode(' | ', $checkOutput), 'debug');
+            if ($checkReturn !== 0) {
+                Helpers::log("[Backup Cloud] Fichier déjà supprimé ou inexistant sur le cloud : $fullPath", 'debug');
+                continue;
+            }
+            $deleteCommand = sprintf(
+                "rclone deletefile %s --config %s --tpslimit %d",
+                escapeshellarg($fullPath),
+                escapeshellarg($this->configFile),
+                $tpslimit
+            );
+            Helpers::log("[Backup Cloud][DEBUG] Suppression : Commande exécutée : $deleteCommand", 'debug');
+            Helpers::log("[Backup Cloud][DEBUG] Fichier cible : $fullPath", 'debug');
+            Helpers::log("[Backup Cloud][DEBUG] rclone.conf utilisé : " . $this->configFile, 'debug');
+            $out = [];
+            $code = 0;
             exec($deleteCommand, $out, $code);
-
+            Helpers::log("[Backup Cloud][DEBUG] Résultat suppression : code $code, output : " . implode(' | ', $out), 'debug');
             if ($code === 0) {
                 Helpers::log("[Backup Cloud] Supprimé du cloud : {$file['Name']}", 'debug');
             } else {
-                $this->handleFailure("[Backup Cloud] Échec suppression cloud : {$file['Name']}");
+                $this->handleFailure("[Backup Cloud] Échec suppression cloud : {$file['Name']} (erreur suppression, mais fichier existant confirmé)");
             }
+            // Ajout d'un délai pour éviter le dépassement de quota (configurable)
+            sleep($delay);
         }
     }
 
@@ -132,9 +175,12 @@ class BackupManager
         Helpers::log($message, 'error');
 
         // 2. Notification d'urgence (SMS/Telegram via Config)
-        Notification::emergencyThreadNotification($message);
+        //Notification::emergencyThreadNotification($message);
 
         // 3. Centre de messages Jeedom
         Helpers::message("Backup Cloud", $message);
+
+        echo $message;
     }
 }
+
