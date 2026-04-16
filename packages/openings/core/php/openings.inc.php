@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use Nexus\Jeedom\JeedomCmdService;
+use Nexus\Jeedom\Services\JeedomCmdService;
 use Nexus\Openings\HouseStateGenerator;
 use Nexus\Openings\OpeningsManager;
 use Nexus\Utils\Helpers;
@@ -12,15 +12,26 @@ use Nexus\Utils\Helpers;
  **/
 function openings_getState()
 {
+    Helpers::log('[openings_getState] Début', 'debug');
     return Helpers::execute(function () {
         $configFilePath = __DIR__ . "/../config/house_config.json";
-        $jeedomService = new JeedomCmdService();
+        Helpers::log('[openings_getState] Chemin config : ' . $configFilePath, 'debug');
+
+            $jeedomService = JeedomCmdService::getInstance();
+        Helpers::log('[openings_getState] JeedomCmdService instancié', 'debug');
 
         $dataGenerator = HouseStateGenerator::fromJsonFile(
             $configFilePath,
             $jeedomService,
         );
+        Helpers::log('[openings_getState] HouseStateGenerator créé', 'debug');
 
-        return OpeningsManager::getStatusText($dataGenerator->getArray());
+        $array = $dataGenerator->getArray();
+        Helpers::log('[openings_getState] getArray() appelé', 'debug');
+
+        $result = OpeningsManager::getStatusText($array);
+        Helpers::log('[openings_getState] getStatusText() appelé', 'debug');
+
+        return $result;
     }, "Erreur de récupération de l'état des ouvrants.");
 }

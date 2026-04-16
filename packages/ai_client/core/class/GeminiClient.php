@@ -34,6 +34,8 @@ class GeminiClient extends BaseAIClient
 
     public function query(string $prompt): string
     {
+        // Log temporaire pour debug
+        error_log('[GeminiClient] Clé API utilisée : ' . substr($this->apiKey, 0, 8) . '...');
         $endpoint = "{$this->apiUrl}/{$this->model}:generateContent?key={$this->apiKey}";
 
         $payload = [

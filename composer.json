@@ -54,5 +54,8 @@
         "demo-alarm-core": "php packages/alarm/tests/alarm.core.php",
         "demo-cloud-inc": "php packages/cloud/tests/cloud.inc.php",
         "demo-cloud-core": "php packages/cloud/tests/cloud.core.php"
+    },
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
     }
 }

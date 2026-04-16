@@ -2,6 +2,8 @@
 
 namespace Nexus\Jeedom\Services;
 
+use Nexus\Jeedom\Services\ICmdService;
+
 use InvalidArgumentException;
 use RuntimeException;
 use Nexus\Utils\Helpers;

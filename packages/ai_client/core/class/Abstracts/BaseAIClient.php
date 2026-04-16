@@ -7,7 +7,7 @@ use Exception;
 abstract class BaseAIClient
 {
     protected array $config;
-    protected string $apiKey;
+    protected ?string $apiKey = null;
     protected string $model;
     protected string $apiUrl;
 
@@ -34,7 +34,15 @@ abstract class BaseAIClient
         }
 
         $this->config = $json['providers'][$provider];
-        $this->apiKey = $this->config['api_key'];
+        $apiKey = $this->config['api_key'];
+        // Support du format 'env:VARNAME' pour la clé API
+            if (is_string($apiKey) && strpos($apiKey, 'env:') === 0) {
+                $envVar = substr($apiKey, 4);
+                $envValue = getenv($envVar) ?: ($_ENV[$envVar] ?? '');
+                $this->apiKey = $envValue !== false ? $envValue : '';
+            } else {
+                $this->apiKey = $apiKey;
+            }
         $this->model  = $this->config['model'];
         $this->apiUrl = $this->config['api_url'];
     }
