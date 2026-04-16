@@ -1,7 +1,7 @@
 <?php
 
 
-// require_once __DIR__ . "/../../vendor/autoload.php";
+require_once __DIR__ . "/../../../vendor/autoload.php";
 
 require_once __DIR__ . "/../core/php/philiptv.inc.php";
 
@@ -12,7 +12,6 @@ require_once __DIR__ . "/../core/php/philiptv.inc.php";
 // shell_exec('wakeonlan 68:07:0a:29:b3:63');
 echo philipsTV_version();
 echo "\n";
-// echo ambihue_state();
-// philipsTV_on();
-// echo philipsTV_ambilightState();
+//philipsTV_on();
 echo philipsTV_ambilightState();
+// echo philipsTV_ambilightState();

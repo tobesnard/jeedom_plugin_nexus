@@ -45,7 +45,7 @@ class Helpers
      * @param string $level
      * @return mixed
      */
-    public static function execute(callable $callback, $default = null, string $level = 'error')
+    public static function execute(callable $callback, $default = null, string $level = 'error', string $context = '')
     {
         try {
             return $callback();
