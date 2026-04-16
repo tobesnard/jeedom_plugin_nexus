@@ -42,3 +42,11 @@ package-lock.json
 .env.local
 .env.*.local
 
+
+packages/jamming_detection/bin
+packages/jamming_detection/include
+packages/jamming_detection/lib
+packages/jamming_detection/lib64
+
+packages/cloud/tests/test_remote/*.tar.gz
+packages/cloud/tests/test_source/*.tar.gz
