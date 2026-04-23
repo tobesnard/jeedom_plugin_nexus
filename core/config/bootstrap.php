@@ -1,47 +1,59 @@
 <?php
-// Chargement automatique du .env pour les variables d'environnement (API keys, etc.)
-
-// Chargement explicite de l'autoload Composer
-if (file_exists(__DIR__ . '/../../../vendor/autoload.php')) {
-    require_once __DIR__ . '/../../../vendor/autoload.php';
-}
-
-// Vérification de la présence du fichier .env
-// Correction du chemin pour pointer vers la racine du plugin Nexus
-$envPath = dirname(__DIR__, 2) . '/.env';
-if (!file_exists($envPath)) {
-    error_log('[DEBUG][Dotenv] Fichier .env introuvable à ' . $envPath);
-} else {
-    error_log('[DEBUG][Dotenv] Fichier .env trouvé à ' . $envPath);
-    // Chargement Dotenv avec gestion d'erreur
-    try {
-        if (class_exists('Dotenv\\Dotenv')) {
-            $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2));
-            $dotenv->load();
-            error_log('[DEBUG][Dotenv] .env chargé');
-            error_log('[DEBUG][Dotenv] getenv(GEMINI_API_KEY)=' . getenv('GEMINI_API_KEY'));
-            error_log('[DEBUG][Dotenv] $_ENV[GEMINI_API_KEY]=' . ($_ENV['GEMINI_API_KEY'] ?? ''));
-        } else {
-            error_log('[DEBUG][Dotenv] Classe Dotenv\\Dotenv introuvable après require autoload.');
-        }
-    } catch (Exception $e) {
-        error_log('[DEBUG][Dotenv] Exception : ' . $e->getMessage());
-    }
-}
 
 /**
- * Nexus Framework - Initialisation
+ * Nexus Framework - Core Initializer
+ * Gère le chargement de l'autoloader, des variables d'environnement et du framework Jeedom.
  */
 
-// 1. Chargement des constantes
-require_once __DIR__ . '/constants.php';
+declare(strict_types=1);
 
-// 2. Chargement du Core Jeedom si présent
-if (file_exists(JEEDOM_CORE)) {
+// 1. Chargement de l'autoloader Composer
+$autoloadPath = dirname(__DIR__, 3) . '/vendor/autoload.php';
+if (!file_exists($autoloadPath)) {
+    // Fallback si le chemin relatif diffère
+    $autoloadPath = __DIR__ . '/../../../vendor/autoload.php';
+}
+
+if (file_exists($autoloadPath)) {
+    require_once $autoloadPath;
+}
+
+// 2. Gestion des variables d'environnement (.env)
+$envDir = dirname(__DIR__, 2);
+$envFile = $envDir . '/.env';
+
+if (file_exists($envFile) && class_exists('Dotenv\Dotenv')) {
+    try {
+        // Utilisation de createUnsafeImmutable() pour peupler automatiquement $_ENV, $_SERVER ET getenv()
+        // Cela évite la boucle foreach manuelle avec putenv()
+        $dotenv = Dotenv\Dotenv::createUnsafeImmutable($envDir);
+        $dotenv->load();
+        
+        // Optionnel : Forcer la présence de variables critiques
+        // $dotenv->required(['GEMINI_API_KEY', 'RCLONE_CONFIG_GOOGLE_DRIVE_TOKEN']);
+        
+    } catch (\Throwable $e) {
+        error_log('[Nexus][Dotenv] Erreur lors du chargement : ' . $e->getMessage());
+    }
+} elseif (!file_exists($envFile)) {
+    error_log("[Nexus][Dotenv] Fichier absent : $envFile");
+}
+
+// 3. Chargement des configurations et constantes
+$constantsPath = __DIR__ . '/constants.php';
+if (file_exists($constantsPath)) {
+    require_once $constantsPath;
+}
+
+// 4. Initialisation du Core Jeedom
+// On vérifie si la constante JEEDOM_CORE est définie (via constants.php)
+if (defined('JEEDOM_CORE') && file_exists(JEEDOM_CORE)) {
     require_once JEEDOM_CORE;
 }
 
-// 3. Initialisation de l'environnement (ex: créer le dossier tmp si absent)
-if (!is_dir(NEXUS_TMP_DIR)) {
-    mkdir(NEXUS_TMP_DIR, 0775, true);
+// 5. Gestion des répertoires temporaires
+if (defined('NEXUS_TMP_DIR') && !is_dir(NEXUS_TMP_DIR)) {
+    if (!mkdir(NEXUS_TMP_DIR, 0775, true) && !is_dir(NEXUS_TMP_DIR)) {
+        error_log(sprintf('[Nexus] Impossible de créer le répertoire : %s', NEXUS_TMP_DIR));
+    }
 }

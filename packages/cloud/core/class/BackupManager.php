@@ -4,42 +4,54 @@ namespace Nexus\Cloud;
 
 require_once __DIR__ . "/../../../../vendor/autoload.php";
 
-use Nexus\Jeedom\Notification;
 use Nexus\Utils\Helpers;
 use Nexus\Utils\Config;
 
-/**
- * Classe BackupManager - Nexus Framework
- * Gère la synchronisation et la rotation des sauvegardes Jeedom vers Google Drive via rclone.
- */
 class BackupManager
 {
     private string $remotePath;
-    private string $configFile;
     private string $source;
     private int $keepCount;
     private string $cacheDir;
+    private string $remoteName;
 
-    /**
-     * @param string|null $remotePath Chemin rclone distant
-     * @param string|null $configFile Chemin du fichier rclone.conf
-     * @param int $keepCount Nombre de sauvegardes à conserver
-     */
-    public function __construct(?string $remotePath = null, ?string $configFile = null, int $keepCount = 10)
+    public function __construct(?string $remotePath = null, int $keepCount = 10)
     {
-        $this->remotePath = $remotePath ?? Config::get('rclone_remote_path', 'google-drive:Jeedom/Sauvegardes/');
-        $this->configFile = $configFile ?? Config::get('rclone_config_file', __DIR__ . '/../config/rclone.conf');
+        $this->remoteName = 'google-drive';
+        $this->remotePath = $remotePath ?? Config::get('rclone_remote_path', $this->remoteName . ':Jeedom/Sauvegardes/');
         $this->source     = Config::get('backup_source_path', '/var/www/html/backup/');
         $this->keepCount  = $keepCount;
-        // Définition d'un dossier de cache accessible en écriture
         $this->cacheDir   = '/tmp/rclone-cache';
+
+        if (!is_dir($this->cacheDir)) {
+            mkdir($this->cacheDir, 0755, true);
+        }
     }
 
     /**
-     * Exécute le cycle complet : Synchronisation puis Nettoyage
+     * Log les variables d'environnement rclone pour débogage
      */
+    private function debugEnv(): void
+    {
+        $vars = [
+            'RCLONE_CONFIG_GOOGLE_DRIVE_TOKEN',
+            'RCLONE_CONFIG_GOOGLE_DRIVE_CLIENT_ID',
+            'RCLONE_CONFIG_GOOGLE_DRIVE_CLIENT_SECRET'
+        ];
+
+        echo "--- DEBUG ENV ---\n";
+        foreach ($vars as $var) {
+            $val = getenv($var);
+            echo sprintf("[%s] %s\n", $var, $val ? "Chargée (longueur: " . strlen($val) . ")" : "VIDE / NON TROUVÉE");
+        }
+        echo "-----------------\n";
+    }
+
     public function run(): void
     {
+        // Debug au démarrage
+        $this->debugEnv();
+
         if (php_sapi_name() !== 'cli') {
             sleep(30);
         }
@@ -50,22 +62,16 @@ class BackupManager
         }
     }
 
-    /**
-     * Copie les fichiers locaux vers le cloud
-     */
     private function upload(): bool
     {
         try {
-            echo sprintf("[%s] [INFO] Démarrage de l'upload : %s vers %s\n", date('Y-m-d H:i:s'), $this->source, $this->remotePath);
-
-            // Réduction drastique pour éviter l'erreur 403 Rate Limit
             $tpslimit = Config::get('rclone_tpslimit', 3);
+            $envPrefix = "RCLONE_CONFIG_GOOGLE_DRIVE_TYPE=drive ";
 
             $command = sprintf(
-                "rclone copy %s %s --config %s --cache-dir %s --tpslimit %d --transfers 1 --checkers 1 2>&1",
+                $envPrefix . "rclone copy %s %s --cache-dir %s --tpslimit %d --transfers 1 --checkers 1 2>&1",
                 escapeshellarg($this->source),
                 escapeshellarg($this->remotePath),
-                escapeshellarg($this->configFile),
                 escapeshellarg($this->cacheDir),
                 $tpslimit
             );
@@ -73,34 +79,27 @@ class BackupManager
             exec($command, $output, $returnCode);
 
             if ($returnCode !== 0) {
-                $errorDetails = implode("\n", $output);
-                echo sprintf("[%s] [ERROR] Échec du transfert (Code: %d)\n", date('Y-m-d H:i:s'), $returnCode);
-                $this->handleFailure("[Backup Cloud] Échec rclone copy. Code: $returnCode. Détails: " . $errorDetails);
+                $this->handleFailure("[Backup Cloud] Échec rclone copy. Code: $returnCode. Détails: " . implode("\n", $output));
                 return false;
             }
 
-            echo sprintf("[%s] [SUCCESS] Upload terminé avec succès.\n", date('Y-m-d H:i:s'));
             return true;
         } catch (\Throwable $e) {
-            $errorMsg = sprintf("[%s] [EXCEPTION] %s in %s:%d\nStack trace:\n%s", date('Y-m-d H:i:s'), $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
-            echo $errorMsg;
-            $this->handleFailure("[Backup Cloud] Exception lors de l'upload : " . $e->getMessage());
+            $this->handleFailure("[Backup Cloud] Exception : " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Nettoie les anciennes sauvegardes sur le Cloud
-     */
     private function cleanup(): void
     {
         $tpslimit = Config::get('rclone_tpslimit', 3);
-        $delay = Config::get('rclone_delete_delay', 2);
+        $delay = (int)Config::get('rclone_delete_delay', 2);
         
+        $envPrefix = "RCLONE_CONFIG_GOOGLE_DRIVE_TYPE=drive ";
+
         $listCommand = sprintf(
-            "rclone lsjson %s --config %s --cache-dir %s --tpslimit %d",
+            $envPrefix . "rclone lsjson %s --cache-dir %s --tpslimit %d --files-only",
             escapeshellarg($this->remotePath),
-            escapeshellarg($this->configFile),
             escapeshellarg($this->cacheDir),
             $tpslimit
         );
@@ -108,17 +107,15 @@ class BackupManager
         exec($listCommand, $jsonOutput, $returnCode);
 
         if ($returnCode !== 0) {
-            $this->handleFailure("[Backup Cloud] Nettoyage : Impossible de lister les fichiers distants.");
+            $this->handleFailure("[Backup Cloud] Nettoyage : Impossible de lister les fichiers.");
             return;
         }
 
-        $files = json_decode(implode("\n", $jsonOutput), true);
-        if (!is_array($files)) {
-            return;
-        }
+        $files = json_decode(implode("", $jsonOutput), true);
+        if (!is_array($files)) return;
 
         $backups = array_filter($files, function ($file) {
-            return preg_match('/backup-eDOM-.*\.tar\.gz$/', $file['Name']);
+            return isset($file['Name']) && preg_match('/backup-eDOM-.*\.tar\.gz$/', $file['Name']);
         });
 
         usort($backups, function ($a, $b) {
@@ -128,27 +125,22 @@ class BackupManager
         $toDelete = array_slice($backups, $this->keepCount);
 
         foreach ($toDelete as $file) {
-            $fullPath = $this->remotePath . $file['Name'];
-            
             $deleteCommand = sprintf(
-                "rclone deletefile %s --config %s --cache-dir %s --tpslimit %d",
-                escapeshellarg($fullPath),
-                escapeshellarg($this->configFile),
+                $envPrefix . "rclone deletefile %s --cache-dir %s --tpslimit %d 2>&1",
+                escapeshellarg($this->remotePath . $file['Name']),
                 escapeshellarg($this->cacheDir),
                 $tpslimit
             );
 
-            $out = [];
-            $code = 0;
             exec($deleteCommand, $out, $code);
             
             if ($code === 0) {
-                Helpers::log("[Backup Cloud] Supprimé du cloud : {$file['Name']}", 'debug');
+                Helpers::log("[Backup Cloud] Supprimé : {$file['Name']}", 'debug');
             } else {
-                $this->handleFailure("[Backup Cloud] Échec suppression cloud : {$file['Name']}");
+                $this->handleFailure("[Backup Cloud] Échec suppression : {$file['Name']}");
             }
             
-            sleep($delay);
+            if ($delay > 0) sleep($delay);
         }
     }
 
@@ -156,6 +148,6 @@ class BackupManager
     {
         Helpers::log($message, 'error');
         Helpers::message("Backup Cloud", $message);
-        echo $message;
+        echo sprintf("[%s] [ERROR] %s\n", date('Y-m-d H:i:s'), $message);
     }
 }
