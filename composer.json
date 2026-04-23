@@ -26,6 +26,9 @@
         "phpunit/phpunit": "^9.0",
         "friendsofphp/php-cs-fixer": "^3.0"
     },
+    "config": {
+        "process-timeout": 1800
+    },
     "scripts": {
         "cs-fix": "php-cs-fixer fix",
         "test-aiclient": "phpunit packages/ai_client/tests/",
