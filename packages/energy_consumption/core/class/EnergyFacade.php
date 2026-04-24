@@ -102,4 +102,32 @@ class EnergyFacade
     {
         return (float) self::getEngine()->getYearlyRollingSummary()['totals']['cost'];
     }
+
+    /**
+     * Exécute une réécriture réelle des données historiques en base de données.
+     * La période est calculée automatiquement de la première donnée source trouvée à hier.
+     * @return void
+     */
+    public static function rewriteHistory(): void
+    {
+        try {
+            $manager = new \Nexus\Energy\Electricity\Service\KwhReading\JeedomHistoryManager(null, false);
+            $readingService = new \Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading($manager->getSourceCmdId());
+
+            // Détermination de la borne de départ automatique
+            $firstDate = $readingService->getFirstReadingDate();
+            $start = $firstDate ? $firstDate->format('Y-m-d') : date('Y-m-d', strtotime('-1 year'));
+            $end = date('Y-m-d', strtotime('yesterday'));
+
+            \Nexus\Utils\Helpers::log("Lancement réécriture massive (Source: {$manager->getSourceCmdId()}) de $start à $end", 'info');
+
+            $manager->rewriteAll($start, $end);
+
+            \Nexus\Utils\Helpers::log("Réécriture massive terminée avec succès", 'info');
+        } catch (\Exception $e) {
+            \Nexus\Utils\Helpers::log("Erreur lors de la réécriture massive : " . $e->getMessage(), 'error');
+        }
+    }
+
+   
 }
