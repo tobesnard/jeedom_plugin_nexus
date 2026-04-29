@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nexus\Openings;
 
 use Nexus\AI\AIClient\AIFactory;
+use Nexus\Utils\CacheService;
 use RuntimeException;
 use Exception;
 
@@ -15,11 +16,22 @@ class OpeningsManager
     /**
      * Génère une synthèse humaine basée sur la configuration IA et les données fournies.
      * * @param array $houseData Structure complète de la maison (floors, rooms, openings)
+     * @param int $cacheTTL Durée de vie du cache en secondes (défaut: 300s / 5min)
      * @return string Synthèse textuelle
      */
-    public static function getStatusText(array $houseData): string
+    public static function getStatusText(array $houseData, int $cacheTTL = 300): string
     {
         try {
+            // Génération d'une clé de cache basée sur les données d'entrée
+            $cache = CacheService::getInstance();
+            $cacheKey = $cache->generateKey('openings_status', $houseData);
+
+            // Vérification du cache
+            $cachedResult = $cache->get($cacheKey);
+            if ($cachedResult !== null) {
+                return $cachedResult;
+            }
+
             $config = self::loadConfig();
 
             // Extraction des instructions systèmes
@@ -28,7 +40,7 @@ class OpeningsManager
             // Préparation des données d'entrée (User Context)
             $inputData = json_encode($houseData, JSON_UNESCAPED_UNICODE);
 
-            $aiClient = AIFactory::create("gemini");
+            $aiClient = AIFactory::create("copilot");
 
             // Formatage du prompt pour une séparation claire entre règles et données
             $prompt = "### SYSTEM_RULES\n{$systemInstructions}\n\n";
@@ -38,6 +50,9 @@ class OpeningsManager
 
             // Supprime les caractères de contrôle ASCII (0 à 31 et 127)
             $output = preg_replace('/[\x00-\x1F\x7F]/', '', $output);
+
+            // Mise en cache du résultat
+            $cache->set($cacheKey, $output, $cacheTTL);
 
             return $output;
         } catch (Exception $e) {
