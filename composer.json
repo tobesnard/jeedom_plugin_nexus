@@ -13,7 +13,8 @@
             "Nexus\\Utils\\": "packages/utils/core/class",
             "Nexus\\Alarm\\": "packages/alarm/core/class",
             "Nexus\\Monitoring\\": "packages/monitoring/core/class",
-            "Nexus\\Cloud\\": "packages/cloud/core/class"
+            "Nexus\\Cloud\\": "packages/cloud/core/class",
+            "Nexus\\Communication\\": "packages/communication/core/class"
         },
         "classmap": [
             "packages/wake_up_call/3rdparty/cast/"
@@ -59,6 +60,7 @@
         "demo-cloud-core": "php packages/cloud/tests/cloud.core.php"
     },
     "require": {
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6",
+        "guzzlehttp/guzzle": "^7.0"
     }
 }
