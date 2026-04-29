@@ -5,6 +5,8 @@
     "cmd_galets_tts": "#[Multimédia][Galets][TTS]#",
     "cmd_galets_sound": "#[Multimédia][Galets][Sounds]#",
     "cmd_galets_stop": "#[Multimédia][Galets][Media Stop]#",
+    "cmd_security_siren_on": "#[Sécurité][Sirènes Heiman][Sirène Long]#",
+    "cmd_security_siren_off": "#[Sécurité][Sirènes Heiman][Off]#",
     "rclone_remote_path": "google-drive:Jeedom/Sauvegardes/",
     "rclone_config_file": "/var/www/html/plugins/nexus/packages/cloud/core/config/rclone.conf",
     "backup_source_path": "/var/www/html/backup/"

@@ -44,3 +44,23 @@ function alarm_galetsSirenOff()
         AlertBroadcaster::galetsSirenOff();
     });
 }
+
+/**
+ * Méthode proxy : Active la sirène de sécurité physique
+ */
+function alarm_securitySirenOn()
+{
+    Helpers::execute(function () {
+        AlertBroadcaster::securitySirenOn();
+    });
+}
+
+/**
+ * Méthode proxy : Désactive la sirène de sécurité physique
+ */
+function alarm_securitySirenOff()
+{
+    Helpers::execute(function () {
+        AlertBroadcaster::securitySirenOff();
+    });
+}

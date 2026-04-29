@@ -55,6 +55,34 @@ class AlertBroadcaster
     }
 
     /**
+     * Active la sirène de sécurité physique
+     */
+    public static function securitySirenOn()
+    {
+        $cmdString = Config::get('cmd_security_siren_on');
+        if ($cmdString) {
+            JeedomCmdService::getInstance()->execByString($cmdString);
+            Helpers::log("[AlertBroadcaster] Sirène de sécurité activée", 'info');
+        } else {
+            Helpers::log("[AlertBroadcaster] Commande sirène de sécurité non configurée (cmd_security_siren_on)", 'warning');
+        }
+    }
+
+    /**
+     * Désactive la sirène de sécurité physique
+     */
+    public static function securitySirenOff()
+    {
+        $cmdString = Config::get('cmd_security_siren_off');
+        if ($cmdString) {
+            JeedomCmdService::getInstance()->execByString($cmdString);
+            Helpers::log("[AlertBroadcaster] Sirène de sécurité désactivée", 'info');
+        } else {
+            Helpers::log("[AlertBroadcaster] Commande sirène de sécurité non configurée (cmd_security_siren_off)", 'warning');
+        }
+    }
+
+    /**
      * Messages TTS prédéfinis
      */
     public static function infoMessage()
