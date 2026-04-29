@@ -112,7 +112,7 @@ class EnergyFacade
     {
         try {
             $manager = new \Nexus\Energy\Electricity\Service\KwhReading\JeedomHistoryManager(null, false);
-            $readingService = new \Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading($manager->getSourceCmdId());
+            $readingService = new \Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading(null, $manager->getSourceCmdId());
 
             // Détermination de la borne de départ automatique
             $firstDate = $readingService->getFirstReadingDate();

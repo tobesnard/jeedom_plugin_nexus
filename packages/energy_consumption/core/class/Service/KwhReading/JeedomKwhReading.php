@@ -71,4 +71,35 @@ class JeedomKwhReading implements IKwhReading
         $readings = $this->getDailyReadings($start, $end);
         return array_sum(array_column($readings, 'value'));
     }
+
+    /**
+     * Retourne la date de la première lecture disponible dans l'historique.
+     *
+     * @return DateTimeImmutable|null Date de la première lecture, ou null si aucune donnée
+     * @throws \Exception si la commande Jeedom n'existe pas
+     */
+    public function getFirstReadingDate(): ?DateTimeImmutable
+    {
+        // Récupération de l'objet commande Jeedom via le client
+        $cmd = $this->client->getCmdById($this->cmdId);
+
+        if (!is_object($cmd)) {
+            throw new \Exception("La commande Jeedom ID {$this->cmdId} est introuvable.");
+        }
+
+        // Récupère l'historique sur une très grande période pour trouver la première entrée
+        // On part de 10 ans en arrière jusqu'à aujourd'hui
+        $start = (new DateTimeImmutable())->modify('-10 years')->format('Y-m-d H:i:s');
+        $end = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+        
+        $historyList = $this->client->getHistory($this->cmdId, $start, $end);
+
+        if (empty($historyList)) {
+            return null;
+        }
+
+        // Récupère la première entrée (l'historique est normalement trié par date)
+        $firstEntry = reset($historyList);
+        return new DateTimeImmutable($firstEntry->getDatetime());
+    }
 }

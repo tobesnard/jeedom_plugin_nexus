@@ -1,8 +1,8 @@
 <?php
 
-namespace Nexus\Energy\Electricity;
+namespace Nexus\Energy\Electricity\Service\KwhReading;
 
-require_once __DIR__ . '/../../../../vendor/autoload.php';
+// require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use DateTimeImmutable;
 use history;
@@ -13,6 +13,8 @@ use Exception;
 use RuntimeException;
 use Nexus\Utils\Helpers;
 use Nexus\Energy\Electricity\Service\KwhReading\JeedomKwhReading;
+use Nexus\Energy\Electricity\Consumption;
+use Nexus\Energy\Electricity\ContractFactory;
 
 /**
  * Gestionnaire de réécriture massive d'historique.
@@ -54,9 +56,9 @@ class JeedomHistoryManager
         $this->loadConfiguration();
 
         if ($_consumption === null) {
-            $contractsPath = __DIR__ . '/../config/contrats.json';
+            $contractsPath = __DIR__ . '/../../../config/contrats.json';
             $contracts = ContractFactory::createFromConfigFile($contractsPath);
-            $readingService = new JeedomKwhReading($this->sourceCmdId);
+            $readingService = new JeedomKwhReading(null, $this->sourceCmdId);
             $this->consumption = new Consumption($readingService, $contracts);
         } else {
             $this->consumption = $_consumption;
@@ -69,7 +71,7 @@ class JeedomHistoryManager
      */
     protected function loadConfiguration(): void
     {
-        $configPath = __DIR__ . "/../config/config.json";
+        $configPath = __DIR__ . "/../../../config/config.json";
         if (!file_exists($configPath)) {
             throw new RuntimeException("Config absente : $configPath");
         }
