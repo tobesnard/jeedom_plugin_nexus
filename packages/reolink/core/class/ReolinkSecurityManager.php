@@ -208,4 +208,73 @@ class ReolinkSecurityManager
         }
         return true;
     }
+
+    
+    public function getPushStatus(): bool
+    {
+        return $this->fetchBinaryStatus("GetPushV20", "Push");
+    }
+
+    public function getMailStatus(): bool
+    {
+        return $this->fetchBinaryStatus("GetEmailV20", "Email");
+    }
+
+    public function getRecStatus(): bool
+    {
+        return $this->fetchBinaryStatus("GetRecV20", "Rec");
+    }
+
+    public function getSirenStatus(): bool
+    {
+        return $this->fetchBinaryStatus("GetAudioAlarmV20", "Audio");
+    }
+
+    public function getSpotlightStatus(): bool
+    {
+        $payload = [
+            [
+                "cmd" => "GetWhiteLed",
+                "param" => ["channel" => 0]
+            ]
+        ];
+
+        $response = json_decode($this->sendBatchRequest($payload), true);
+
+        if (
+            isset($response[0]['code']) && 
+            $response[0]['code'] === 0 && 
+            isset($response[0]['value']['WhiteLed']['state'])
+        ) {
+            // Pour le projecteur, on vérifie si l'état est à 1 (On/Auto)
+            return (int)$response[0]['value']['WhiteLed']['state'] === 1;
+        }
+
+        return false;
+    }
+
+    /**
+     * Exécute une commande GET et extrait l'état d'activation (enable)
+     */
+    private function fetchBinaryStatus(string $cmd, string $key): bool
+    {
+        $payload = [
+            [
+                "cmd" => $cmd,
+                "param" => ["channel" => 0]
+            ]
+        ];
+
+        $response = json_decode($this->sendBatchRequest($payload), true);
+
+        if (
+            isset($response[0]['code']) && 
+            $response[0]['code'] === 0 && 
+            isset($response[0]['value'][$key]['enable'])
+        ) {
+            return (bool)$response[0]['value'][$key]['enable'];
+        }
+
+        return false;
+    }
 }
