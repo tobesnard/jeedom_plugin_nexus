@@ -111,6 +111,21 @@ function camera_getSirenStatus(): bool
     }, false);
 }
 
+/** Proxy : GetBuzzerAlarmV20 - Récupère l'état actuel du buzzer de la caméra Reolink.
+ *
+ * @return bool true si le buzzer est activé, false sinon.
+ */
+function camera_getBuzzerStatus(): bool
+{
+    return Helpers::execute(function () {
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        return $manager->getBuzzerStatus();
+    }, false);
+}
+
 /** Proxy : GetWhiteLed - Récupère l'état actuel du projecteur de la caméra Reolink.
  *
  * @return bool true si le projecteur est activé, false sinon.

@@ -10,7 +10,8 @@ function getCameraStatus(): array
         'mail' => camera_getMailStatus() ? "Activées" : "Désactivées",
         'rec' => camera_getRecStatus() ? "Activé" : "Désactivé",
         'siren' => camera_getSirenStatus() ? "Activée" : "Désactivée",
-        'spotlight' => camera_getSpotlightStatus() ? "Activé" : "Désactivé"
+        'spotlight' => camera_getSpotlightStatus() ? "Activé" : "Désactivé",
+        'buzzer' => camera_getBuzzerStatus() ? "Activé" : "Désactivé"
     ];
 }
 
@@ -23,6 +24,7 @@ function printCameraStatus(): void
     echo "Enregistrement : {$status['rec']}\n";
     echo "Sirène : {$status['siren']}\n";
     echo "Projecteur : {$status['spotlight']}\n";
+    echo "Buzzer : {$status['buzzer']}\n";
     echo "========================================\n\n";
 }
 

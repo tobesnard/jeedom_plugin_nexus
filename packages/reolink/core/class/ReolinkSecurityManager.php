@@ -163,7 +163,33 @@ class ReolinkSecurityManager
                         "schedule" => ["table" => $table]
                     ]
                 ]
+            ],
+
+            // 9. Sirène du HUB (Buzzer Alarm V20)
+            [
+                "cmd" => "SetBuzzerAlarmV20",
+                "param" => [
+                    "Buzzer" => [
+                        "channel" => 0,
+                        "enable" => $status,
+                        "scheduleEnable" => 1,
+                        "diskErrorAlert" => 0,
+                        "diskFullAlert" => 0,
+                        "ipConflictAlert" => 0,
+                        "nvrDisconnectAlert" => 0,
+                        "schedule" => [
+                            "channel" => 0,
+                            "table" => [
+                                "AI_DOG_CAT" => $table,
+                                "AI_PEOPLE"  => $table,
+                                "AI_VEHICLE" => $table,
+                                "MD"         => $table
+                            ]
+                        ]
+                    ]
+                ]
             ]
+
         ];
     }
 
@@ -228,6 +254,11 @@ class ReolinkSecurityManager
     public function getSirenStatus(): bool
     {
         return $this->fetchBinaryStatus("GetAudioAlarmV20", "Audio");
+    }
+
+    public function getBuzzerStatus(): bool
+    {
+        return $this->fetchBinaryStatus("GetBuzzerAlarmV20", "Buzzer");
     }
 
     public function getSpotlightStatus(): bool
