@@ -14,7 +14,8 @@
             "Nexus\\Alarm\\": "packages/alarm/core/class",
             "Nexus\\Monitoring\\": "packages/monitoring/core/class",
             "Nexus\\Cloud\\": "packages/cloud/core/class",
-            "Nexus\\Communication\\": "packages/communication/core/class"
+            "Nexus\\Communication\\": "packages/communication/core/class",
+            "Nexus\\Security\\Camera\\": "packages/reolink/core/class"
         },
         "classmap": [
             "packages/wake_up_call/3rdparty/cast/"

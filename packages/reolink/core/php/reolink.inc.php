@@ -12,7 +12,13 @@ use Nexus\Utils\Helpers;
 function camera_arm()
 {
     return Helpers::execute(function () {
-        $manager = new ReolinkSecurityManager("192.168.1.244", "admin", "L1mp3rm@n3nce");
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        echo "Tentative d'armement de la caméra Reolink à l'adresse {$reolinkIp} avec l'utilisateur {$reolinkUsername}\n";
+        
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
         $result = $manager->armAll();
         
         if ($result['success']) {
@@ -32,7 +38,10 @@ function camera_arm()
 function camera_disarm()
 {
     return Helpers::execute(function () {
-        $manager = new ReolinkSecurityManager("192.168.1.244", "admin", "L1mp3rm@n3nce");
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
         $result = $manager->disarmAll();
         
         if ($result['success']) {
