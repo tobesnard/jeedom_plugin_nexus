@@ -255,7 +255,7 @@ function camera_zoomInc()
         $reolinkUsername = getenv('REOLINK_USERNAME');
         $reolinkPassword = getenv('REOLINK_PASSWORD');
 
-        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword, 1);
         $result = $manager->zoomInc();
 
         if ($result['success']) {
@@ -276,7 +276,7 @@ function camera_zoomDec()
         $reolinkUsername = getenv('REOLINK_USERNAME');
         $reolinkPassword = getenv('REOLINK_PASSWORD');
 
-        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword, 1);
         $result = $manager->zoomDec();
 
         if ($result['success']) {

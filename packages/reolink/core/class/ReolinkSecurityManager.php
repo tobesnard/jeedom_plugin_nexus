@@ -8,21 +8,27 @@ class ReolinkSecurityManager
     private string $user;
     private string $password;
     private string $baseUrl;
+    private int $channel;
 
-    public function __construct(string $ip, string $user, string $password)
+    public function __construct(string $ip, string $user, string $password, int $channel = 0)
     {
-        $this->ip = $ip;
-        $this->user = $user;
+        $this->ip       = $ip;
+        $this->user     = $user;
         $this->password = $password;
-        $this->baseUrl = "http://{$this->ip}/cgi-bin/api.cgi";
+        $this->channel  = $channel;
+        $this->baseUrl  = "http://{$this->ip}/cgi-bin/api.cgi";
     }
+
+    // =========================================================================
+    // Armement / Désarmement
+    // =========================================================================
 
     public function disarmAll(): array
     {
         $result = $this->sendBatchRequest($this->buildPayload(0));
         return [
-            'action' => 'disarm',
-            'success' => $this->isSuccess($result),
+            'action'   => 'disarm',
+            'success'  => $this->isSuccess($result),
             'response' => json_decode($result, true),
         ];
     }
@@ -31,8 +37,8 @@ class ReolinkSecurityManager
     {
         $result = $this->sendBatchRequest($this->buildPayload(1));
         return [
-            'action' => 'arm',
-            'success' => $this->isSuccess($result),
+            'action'   => 'arm',
+            'success'  => $this->isSuccess($result),
             'response' => json_decode($result, true),
         ];
     }
@@ -40,20 +46,19 @@ class ReolinkSecurityManager
     private function buildPayload(int $status): array
     {
         $table = str_repeat((string) $status, 168);
-        $timingTable = ($status === 1) ? str_repeat("0", 168) : str_repeat("0", 168); // Souvent maintenu à 0 pour éviter le continu
 
         return [
             // 1. Notifications Push
             [
-                "cmd" => "SetPushV20",
+                "cmd"   => "SetPushV20",
                 "param" => [
                     "Push" => [
-                        "channel" => 0,
-                        "enable" => $status,
+                        "channel"        => $this->channel,
+                        "enable"         => $status,
                         "scheduleEnable" => 1,
-                        "schedule" => [
-                            "channel" => 0,
-                            "table" => [
+                        "schedule"       => [
+                            "channel" => $this->channel,
+                            "table"   => [
                                 "AI_DOG_CAT" => $table,
                                 "AI_PEOPLE"  => $table,
                                 "AI_VEHICLE" => $table,
@@ -63,42 +68,41 @@ class ReolinkSecurityManager
                     ],
                 ],
             ],
-            // 2. Enregistrement V20 (Neutralise l'écriture SD)
+            // 2. Enregistrement V20
             [
-                "cmd" => "SetRecV20",
+                "cmd"   => "SetRecV20",
                 "param" => [
                     "Rec" => [
-                        "channel" => 0,
-                        "enable" => $status,
-                        "overwrite" => 1,
-                        "postRec" => "1 Minute",
-                        "preRec" => 0,
-                        "saveDay" => 7,
+                        "channel"        => $this->channel,
+                        "enable"         => $status,
+                        "overwrite"      => 1,
+                        "postRec"        => "1 Minute",
+                        "preRec"         => 0,
+                        "saveDay"        => 7,
                         "scheduleEnable" => 1,
-                        "schedule" => [
-                            "channel" => 0,
-                            "table" => [
+                        "schedule"       => [
+                            "channel" => $this->channel,
+                            "table"   => [
                                 "AI_DOG_CAT" => $table,
                                 "AI_PEOPLE"  => $table,
                                 "AI_VEHICLE" => $table,
                                 "MD"         => $table,
-                                "TIMING"     => "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                                "TIMING"     => str_repeat("0", 168),
                             ],
                         ],
                     ],
                 ],
             ],
-
-            // 3. Email V20 (Neutralise les envois de mail)
+            // 3. Email V20
             [
-                "cmd" => "SetEmailV20",
+                "cmd"   => "SetEmailV20",
                 "param" => [
                     "Email" => [
-                        "channel" => 0,
-                        "enable" => $status,
+                        "channel"  => $this->channel,
+                        "enable"   => $status,
                         "schedule" => [
-                            "channel" => 0,
-                            "table" => [
+                            "channel" => $this->channel,
+                            "table"   => [
                                 "AI_DOG_CAT" => $table,
                                 "AI_PEOPLE"  => $table,
                                 "AI_VEHICLE" => $table,
@@ -108,17 +112,16 @@ class ReolinkSecurityManager
                     ],
                 ],
             ],
-
-            // 2. Sirène (Audio Alarm) V20
+            // 4. Sirène (Audio Alarm) V20
             [
-                "cmd" => "SetAudioAlarmV20",
+                "cmd"   => "SetAudioAlarmV20",
                 "param" => [
                     "Audio" => [
-                        "channel" => 0,
-                        "enable" => $status,
+                        "channel"  => $this->channel,
+                        "enable"   => $status,
                         "schedule" => [
-                            "channel" => 0,
-                            "table" => [
+                            "channel" => $this->channel,
+                            "table"   => [
                                 "AI_DOG_CAT" => $table,
                                 "AI_PEOPLE"  => $table,
                                 "AI_VEHICLE" => $table,
@@ -128,58 +131,21 @@ class ReolinkSecurityManager
                     ],
                 ],
             ],
-
-            // 7. Projecteurs (WhiteLed)
-            // [
-            //     "cmd" => "SetWhiteLed",
-            //     "param" => [
-            //         "WhiteLed" => [
-            //             "channel" => 0,
-            //             "mode" => $status === 1 ? 1 : 0, // 1: Auto (intelligent), 0: Fermé/Off
-            //             "state" => $status,
-            //             "bright" => 100,
-            //             "wlAiDetectType" => [
-            //                 "dog_cat" => 0,
-            //                 "people" => $status, // Active la lumière sur détection humaine si armé
-            //                 "vehicle" => 0
-            //             ],
-            //             "LightingSchedule" => [
-            //                 "StartHour" => 18,
-            //                 "StartMin" => 0,
-            //                 "EndHour" => 6,
-            //                 "EndMin" => 0
-            //             ]
-            //         ]
-            //     ]
-            // ],
-
-            // 4. Détection de mouvement (Legacy/MD)
-            // [
-            //     "cmd" => "SetMdAlarm",
-            //     "param" => [
-            //         "MdAlarm" => [
-            //             "channel" => 0,
-            //             "enable" => $status,
-            //             "schedule" => ["table" => $table],
-            //         ],
-            //     ],
-            // ],
-
-            // 9. Sirène du HUB (Buzzer Alarm V20)
+            // 5. Buzzer Alarm V20
             [
-                "cmd" => "SetBuzzerAlarmV20",
+                "cmd"   => "SetBuzzerAlarmV20",
                 "param" => [
                     "Buzzer" => [
-                        "channel" => 0,
-                        "enable" => $status,
-                        "scheduleEnable" => 1,
-                        "diskErrorAlert" => 0,
-                        "diskFullAlert" => 0,
-                        "ipConflictAlert" => 0,
+                        "channel"            => $this->channel,
+                        "enable"             => $status,
+                        "scheduleEnable"     => 1,
+                        "diskErrorAlert"     => 0,
+                        "diskFullAlert"      => 0,
+                        "ipConflictAlert"    => 0,
                         "nvrDisconnectAlert" => 0,
-                        "schedule" => [
-                            "channel" => 0,
-                            "table" => [
+                        "schedule"           => [
+                            "channel" => $this->channel,
+                            "table"   => [
                                 "AI_DOG_CAT" => $table,
                                 "AI_PEOPLE"  => $table,
                                 "AI_VEHICLE" => $table,
@@ -189,116 +155,87 @@ class ReolinkSecurityManager
                     ],
                 ],
             ],
-
         ];
     }
 
-    private function sendBatchRequest(array $payload): string
-    {
-        $url = $this->baseUrl . "?cmd=Batch&user={$this->user}&password={$this->password}";
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-
-        $result = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            return json_encode([['code' => 1, 'error' => ['detail' => $error]]]);
-        }
-        curl_close($ch);
-        return $result ?: json_encode([['code' => 1, 'error' => ['detail' => 'Empty response']]]);
-    }
-
-    private function isSuccess(string $jsonResponse): bool
-    {
-        $response = json_decode($jsonResponse, true);
-        if (json_last_error() !== JSON_ERROR_NONE || !is_array($response)) {
-            return false;
-        }
-
-        foreach ($response as $cmdResult) {
-            if (isset($cmdResult['code']) && $cmdResult['code'] !== 0) {
-                if (isset($cmdResult['error']['rspCode'])) {
-                    $err = $cmdResult['error']['rspCode'];
-                    // On ignore -9 (not support)
-                    if ($err === -9) {
-                        continue;
-                    }
-                }
-                return false;
-            }
-        }
-        return true;
-    }
-
+    // =========================================================================
+    // PTZ
+    // =========================================================================
 
     /**
-     * Pilote les mouvements PTZ de la caméra
-     * 
-     * @param string $op Opération : Up, Down, Left, Right, Stop
-     * @param int $speed Vitesse de 1 à 64
-     * @return array
+     * Pilote les mouvements PTZ de la caméra.
+     *
+     * @param string   $op      Opération : Up, Down, Left, Right, Stop, ZoomInc, ZoomDec
+     * @param int      $speed   Vitesse de 1 à 64 (défaut : 32)
+     * @param int|null $channel Channel cible. Si null, utilise $this->channel
      */
-    public function ptzControl(string $op, int $speed = 32): array
+    public function ptzControl(string $op, int $speed = 32, ?int $channel = null): array
     {
         $payload = [
             [
-                "cmd" => "PtzCtrl",
+                "cmd"   => "PtzCtrl",
                 "param" => [
-                    "channel" => 0,
-                    "op" => $op,
-                    "speed" => $speed
-                ]
-            ]
+                    "channel" => $channel ?? $this->channel,
+                    "op"      => $op,
+                    "speed"   => $speed,
+                ],
+            ],
         ];
 
-        $result = $this->sendBatchRequest($payload);
-        
+        // PtzCtrl doit être envoyé avec cmd=PtzCtrl dans l'URL, pas cmd=Batch
+        $result = $this->sendBatchRequest($payload, 'PtzCtrl');
+
         return [
-            'action' => "ptz{$op}",
-            'success' => $this->isSuccess($result),
+            'action'   => "ptz{$op}",
+            'success'  => $this->isSuccess($result),
             'response' => json_decode($result, true),
         ];
     }
 
-    public function moveUp(int $speed = 32): array
+    public function moveUp(int $speed = 32, ?int $channel = null): array
     {
-        return $this->ptzControl('Up', $speed);
+        return $this->ptzControl('Up', $speed, $channel);
     }
 
-    public function moveDown(int $speed = 32): array
+    public function moveDown(int $speed = 32, ?int $channel = null): array
     {
-        return $this->ptzControl('Down', $speed);
+        return $this->ptzControl('Down', $speed, $channel);
     }
 
-    public function moveLeft(int $speed = 32): array
+    public function moveLeft(int $speed = 32, ?int $channel = null): array
     {
-        return $this->ptzControl('Left', $speed);
+        return $this->ptzControl('Left', $speed, $channel);
     }
 
-    public function moveRight(int $speed = 32): array
+    public function moveRight(int $speed = 32, ?int $channel = null): array
     {
-        return $this->ptzControl('Right', $speed);
+        return $this->ptzControl('Right', $speed, $channel);
     }
 
-    public function stopMove(): array
+    public function stopMove(?int $channel = null): array
     {
-        return $this->ptzControl('Stop');
+        return $this->ptzControl('Stop', 0, $channel);
     }
 
-    public function zoomInc(int $speed = 32): array
+    /**
+     * Zoom avant — cible le channel 1 (lentille téléphoto) par défaut
+     */
+    public function zoomInc(int $speed = 32, int $channel = 1): array
     {
-        return $this->ptzControl('ZoomInc', $speed);
+        return $this->ptzControl('ZoomInc', $speed, $channel);
     }
 
-    public function zoomDec(int $speed = 32): array
+    /**
+     * Zoom arrière — cible le channel 1 (lentille téléphoto) par défaut
+     */
+    public function zoomDec(int $speed = 32, int $channel = 1): array
     {
-        return $this->ptzControl('ZoomDec', $speed);
+        return $this->ptzControl('ZoomDec', $speed, $channel);
     }
+
+    // =========================================================================
+    // Getters d'état
+    // =========================================================================
 
     public function getPushStatus(): bool
     {
@@ -329,8 +266,8 @@ class ReolinkSecurityManager
     {
         $payload = [
             [
-                "cmd" => "GetWhiteLed",
-                "param" => ["channel" => 0],
+                "cmd"   => "GetWhiteLed",
+                "param" => ["channel" => $this->channel],
             ],
         ];
 
@@ -341,11 +278,62 @@ class ReolinkSecurityManager
             && $response[0]['code'] === 0
             && isset($response[0]['value']['WhiteLed']['state'])
         ) {
-            // Pour le projecteur, on vérifie si l'état est à 1 (On/Auto)
             return (int) $response[0]['value']['WhiteLed']['state'] === 1;
         }
 
         return false;
+    }
+
+    // =========================================================================
+    // Internals
+    // =========================================================================
+
+    /**
+     * Envoi d'une requête POST vers l'API Reolink.
+     *
+     * @param array  $payload Tableau de commandes JSON
+     * @param string $cmd     Commande dans l'URL (Batch, PtzCtrl, …)
+     */
+    private function sendBatchRequest(array $payload, string $cmd = 'Batch'): string
+    {
+        $url = $this->baseUrl . "?cmd={$cmd}&user={$this->user}&password={$this->password}";
+        $ch  = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return json_encode([['code' => 1, 'error' => ['detail' => $error]]]);
+        }
+        curl_close($ch);
+        return $result ?: json_encode([['code' => 1, 'error' => ['detail' => 'Empty response']]]);
+    }
+
+    private function isSuccess(string $jsonResponse): bool
+    {
+        $response = json_decode($jsonResponse, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($response)) {
+            return false;
+        }
+
+        foreach ($response as $cmdResult) {
+            if (isset($cmdResult['code']) && $cmdResult['code'] !== 0) {
+                if (isset($cmdResult['error']['rspCode'])) {
+                    // On ignore -9 (not support)
+                    if ($cmdResult['error']['rspCode'] === -9) {
+                        continue;
+                    }
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -355,8 +343,8 @@ class ReolinkSecurityManager
     {
         $payload = [
             [
-                "cmd" => $cmd,
-                "param" => ["channel" => 0],
+                "cmd"   => $cmd,
+                "param" => ["channel" => $this->channel],
             ],
         ];
 

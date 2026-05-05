@@ -72,13 +72,25 @@ function zoom_test(): void
 {
     echo "=== Test de zoom de la caméra Reolink ===\n\n";
 
-    echo "1. Zoom avant...\n";
-    camera_zoomInc();
+    $manager = new \Nexus\Security\Camera\ReolinkSecurityManager(
+        getenv('REOLINK_IP'),
+        getenv('REOLINK_USERNAME'),
+        getenv('REOLINK_PASSWORD')
+    );
+
+    echo "1. Zoom avant pendant 3 secondes...\n";
+    $manager->zoomInc(20); // vitesse réduite à 20
+    sleep(3);
+    $manager->stopMove();
+    echo "Stop\n";
+
     sleep(2);
 
-    echo "2. Zoom arrière...\n";
-    camera_zoomDec();
-    sleep(2);
+    echo "2. Zoom arrière pendant 3 secondes...\n";
+    $manager->zoomDec(20);
+    sleep(3);
+    $manager->stopMove();
+    echo "Stop\n";
 
     echo "\n=== Fin du test ===\n";
 }
