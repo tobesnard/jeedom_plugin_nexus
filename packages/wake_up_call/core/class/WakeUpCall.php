@@ -131,7 +131,7 @@ class WakeUpCall extends Chromecast
         }
 
         file_put_contents($path, serialize($this));
-        chmod($path, 0660);
+        @chmod($path, 0660);
         return $this;
     }
 
