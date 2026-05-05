@@ -236,6 +236,70 @@ class ReolinkSecurityManager
     }
 
 
+    /**
+     * Pilote les mouvements PTZ de la caméra
+     * 
+     * @param string $op Opération : Up, Down, Left, Right, Stop
+     * @param int $speed Vitesse de 1 à 64
+     * @return array
+     */
+    public function ptzControl(string $op, int $speed = 32): array
+    {
+        $payload = [
+            [
+                "cmd" => "PtzCtrl",
+                "param" => [
+                    "channel" => 0,
+                    "op" => $op,
+                    "speed" => $speed
+                ]
+            ]
+        ];
+
+        $result = $this->sendBatchRequest($payload);
+        
+        return [
+            'action' => "ptz{$op}",
+            'success' => $this->isSuccess($result),
+            'response' => json_decode($result, true),
+        ];
+    }
+
+    public function moveUp(int $speed = 32): array
+    {
+        return $this->ptzControl('Up', $speed);
+    }
+
+    public function moveDown(int $speed = 32): array
+    {
+        return $this->ptzControl('Down', $speed);
+    }
+
+    public function moveLeft(int $speed = 32): array
+    {
+        return $this->ptzControl('Left', $speed);
+    }
+
+    public function moveRight(int $speed = 32): array
+    {
+        return $this->ptzControl('Right', $speed);
+    }
+
+    public function stopMove(): array
+    {
+        return $this->ptzControl('Stop');
+    }
+
+    public function zoomInc(int $speed = 32): array
+    {
+        return $this->ptzControl('ZoomInc', $speed);
+    }
+
+    public function zoomDec(int $speed = 32): array
+    {
+        return $this->ptzControl('ZoomDec', $speed);
+    }
+
     public function getPushStatus(): bool
     {
         return $this->fetchBinaryStatus("GetPushV20", "Push");

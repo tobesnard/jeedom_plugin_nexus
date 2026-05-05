@@ -28,16 +28,61 @@ function printCameraStatus(): void
     echo "========================================\n\n";
 }
 
-echo "=== Test Reolink Camera ===\n\n";
+function arm_disarm_test(): void
+{
+    echo "=== Test d'armement/désarmement de la caméra Reolink ===\n\n";
 
-echo "1. Armement de la caméra...\n";
-camera_arm();
-printCameraStatus();    
+    echo "1. Armement de la caméra...\n";
+    camera_arm();
+    printCameraStatus();    
 
-sleep(2);
+    sleep(2);
 
-echo "2. Désarmement de la caméra...\n";
-camera_disarm();
-printCameraStatus();    
+    echo "2. Désarmement de la caméra...\n";
+    camera_disarm();
+    printCameraStatus();    
 
-echo "\n=== Fin du test ===\n";
+    echo "\n=== Fin du test ===\n";
+}
+
+function moving_test(): void
+{
+    echo "=== Test de déplacement de la caméra Reolink ===\n\n";
+
+    echo "1. Déplacement vers la gauche...\n";
+    camera_ptzCtrlLeft();
+    sleep(2);
+
+    echo "2. Déplacement vers la droite...\n";
+    camera_ptzCtrlRight();
+    sleep(2);
+
+    echo "3. Déplacement vers le haut...\n";
+    camera_ptzCtrlUp();
+    sleep(2);
+
+    echo "4. Déplacement vers le bas...\n";
+    camera_ptzCtrlDown();
+    sleep(2);
+
+    echo "\n=== Fin du test ===\n";
+}
+
+function zoom_test(): void
+{
+    echo "=== Test de zoom de la caméra Reolink ===\n\n";
+
+    echo "1. Zoom avant...\n";
+    camera_zoomInc();
+    sleep(2);
+
+    echo "2. Zoom arrière...\n";
+    camera_zoomDec();
+    sleep(2);
+
+    echo "\n=== Fin du test ===\n";
+}
+
+// arm_disarm_test();
+// moving_test();
+zoom_test();

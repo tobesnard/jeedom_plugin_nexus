@@ -140,3 +140,149 @@ function camera_getSpotlightStatus(): bool
         return $manager->getSpotlightStatus();
     }, false);
 }
+/**
+ * Proxy : Arrête tout mouvement PTZ en cours.
+ */
+function camera_ptzCtrlStop()
+{
+    return Helpers::execute(function () {
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $result = $manager->stopMove();
+
+        if ($result['success']) {
+            Helpers::log("[Camera] PTZ Stop réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec PTZ Stop: " . json_encode($result['response']), 'error');
+        }
+    }, "Erreur lors de l'arrêt PTZ");
+}
+
+/**
+ * Proxy : Oriente la caméra vers le haut.
+ */
+function camera_ptzCtrlUp()
+{
+    return Helpers::execute(function () {
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $result = $manager->moveUp();
+
+        if ($result['success']) {
+            Helpers::log("[Camera] PTZ Haut réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec PTZ Haut: " . json_encode($result['response']), 'error');
+        }
+    }, "Erreur mouvement Haut");
+}
+
+/**
+ * Proxy : Oriente la caméra vers le bas.
+ */
+function camera_ptzCtrlDown()
+{
+    return Helpers::execute(function () {
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $result = $manager->moveDown();
+
+        if ($result['success']) {
+            Helpers::log("[Camera] PTZ Bas réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec PTZ Bas: " . json_encode($result['response']), 'error');
+        }
+    }, "Erreur mouvement Bas");
+}
+
+/**
+ * Proxy : Oriente la caméra vers la droite.
+ */
+function camera_ptzCtrlRight()
+{
+    return Helpers::execute(function (){
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $result = $manager->moveRight();
+
+        if ($result['success']) {
+            Helpers::log("[Camera] PTZ Droite réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec PTZ Droite: " . json_encode($result['response']), 'error');
+        }
+    }, "Erreur mouvement Droite");
+}
+
+/**
+ * Proxy : Oriente la caméra vers la gauche.
+ */
+function camera_ptzCtrlLeft()
+{
+    return Helpers::execute(function (){
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $result = $manager->moveLeft();
+
+        if ($result['success']) {
+            Helpers::log("[Camera] PTZ Gauche réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec PTZ Gauche: " . json_encode($result['response']), 'error');
+        }
+    }, "Erreur mouvement Gauche");
+}
+
+/**
+ * Proxy : Zoom avant de la caméra Reolink.
+ */
+function camera_zoomInc()
+{
+    return Helpers::execute(function (){
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $result = $manager->zoomInc();
+
+        if ($result['success']) {
+            Helpers::log("[Camera] PTZ Zoom Inc réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec PTZ Zoom Inc: " . json_encode($result['response']), 'error');
+        }
+    }, "Erreur mouvement Zoom Inc");
+}
+
+/**
+ * Proxy : Zoom arrière de la caméra Reolink.
+ */
+function camera_zoomDec()
+{
+    return Helpers::execute(function (){
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        $result = $manager->zoomDec();
+
+        if ($result['success']) {
+            Helpers::log("[Camera] PTZ Zoom Dec réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec PTZ Zoom Dec: " . json_encode($result['response']), 'error');
+        }
+    }, "Erreur mouvement Zoom Dec");
+}
