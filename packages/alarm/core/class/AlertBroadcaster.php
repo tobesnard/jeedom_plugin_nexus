@@ -57,14 +57,28 @@ class AlertBroadcaster
     /**
      * Active la sirène de sécurité physique
      */
-    public static function securitySirenOn()
+    public static function securitySirenOn(string $soundName = "Tornado Siren")
     {
-        $cmdString = Config::get('cmd_security_siren_on');
-        if ($cmdString) {
-            JeedomCmdService::getInstance()->execByString($cmdString);
-            Helpers::log("[AlertBroadcaster] Sirène de sécurité activée", 'info');
+        $cmdString = Config::get('cmd_chromecast_security_sound');
+        $cmd = \cmd::byString($cmdString);
+
+        if (!is_object($cmd)) {
+            Helpers::log("[AlertBroadcaster] Erreur : Commande son introuvable ($cmdString)", 'error');
+            return;
+        }
+
+        // Gestion du volume via l'équipement parent
+        $eqName = $cmd->getEqLogic()->getName();
+        $oldVolume = self::setVolume($eqName, 100);
+
+        Helpers::log("[AlertBroadcaster] galetAlert ON : $eqName (Volume précédent: $oldVolume)", 'info');
+
+        // Recherche du fichier son dans la liste de la commande
+        $filename = self::getSoundFile($cmd, $soundName);
+        if ($filename) {
+            JeedomCmdService::getInstance()->execByString($cmdString, ['select' => $filename]);
         } else {
-            Helpers::log("[AlertBroadcaster] Commande sirène de sécurité non configurée (cmd_security_siren_on)", 'warning');
+            Helpers::log("[AlertBroadcaster] Fichier son '$soundName' introuvable dans la configuration de $eqName", 'warning');
         }
     }
 
@@ -73,12 +87,9 @@ class AlertBroadcaster
      */
     public static function securitySirenOff()
     {
-        $cmdString = Config::get('cmd_security_siren_off');
+        $cmdString = Config::get('cmd_chromecast_security_stop');
         if ($cmdString) {
             JeedomCmdService::getInstance()->execByString($cmdString);
-            Helpers::log("[AlertBroadcaster] Sirène de sécurité désactivée", 'info');
-        } else {
-            Helpers::log("[AlertBroadcaster] Commande sirène de sécurité non configurée (cmd_security_siren_off)", 'warning');
         }
     }
 
