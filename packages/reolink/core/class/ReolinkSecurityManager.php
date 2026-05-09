@@ -46,6 +46,8 @@ class ReolinkSecurityManager
     private function buildPayload(int $status): array
     {
         $table = str_repeat((string) $status, 168);
+        $table_false = str_repeat("0", 168);
+        $table_true = str_repeat("1", 168);
 
         return [
             // 1. Notifications Push
@@ -122,10 +124,10 @@ class ReolinkSecurityManager
                         "schedule" => [
                             "channel" => $this->channel,
                             "table"   => [
-                                "AI_DOG_CAT" => $table,
+                                "AI_DOG_CAT" => $table_false,
                                 "AI_PEOPLE"  => $table,
-                                "AI_VEHICLE" => $table,
-                                "MD"         => $table,
+                                "AI_VEHICLE" => $table_false,
+                                "MD"         => $table_false,
                             ],
                         ],
                     ],
@@ -146,10 +148,10 @@ class ReolinkSecurityManager
                         "schedule"           => [
                             "channel" => $this->channel,
                             "table"   => [
-                                "AI_DOG_CAT" => $table,
+                                "AI_DOG_CAT" => $table_false,
                                 "AI_PEOPLE"  => $table,
-                                "AI_VEHICLE" => $table,
-                                "MD"         => $table,
+                                "AI_VEHICLE" => $table_false,
+                                "MD"         => $table_false,
                             ],
                         ],
                     ],
