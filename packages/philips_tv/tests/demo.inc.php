@@ -13,5 +13,7 @@ require_once __DIR__ . "/../core/php/philiptv.inc.php";
 echo philipsTV_version();
 echo "\n";
 //philipsTV_on();
-echo philipsTV_ambilightState();
 // echo philipsTV_ambilightState();
+// echo philipsTV_ambilightState();
+
+echo philipsTV_on();

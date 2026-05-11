@@ -126,23 +126,17 @@ class TV
      */
     private function loadConfig(): void
     {
-        if (!file_exists(self::CONFIG_FILEPATH)) {
-            throw new Exception("Fichier de configuration introuvable : " . self::CONFIG_FILEPATH);
+        // Récupération via getenv()
+        self::$philipsTV_ip   = getenv('PHILIPS_TV_IP');
+        self::$philipsTV_port = getenv('PHILIPS_TV_PORT');
+        self::$philipsTV_mac  = getenv('PHILIPS_TV_MAC');
+        self::$username       = getenv('PHILIPS_TV_USERNAME');
+        self::$password       = getenv('PHILIPS_TV_PASSWORD');
+        self::$version        = "1.3"; // Valeur par défaut ou à ajouter en ENV
+
+        if (!self::$philipsTV_ip || !self::$username || !self::$password) {
+            throw new Exception("Variables d'environnement Philips TV manquantes.");
         }
-
-        $jsonContent = file_get_contents(self::CONFIG_FILEPATH);
-        $data = json_decode($jsonContent, true);
-
-        if (!isset($data['version'], $data['ip'], $data['port'], $data['mac'], $data['username'], $data['password'])) {
-            throw new Exception("Configuration incomplète dans le fichier JSON.");
-        }
-
-        self::$version = $data['version'];
-        self::$philipsTV_ip = $data['ip'];
-        self::$philipsTV_port = $data['port'];
-        self::$philipsTV_mac = $data['mac'];
-        self::$username = $data['username'];
-        self::$password = $data['password'];
     }
 
     /**
