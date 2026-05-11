@@ -21,7 +21,7 @@ function camera_arm()
         if ($result['success']) {
             Helpers::log("[Camera] Armement réussi", 'info');
         } else {
-            Helpers::log("[Camera] Échec armement: " . $result['response'], 'error');
+            Helpers::log("[Camera] Échec armement: " . json_encode($result['response']), 'error');
         }
 
     },  "Erreur lors de l\'armement de la caméra Reolink");
@@ -42,7 +42,7 @@ function camera_disarm()
         if ($result['success']) {
             Helpers::log("[Camera] Désarmement réussi", 'info');
         } else {
-            Helpers::log("[Camera] Échec désarmement: " . $result['response'], 'error');
+            Helpers::log("[Camera] Échec désarmement: " . json_encode($result['response']), 'error');
         }
         
     },  "Erreur lors du désarmement de la caméra Reolink");

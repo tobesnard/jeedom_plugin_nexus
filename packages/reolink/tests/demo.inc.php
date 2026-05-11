@@ -95,6 +95,6 @@ function zoom_test(): void
     echo "\n=== Fin du test ===\n";
 }
 
-// arm_disarm_test();
+arm_disarm_test();
 // moving_test();
-zoom_test();
+// zoom_test();

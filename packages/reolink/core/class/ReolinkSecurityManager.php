@@ -79,7 +79,7 @@ class ReolinkSecurityManager
                         "enable"         => $status,
                         "overwrite"      => 1,
                         "postRec"        => "1 Minute",
-                        "preRec"         => 0,
+                        "preRec"         => $status,
                         "saveDay"        => 7,
                         "scheduleEnable" => 1,
                         "schedule"       => [
@@ -157,6 +157,29 @@ class ReolinkSecurityManager
                     ],
                 ],
             ],
+      
+            // 6. Configuration IA (SetAiCfg) - Suivi automatique
+            [
+                "cmd" => "SetAiCfg",
+                "action" => 0, // Champ manquant identifié dans la doc
+                "param" => [
+                    "channel" => $this->channel,
+                    "aiTrack" => 2, // 2 pour Pan/Tilt Priority
+                    "AiDetectType" => [
+                        "people"  => 1,
+                        "vehicle" => 0,
+                        "dog_cat" => 1,
+                        "face"    => 0
+                    ],
+                    "trackType" => [
+                        "people"  => 1,
+                        "vehicle" => 0,
+                        "dog_cat" => 1,
+                        "face"    => 0
+                    ]
+                ]
+            ]
+            
         ];
     }
 
