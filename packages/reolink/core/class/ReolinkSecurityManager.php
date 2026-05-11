@@ -164,7 +164,7 @@ class ReolinkSecurityManager
                 "action" => 0, // Champ manquant identifié dans la doc
                 "param" => [
                     "channel" => $this->channel,
-                    "aiTrack" => 2, // 2 pour Pan/Tilt Priority
+                    "aiTrack" => 4, // 4 pour Pan/Tilt Priority
                     "AiDetectType" => [
                         "people"  => 1,
                         "vehicle" => 0,
