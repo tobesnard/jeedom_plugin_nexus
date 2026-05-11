@@ -27,6 +27,30 @@ function camera_arm()
     },  "Erreur lors de l\'armement de la caméra Reolink");
 }
 
+/**
+ * Proxy : Arme la caméra Reolink sans sirène ni buzzer (Mode Silencieux)
+ */
+function camera_arm_silent()
+{
+    return Helpers::execute(function () {
+        $reolinkIp = getenv('REOLINK_IP');
+        $reolinkUsername = getenv('REOLINK_USERNAME');
+        $reolinkPassword = getenv('REOLINK_PASSWORD');
+
+        $manager = new ReolinkSecurityManager($reolinkIp, $reolinkUsername, $reolinkPassword);
+        
+        // Appel de armAll avec $includeAudio à false
+        $result = $manager->armAll(false);
+        
+        if ($result['success']) {
+            Helpers::log("[Camera] Armement silencieux réussi", 'info');
+        } else {
+            Helpers::log("[Camera] Échec armement silencieux: " . json_encode($result['response']), 'error');
+        }
+
+    }, "Erreur lors de l'armement silencieux de la caméra Reolink");
+}
+
 /** 
  * Proxy : Désarme la caméra Reolink (Mode Home - Surveillance désactivée)
  */
