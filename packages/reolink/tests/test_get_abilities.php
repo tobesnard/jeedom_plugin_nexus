@@ -4,9 +4,9 @@
  * Test pour récupérer les capacités de la caméra Reolink
  */
 
-$ip = "192.168.1.244";
-$user = "admin";
-$password = "L1mp3rm@n3nce";
+$ip = env('REOLINK_IP' );
+$username = env('REOLINK_USERNAME');
+$password = env('REOLINK_PASSWORD');
 $baseUrl = "http://{$ip}/cgi-bin/api.cgi";
 
 echo "=== Récupération des capacités de la caméra ===\n\n";
