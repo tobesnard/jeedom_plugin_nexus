@@ -69,9 +69,9 @@ php packages/reolink/tests/test_get_abilities.php
 ## Configuration
 
 Les identifiants de connexion sont actuellement codés en dur dans `reolink.inc.php` :
-- IP : 192.168.1.244
-- Utilisateur : admin
-- Mot de passe : L1mp3rm@n3nce
+- IP : 
+- Utilisateur : 
+- Mot de passe : 
 
 ## Commandes API Reolink supportées
 

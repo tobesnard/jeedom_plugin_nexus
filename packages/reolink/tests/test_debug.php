@@ -6,7 +6,11 @@ use Nexus\Security\Camera\ReolinkSecurityManager;
 
 echo "=== Test de connexion Reolink ===\n\n";
 
-$manager = new ReolinkSecurityManager("192.168.1.244", "admin", "L1mp3rm@n3nce");
+$ip = env('REOLINK_IP' );
+$username = env('REOLINK_USERNAME');
+$password = env('REOLINK_PASSWORD');
+
+$manager = new ReolinkSecurityManager($ip, $username, $password);
 
 echo "1. Test armement (arm)...\n";
 $result = $manager->armAll();
