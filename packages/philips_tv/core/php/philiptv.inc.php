@@ -312,14 +312,16 @@ function philipsTV_debug()
     });
 }
 
+
 /**
- * Méthode Proxy : Bascule la source sur HDMI 1.
+ * Méthode Proxy : Permet de lancer une commande spécifique via le script Python pylips.
+ * @param string $action Action à exécuter (ex: "watch_tv", "input_hdmi_1", etc.).
  */
-function philipsTV_hdmi1()
+function philipsTV_pylips($action)
 {
-    Helpers::execute(function () {
-        TV::getInstance()->action('input_hdmi_1');
-    });
+    $script = __DIR__ . DIRECTORY_SEPARATOR . "launch_pylips_command.php";
+    $command = "php " . escapeshellarg($script) . " " . $action;
+    $output = shell_exec($command);
 }
 
 /**
@@ -328,6 +330,26 @@ function philipsTV_hdmi1()
 function philipsTV_watchTV()
 {
     Helpers::execute(function () {
-        TV::getInstance()->action('watch_tv');
-    });
+        philipsTV_pylips("watch_tv");
+    }, "Erreur lors de l'exécution de la commande Watch TV");
+}
+
+/**
+* Méthode Proxy : Sélectionne l'entrée HDMI 1.
+*/
+function philipsTV_hdmi1()
+{
+    Helpers::execute(function () {
+        philipsTV_pylips("input_hdmi_1");
+    }, "Erreur lors de l'exécution de la commande HDMI 1");
+}
+
+/**
+* Méthode Proxy :
+*/
+function philipsTV_allowPowerOn()
+{
+    Helpers::execute(function () {
+        philipsTV_pylips("allow_power_on");
+    }, "Erreur lors de l'exécution de la commande HDMI 1");
 }

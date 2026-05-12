@@ -1,19 +1,20 @@
 <?php
 
-
 require_once __DIR__ . "/../../../vendor/autoload.php";
-
 require_once __DIR__ . "/../core/php/philiptv.inc.php";
+
+
 
 // $philipsTV = Nexus\Multimedia\PhilipsTV\TV::getInstance();
 // echo "version " . $philipsTV->version();
 //
 
 // shell_exec('wakeonlan 68:07:0a:29:b3:63');
-echo philipsTV_version();
-echo "\n";
+// echo philipsTV_version();
+// echo "\n";
 //philipsTV_on();
 // echo philipsTV_ambilightState();
 // echo philipsTV_ambilightState();
 
-echo philipsTV_on();
+// echo philipsTV_on();
+echo philipsTV_hdmi1();

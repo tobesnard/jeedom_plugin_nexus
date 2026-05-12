@@ -7,7 +7,11 @@
 $script = __DIR__ . '/../../pylips/pylips.py';
 $command = $argv[1]; // Récupère le nom du script à lancer
 
-$commande = escapeshellcmd("/home/jeedom/.pyenv/shims/python3 $script --command $command");
+$host = getenv('PHILIPS_TV_IP');
+$user = getenv('PHILIPS_TV_USERNAME');
+$pass = getenv('PHILIPS_TV_PASSWORD');
+
+$commande = escapeshellcmd("/home/jeedom/.pyenv/shims/python3 $script --host $host --user $user --pass $pass --command $command");
 $output = shell_exec($commande);
 
 echo $commande;
